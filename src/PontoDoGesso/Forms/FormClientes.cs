@@ -18,6 +18,7 @@ namespace PontoDoGesso.Forms
         private readonly Button _editar;
         private readonly Button _inativar;
         private readonly Button _novoOrcamento;
+        private readonly Button _orcamentosDoCliente;
 
         public FormClientes(Banco banco)
         {
@@ -63,6 +64,8 @@ namespace PontoDoGesso.Forms
             _inativar.Name = "inativar";
             _novoOrcamento = Estilo.CriarBotao("Novo orçamento para este cliente", (s, e) => NovoOrcamento());
             _novoOrcamento.Name = "novoOrcamento";
+            _orcamentosDoCliente = Estilo.CriarBotao("Orçamentos deste cliente", (s, e) => VerOrcamentos());
+            _orcamentosDoCliente.Name = "orcamentosDoCliente";
             var fechar = Estilo.CriarBotao("Fechar", (s, e) => Close());
             CancelButton = fechar;
 
@@ -71,6 +74,7 @@ namespace PontoDoGesso.Forms
             botoes.Controls.Add(_editar);
             botoes.Controls.Add(_inativar);
             botoes.Controls.Add(_novoOrcamento);
+            botoes.Controls.Add(_orcamentosDoCliente);
             botoes.Controls.Add(fechar);
 
             Controls.Add(_lista);
@@ -124,6 +128,7 @@ namespace PontoDoGesso.Forms
             _inativar.Enabled = cliente != null;
             _inativar.Text = cliente != null && !cliente.Ativo ? "Reativar" : "Inativar";
             _novoOrcamento.Enabled = cliente != null && cliente.Ativo;
+            _orcamentosDoCliente.Enabled = cliente != null;
         }
 
         private void Novo()
@@ -159,6 +164,20 @@ namespace PontoDoGesso.Forms
         protected virtual void AbrirOrcamento(Cliente cliente)
         {
             using (var form = new FormOrcamento(_banco, null, cliente))
+                form.ShowDialog(this);
+        }
+
+        private void VerOrcamentos()
+        {
+            var cliente = Selecionado;
+
+            if (cliente != null)
+                AbrirHistorico(FormHistorico.FiltroDoCliente(cliente));
+        }
+
+        protected virtual void AbrirHistorico(FiltroHistorico filtro)
+        {
+            using (var form = new FormHistorico(_banco, filtro))
                 form.ShowDialog(this);
         }
 

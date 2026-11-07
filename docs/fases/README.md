@@ -12,13 +12,13 @@ Cada fase termina com o app compilando, testes passando e algo testável. A atua
 | 5 | [FASE-05-produtos.md](FASE-05-produtos.md) | Catálogo simples de produtos | v0.5.0 | ✅ Concluída (sem release; falta o teste do Lucca) |
 | 6 | [FASE-06-tela-orcamento.md](FASE-06-tela-orcamento.md) | Tela de orçamento completa (salvar) | v0.6.0 | ✅ Concluída (sem release; falta o teste do Lucca) |
 | 7 | [FASE-07-exportacao-pdf-png.md](FASE-07-exportacao-pdf-png.md) | PNG, copiar imagem, PDF e impressão (A4 retrato) | v0.7.0 | ✅ Concluída (sem release; falta o teste do Lucca) |
-| 8 | [FASE-08-historico.md](FASE-08-historico.md) | Histórico com filtros (data, cadastrado/avulso, frete, desconto) | v0.8.0 | ⬜ Pendente |
+| 8 | [FASE-08-historico.md](FASE-08-historico.md) | Histórico com filtros (data, cadastrado/avulso, frete, desconto) | v0.8.0 | ✅ Concluída (sem release; falta o teste do Lucca) |
 | 9 | [FASE-09-configuracoes-backup.md](FASE-09-configuracoes-backup.md) | Configurações e backup/restauração | v0.9.0 | ⬜ Pendente |
 | 10 | [FASE-10-polimento-v1.md](FASE-10-polimento-v1.md) | Atalhos, acabamento, manual, **v1.0.0** | v1.0.0 | ⬜ Pendente |
 
 Legenda: ⬜ Pendente · 🟨 Em andamento · ✅ Concluída
 
-**Fase atual: nenhuma em andamento** — as Fases 3 a 7 foram adiantadas e concluídas, sem tag nem release. A Fase 2 fica pendente até o teste no PC da loja com Windows 7. A Fase 1 continua aguardando esse mesmo teste (resultado em `C:\dev\orcamentos-ponto-do-gesso\docs\fases\FASE-01-esqueleto-win7.md`).
+**Fase atual: nenhuma em andamento** — as Fases 3 a 8 foram adiantadas e concluídas, sem tag nem release. A Fase 2 fica pendente até o teste no PC da loja com Windows 7. A Fase 1 continua aguardando esse mesmo teste (resultado em `C:\dev\orcamentos-ponto-do-gesso\docs\fases\FASE-01-esqueleto-win7.md`).
 
 ## PC da loja
 

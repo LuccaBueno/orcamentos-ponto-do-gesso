@@ -8,6 +8,7 @@ using PontoDoGesso.Controles;
 using PontoDoGesso.Dados;
 using PontoDoGesso.Dominio;
 using PontoDoGesso.Forms;
+using PontoDoGesso.Servicos;
 using Xunit;
 
 namespace PontoDoGesso.Testes
@@ -341,12 +342,36 @@ namespace PontoDoGesso.Testes
             });
         }
 
+        [Fact]
+        public void OrcamentosDesteClienteAbreOHistoricoFiltrado()
+        {
+            var joao = Novo("João");
+
+            Tela.EmSta(() =>
+            {
+                using (var form = new ListaSemDialogos(_temporario.Banco))
+                {
+                    Tela.Exibir(form);
+                    Tela.Achar<Button>(form, "orcamentosDoCliente").PerformClick();
+
+                    var filtro = Assert.Single(form.Historicos);
+                    Assert.Equal(joao.Id, filtro.ClienteId);
+                    Assert.Equal(PeriodoHistorico.Todos, filtro.Periodo);
+                    Assert.Equal(Formatacao.Codigo(joao.Id) + " – João", filtro.ClienteDescricao);
+                }
+            });
+        }
+
         private class ListaSemDialogos : FormClientes
         {
             public List<Cliente> Abertos { get; } = new List<Cliente>();
             public List<Cliente> Orcamentos { get; } = new List<Cliente>();
 
             protected override void AbrirOrcamento(Cliente cliente) => Orcamentos.Add(cliente);
+
+            public List<FiltroHistorico> Historicos { get; } = new List<FiltroHistorico>();
+
+            protected override void AbrirHistorico(FiltroHistorico filtro) => Historicos.Add(filtro);
 
             public ListaSemDialogos(Banco banco) : base(banco)
             {

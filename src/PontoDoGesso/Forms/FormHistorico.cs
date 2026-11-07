@@ -103,6 +103,10 @@ namespace PontoDoGesso.Forms
             Carregar();
         }
 
+        /// <summary>Histórico só com os orçamentos de um cliente cadastrado (todas as datas).</summary>
+        public static FiltroHistorico FiltroDoCliente(Cliente cliente) =>
+            new FiltroHistorico { ClienteId = cliente.Id, ClienteDescricao = Formatacao.Codigo(cliente.Id) + " – " + cliente.Nome };
+
         public FiltroHistorico Filtro => _filtro.Copiar();
 
         protected virtual DateTime Hoje => DateTime.Today;

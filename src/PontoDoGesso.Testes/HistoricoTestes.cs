@@ -5,6 +5,7 @@ using Dapper;
 using PontoDoGesso.Dados;
 using PontoDoGesso.Dominio;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace PontoDoGesso.Testes
 {
@@ -16,8 +17,11 @@ namespace PontoDoGesso.Testes
         private readonly OrcamentoRepositorio _orcamentos;
         private readonly ClienteRepositorio _clientes;
 
-        public HistoricoTestes()
+        private readonly ITestOutputHelper _saida;
+
+        public HistoricoTestes(ITestOutputHelper saida)
         {
+            _saida = saida;
             _temporario.Banco.Preparar();
             _orcamentos = new OrcamentoRepositorio(_temporario.Banco);
             _clientes = new ClienteRepositorio(_temporario.Banco);
@@ -219,6 +223,7 @@ namespace PontoDoGesso.Testes
             var texto = _orcamentos.Buscar(new FiltroHistorico { Texto = "ficticio 4999" }, Hoje);
             var combinado = _orcamentos.Somar(new FiltroHistorico { Periodo = PeriodoHistorico.MesPassado, Frete = PresencaHistorico.Com, TipoCliente = TipoClienteHistorico.Avulsos, Texto = "cliente" }, Hoje);
             relogio.Stop();
+            _saida.WriteLine("Busca com 5.000 orçamentos: " + relogio.ElapsedMilliseconds + " ms");
 
             Assert.Equal(200, todos.Count);
             Assert.Equal(5000, soma.Quantidade);
