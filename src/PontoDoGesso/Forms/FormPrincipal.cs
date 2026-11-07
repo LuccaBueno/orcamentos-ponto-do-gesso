@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using PontoDoGesso.Dados;
 using PontoDoGesso.Servicos;
 
 namespace PontoDoGesso.Forms
@@ -9,8 +10,16 @@ namespace PontoDoGesso.Forms
     {
         private static readonly Color Laranja = Color.FromArgb(0xC5, 0x5A, 0x11);
 
-        public FormPrincipal()
+        private readonly Banco _banco;
+
+        public FormPrincipal() : this(new Banco())
         {
+        }
+
+        public FormPrincipal(Banco banco)
+        {
+            _banco = banco;
+
             Text = "Ponto do Gesso";
             Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
             AutoScaleMode = AutoScaleMode.Dpi;
@@ -66,9 +75,17 @@ namespace PontoDoGesso.Forms
             return cabecalho;
         }
 
-        private static Control CriarBotoes()
+        private Control CriarBotoes()
         {
-            var nomes = new[] { "Novo orçamento", "Histórico", "Clientes", "Produtos", "Configurações" };
+            // Botão sem ação = tela de uma fase que ainda não chegou: fica visível, mas desabilitado
+            var botoes = new[]
+            {
+                CriarBotao("novoOrcamento", "Novo orçamento", null),
+                CriarBotao("historico", "Histórico", null),
+                CriarBotao("clientes", "Clientes", () => new FormClientes(_banco)),
+                CriarBotao("produtos", "Produtos", null),
+                CriarBotao("configuracoes", "Configurações", null)
+            };
 
             var grade = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 3, Padding = new Padding(0, 12, 0, 12) };
             grade.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
@@ -76,24 +93,38 @@ namespace PontoDoGesso.Forms
             for (var linha = 0; linha < 3; linha++)
                 grade.RowStyles.Add(new RowStyle(SizeType.Percent, 100F / 3));
 
-            var botaoPrincipal = CriarBotao(nomes[0]);
-            grade.Controls.Add(botaoPrincipal, 0, 0);
-            grade.SetColumnSpan(botaoPrincipal, 2);
+            grade.Controls.Add(botoes[0], 0, 0);
+            grade.SetColumnSpan(botoes[0], 2);
 
-            for (var i = 1; i < nomes.Length; i++)
-                grade.Controls.Add(CriarBotao(nomes[i]), (i - 1) % 2, 1 + (i - 1) / 2);
+            for (var i = 1; i < botoes.Length; i++)
+                grade.Controls.Add(botoes[i], (i - 1) % 2, 1 + (i - 1) / 2);
 
             return grade;
         }
 
-        private static Button CriarBotao(string texto) => new Button
+        private Button CriarBotao(string nome, string texto, Func<Form> abrirTela)
         {
-            Text = texto,
-            Dock = DockStyle.Fill,
-            Margin = new Padding(6),
-            Font = new Font("Segoe UI", 13F),
-            Enabled = false
-        };
+            var botao = new Button
+            {
+                Name = nome,
+                Text = texto,
+                Dock = DockStyle.Fill,
+                Margin = new Padding(6),
+                Font = new Font("Segoe UI", 13F),
+                Enabled = abrirTela != null
+            };
+
+            if (abrirTela != null)
+                botao.Click += (s, e) => AbrirTela(abrirTela);
+
+            return botao;
+        }
+
+        protected virtual void AbrirTela(Func<Form> abrirTela)
+        {
+            using (var form = abrirTela())
+                form.ShowDialog(this);
+        }
 
         private MenuStrip CriarMenu()
         {

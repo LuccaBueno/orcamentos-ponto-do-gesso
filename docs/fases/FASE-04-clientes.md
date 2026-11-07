@@ -12,7 +12,7 @@
 - [x] Aviso de possível duplicado ao salvar (mesmo telefone ou mesmo nome)
 - [x] Duplo clique abre edição; Enter na busca abre o primeiro resultado; Esc fecha
 - [x] Botão **Novo orçamento para este cliente** (desabilitado até a Fase 6)
-- [ ] Habilitar o botão **Clientes** na tela principal
+- [x] Habilitar o botão **Clientes** na tela principal
 - [ ] Não excluir clientes, só inativar (orçamentos antigos podem apontar para eles)
 
 ## Testes
