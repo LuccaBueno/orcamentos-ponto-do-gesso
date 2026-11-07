@@ -9,7 +9,7 @@ namespace PontoDoGesso.Testes
 {
     public class TesteCompatibilidadeTestes : IDisposable
     {
-        private readonly string _pasta = Path.Combine(Path.GetTempPath(), "PontoDoGesso-testes-ção-" + Guid.NewGuid().ToString("N"));
+        private readonly string _pasta = PastaTestes.Nova("PontoDoGesso-testes-ção-");
 
         public void Dispose()
         {
@@ -35,7 +35,7 @@ namespace PontoDoGesso.Testes
         [Fact]
         public void TestarBancoInformaFalhaQuandoAPastaEInvalida()
         {
-            var arquivoNoLugarDaPasta = Path.Combine(Path.GetTempPath(), "PontoDoGesso-invalido-" + Guid.NewGuid().ToString("N"));
+            var arquivoNoLugarDaPasta = PastaTestes.Nova("PontoDoGesso-invalido-");
             File.WriteAllText(arquivoNoLugarDaPasta, "");
 
             try

@@ -18,7 +18,7 @@ namespace PontoDoGesso.Testes
         [Fact]
         public void RegistrarErroGravaAMensagem()
         {
-            var pasta = Path.Combine(Path.GetTempPath(), "PontoDoGesso-log-" + Guid.NewGuid().ToString("N"));
+            var pasta = PastaTestes.Nova("PontoDoGesso-log-");
 
             try
             {

@@ -4,10 +4,10 @@ using PontoDoGesso.Dados;
 
 namespace PontoDoGesso.Testes
 {
-    /// <summary>Banco descartável numa pasta temporária com acento, como pode acontecer no perfil do usuário.</summary>
+    /// <summary>Banco descartável em .tmp, numa pasta com acento, como pode acontecer no perfil do usuário.</summary>
     public sealed class BancoTemporario : IDisposable
     {
-        public string Pasta { get; } = Path.Combine(Path.GetTempPath(), "PontoDoGesso-banco-ção-" + Guid.NewGuid().ToString("N"));
+        public string Pasta { get; } = PastaTestes.Nova("PontoDoGesso-banco-ção-");
         public Banco Banco { get; }
 
         public BancoTemporario()
