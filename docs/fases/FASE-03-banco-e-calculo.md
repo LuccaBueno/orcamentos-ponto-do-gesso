@@ -40,3 +40,6 @@
 ## Observações
 
 - `journal_mode=WAL` passou no Windows 11. **Falta testar no Windows 7**: o modo em uso aparece no Diagnóstico; se der problema, trocar para `DELETE` em `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\Dados\Banco.cs`.
+- Dapper travado na 2.1.35 e funções `remover_acentos` e `somente_digitos` registradas no SQLite: passaram no Windows 11, **falta testar no Windows 7**.
+- A abertura real do app (janela e Diagnóstico) não foi conferida à mão nesta fase; a criação do banco e a linha do Diagnóstico estão cobertas por testes automáticos.
+- v0.3.0 não publicada: sem tag nem release nesta fase.

@@ -7,7 +7,7 @@ Cada fase termina com o app compilando, testes passando e algo testável. A atua
 | 0 | [FASE-00-repositorio-e-ci.md](FASE-00-repositorio-e-ci.md) | Solução, projetos, CI no GitHub | — | ✅ Concluída |
 | 1 | [FASE-01-esqueleto-win7.md](FASE-01-esqueleto-win7.md) | Janela principal + diagnóstico; **teste no Windows 7** | v0.1.0 | 🟨 Em andamento |
 | 2 | [FASE-02-atualizacao.md](FASE-02-atualizacao.md) | Botão de atualização + release automática | v0.2.0 | ⬜ Pendente (aguarda o teste no PC da loja) |
-| 3 | [FASE-03-banco-e-calculo.md](FASE-03-banco-e-calculo.md) | Banco, migrações, regras de cálculo com testes | v0.3.0 | 🟨 Em andamento |
+| 3 | [FASE-03-banco-e-calculo.md](FASE-03-banco-e-calculo.md) | Banco, migrações, regras de cálculo com testes | v0.3.0 | ✅ Concluída (sem release; falta testar no Windows 7) |
 | 4 | [FASE-04-clientes.md](FASE-04-clientes.md) | Cadastro de clientes | v0.4.0 | ⬜ Pendente |
 | 5 | [FASE-05-produtos.md](FASE-05-produtos.md) | Catálogo simples de produtos | v0.5.0 | ⬜ Pendente |
 | 6 | [FASE-06-tela-orcamento.md](FASE-06-tela-orcamento.md) | Tela de orçamento completa (salvar) | v0.6.0 | ⬜ Pendente |
@@ -18,7 +18,7 @@ Cada fase termina com o app compilando, testes passando e algo testável. A atua
 
 Legenda: ⬜ Pendente · 🟨 Em andamento · ✅ Concluída
 
-**Fase atual: 3** — adiantada antes da Fase 2, que fica pendente até o teste no PC da loja com Windows 7. A Fase 1 continua aguardando esse mesmo teste (resultado em `C:\dev\orcamentos-ponto-do-gesso\docs\fases\FASE-01-esqueleto-win7.md`).
+**Fase atual: nenhuma em andamento** — a Fase 3 foi adiantada e concluída, sem tag nem release. A Fase 2 fica pendente até o teste no PC da loja com Windows 7. A Fase 1 continua aguardando esse mesmo teste (resultado em `C:\dev\orcamentos-ponto-do-gesso\docs\fases\FASE-01-esqueleto-win7.md`).
 
 ## PC da loja
 
