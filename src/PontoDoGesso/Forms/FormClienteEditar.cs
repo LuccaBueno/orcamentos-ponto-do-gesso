@@ -28,7 +28,13 @@ namespace PontoDoGesso.Forms
             _clientes = new ClienteRepositorio(banco);
             _cliente = cliente;
 
-            var dddPadrao = new ConfiguracaoRepositorio(banco).Obter("cliente.ddd_padrao") ?? "12";
+            var configuracoes = new ConfiguracaoRepositorio(banco);
+            var dddPadrao = configuracoes.Obter("cliente.ddd_padrao") ?? "12";
+
+            // Cliente novo começa com a cidade padrão das configurações
+            if (cliente.Id == 0 && cliente.Cidade == new Cliente().Cidade)
+                cliente.Cidade = configuracoes.Obter("cliente.cidade_padrao") ?? cliente.Cidade;
+
             _telefone.DddPadrao = dddPadrao;
             _telefone2.DddPadrao = dddPadrao;
 

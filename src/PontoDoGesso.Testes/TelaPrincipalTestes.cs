@@ -23,6 +23,7 @@ namespace PontoDoGesso.Testes
         [InlineData("produtos", typeof(FormProdutos))]
         [InlineData("novoOrcamento", typeof(FormOrcamento))]
         [InlineData("historico", typeof(FormHistorico))]
+        [InlineData("configuracoes", typeof(FormConfiguracoes))]
         public void BotaoHabilitadoAbreATela(string botao, Type tela)
         {
             Tela.EmSta(() =>
@@ -36,17 +37,6 @@ namespace PontoDoGesso.Testes
                     alvo.PerformClick();
                     Assert.IsType(tela, Assert.Single(form.Abertas));
                 }
-            });
-        }
-
-        [Theory]
-        [InlineData("configuracoes")]
-        public void BotaoDeFaseFuturaFicaDesabilitado(string botao)
-        {
-            Tela.EmSta(() =>
-            {
-                using (var form = new FormPrincipal(_temporario.Banco))
-                    Assert.False(Tela.Achar<Button>(form, botao).Enabled);
             });
         }
 

@@ -13,16 +13,16 @@ namespace PontoDoGesso.Exportacao
     {
         public const int Dpi = 150;
 
-        public static Bitmap CriarImagem(Orcamento orcamento, DadosLoja loja)
+        public static Bitmap CriarImagem(Orcamento orcamento, DadosLoja loja, int dpi = Dpi)
         {
             var desenho = new DesenhoOrcamento(orcamento, loja, paginado: false);
-            var largura = Pixels(DesenhoOrcamento.LarguraMm);
-            var altura = Pixels(desenho.AlturaPaginaMm);
+            var largura = Pixels(DesenhoOrcamento.LarguraMm, dpi);
+            var altura = Pixels(desenho.AlturaPaginaMm, dpi);
 
             var imagem = new Bitmap(largura, altura, PixelFormat.Format24bppRgb);
             try
             {
-                imagem.SetResolution(Dpi, Dpi);
+                imagem.SetResolution(dpi, dpi);
 
                 using (var superficie = Graphics.FromImage(imagem))
                 {
@@ -35,7 +35,7 @@ namespace PontoDoGesso.Exportacao
                     using (var grafico = XGraphics.FromGraphics(superficie, tamanho))
                     {
                         // FromGraphics desenha 1 px por ponto e ignora a resolução do bitmap
-                        grafico.ScaleTransform(Dpi / 72.0);
+                        grafico.ScaleTransform(dpi / 72.0);
                         desenho.DesenharPagina(grafico, 0);
                     }
                 }
@@ -55,6 +55,6 @@ namespace PontoDoGesso.Exportacao
                 imagem.Save(arquivo, ImageFormat.Png);
         }
 
-        private static int Pixels(double mm) => (int)Math.Round(mm / 25.4 * Dpi);
+        private static int Pixels(double mm, int dpi) => (int)Math.Round(mm / 25.4 * dpi);
     }
 }

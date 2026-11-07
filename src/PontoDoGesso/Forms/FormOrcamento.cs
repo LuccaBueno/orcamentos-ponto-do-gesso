@@ -25,6 +25,7 @@ namespace PontoDoGesso.Forms
         private bool _carregando;
         private bool _alterado;
         private bool _perguntouCadastro;
+        private readonly string _cidadePadrao;
 
         private readonly Label _titulo = new Label { Name = "titulo", AutoSize = true, Font = new Font("Segoe UI", 14F, FontStyle.Bold), Anchor = AnchorStyles.Left };
         private readonly DateTimePicker _data = new DateTimePicker { Name = "data", Format = DateTimePickerFormat.Custom, CustomFormat = "dd/MM/yyyy", Width = 110, Anchor = AnchorStyles.Right };
@@ -98,6 +99,7 @@ namespace PontoDoGesso.Forms
             MinimizeBox = true;
             MaximizeBox = true;
             _telefone.DddPadrao = _configuracoes.Obter("cliente.ddd_padrao") ?? "12";
+            _cidadePadrao = _configuracoes.Obter("cliente.cidade_padrao") ?? new Cliente().Cidade;
             _validadeDias.Value = LerValidadeSugerida();
 
             _novoCliente = Estilo.CriarBotao("+ Novo", (s, e) => CadastrarCliente());
@@ -492,7 +494,7 @@ namespace PontoDoGesso.Forms
                 _endereco.Text = orcamento.EntEndereco;
                 _numero.Text = orcamento.EntNumero;
                 _bairro.Text = orcamento.EntBairro;
-                _cidade.Text = orcamento.Id == 0 && orcamento.EntCidade == null ? new Cliente().Cidade : orcamento.EntCidade;
+                _cidade.Text = orcamento.Id == 0 && orcamento.EntCidade == null ? _cidadePadrao : orcamento.EntCidade;
                 _referencia.Text = orcamento.EntReferencia;
 
                 _grade.Rows.Clear();
@@ -663,7 +665,7 @@ namespace PontoDoGesso.Forms
                 if (cliente != null)
                     PreencherEntrega(cliente);
                 else
-                    _cidade.Text = new Cliente().Cidade;
+                    _cidade.Text = _cidadePadrao;
             }
         }
 
@@ -943,7 +945,7 @@ namespace PontoDoGesso.Forms
                 Endereco = _retirada.Checked ? null : Estilo.Limpo(_endereco.Text),
                 Numero = _retirada.Checked ? null : Estilo.Limpo(_numero.Text),
                 Bairro = _retirada.Checked ? null : Estilo.Limpo(_bairro.Text),
-                Cidade = _retirada.Checked ? new Cliente().Cidade : Estilo.Limpo(_cidade.Text),
+                Cidade = _retirada.Checked ? _cidadePadrao : Estilo.Limpo(_cidade.Text),
                 PontoReferencia = _retirada.Checked ? null : Estilo.Limpo(_referencia.Text)
             };
             _clientes.Inserir(cliente);

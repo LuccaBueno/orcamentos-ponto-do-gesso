@@ -114,7 +114,7 @@ namespace PontoDoGesso.Forms
                 CriarBotao("historico", "Histórico", () => new FormHistorico(_banco)),
                 CriarBotao("clientes", "Clientes", () => new FormClientes(_banco)),
                 CriarBotao("produtos", "Produtos", () => new FormProdutos(_banco)),
-                CriarBotao("configuracoes", "Configurações", null)
+                CriarBotao("configuracoes", "Configurações", () => new FormConfiguracoes(_banco))
             };
 
             var grade = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 3, Padding = new Padding(0, 12, 0, 12) };
