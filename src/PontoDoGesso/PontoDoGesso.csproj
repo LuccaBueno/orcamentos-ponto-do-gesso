@@ -20,4 +20,9 @@
     <EmbeddedResource Include="Dados\Migracoes\*.sql" LogicalName="Migracoes.%(Filename)%(Extension)" />
   </ItemGroup>
 
+  <ItemGroup Condition="Exists('..\..\assets\icone-whatsapp.png')">
+    <!-- Ícone do WhatsApp ao lado do telefone no orçamento: opcional, fornecido pelo Lucca -->
+    <None Include="..\..\assets\icone-whatsapp.png" Link="assets\icone-whatsapp.png" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>
