@@ -16,7 +16,7 @@
 - [ ] Antes de atualizar: backup do banco (pode ser cópia simples do arquivo nesta fase)
 
 ### Atualizador
-- [ ] `PontoDoGesso.Atualizador\Program.cs`: argumentos `--pid --zip --destino`; espera o processo, extrai (`System.IO.Compression.ZipFile`), faz rollback via `<destino>.anterior` se falhar, reabre o app, grava log em `%APPDATA%\PontoDoGesso\logs\`
+- [x] `PontoDoGesso.Atualizador\Program.cs`: argumentos `--pid --zip --destino`; espera o processo, extrai (`System.IO.Compression.ZipFile`), faz rollback via `<destino>.anterior` se falhar, reabre o app, grava log em `%APPDATA%\PontoDoGesso\logs\`
 - [ ] O app copia o Atualizador para a pasta temporária antes de executá-lo (para poder substituir o próprio Atualizador)
 
 ### Testes
@@ -38,5 +38,6 @@ O PC da loja vai da v0.2.0 para a v0.2.1 pelo botão, sem perder nada, ou (se o 
 - `empacotar.ps1`: as entradas do zip são gravadas uma a uma com `/` (o `ZipFile.CreateFromDirectory` do PowerShell 5.1 grava `\`, fora do padrão do formato zip). A pasta `x64\` e os `.pdb` ficam de fora (o app é só x86). O `.zip.sha256` segue o formato do `sha256sum` (`<hash>  <arquivo>`). Parâmetro `-SemCompilar` para o workflow, que já compilou e testou.
 - Workflow de release: `C:\dev\orcamentos-ponto-do-gesso\scripts\conferir-versao.ps1` (falha se a tag não for `v` + `<Version>`) e `C:\dev\orcamentos-ponto-do-gesso\scripts\notas-versao.ps1` (copia a seção `## [X.Y.Z]` do `CHANGELOG.md`; falha se não existir ou estiver vazia). A release é criada pelo `gh release create` com o token do próprio workflow (`permissions: contents: write`).
 - `Atualizacao.cs`: a resposta do GitHub é lida com o `JavaScriptSerializer` (`System.Web.Extensions`, que já vem no .NET Framework 4.8 — nenhum pacote NuGet novo). A comparação usa só MAJOR.MINOR.PATCH (`0.9` = `0.9.0` = `0.9.0.0`). O download vai para `<arquivo>.parcial` e só vira o nome final quando termina; se o SHA-256 não bater, o zip é apagado e nada é alterado. As URLs podem ser `file://`, o que permite testar o download e o hash errado sem rede.
+- Atualizador: a troca de pastas fica em `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso.Atualizador\Instalacao.cs` (testada em `InstalacaoTestes`). O zip é extraído em `<destino>.nova` (ao lado da pasta do app, no mesmo disco, para mover ser instantâneo), a pasta atual vira `<destino>.anterior` e a nova toma o lugar. Se mover falhar (antivírus segurando arquivo), tenta 10 vezes, 1 s entre elas; se ainda falhar, volta a anterior. Se a versão nova não abrir, também volta a anterior e reabre o app antigo. A `.anterior` fica guardada até a próxima atualização (rollback manual). Log em `%APPDATA%\PontoDoGesso\logs\atualizacao_AAAA-MM.log` (o app passa `--logs`; sem ele, usa a mesma regra do `PONTODOGESSO_DADOS`).
 - Os scripts `.ps1` ficam em UTF-8 **com BOM**: sem o BOM, o Windows PowerShell 5.1 lê o arquivo como ANSI e as mensagens com acento saem quebradas.
 

@@ -15,7 +15,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\PontoDoGesso\PontoDoGesso.csproj" />
+    <ProjectReference Include="..\PontoDoGesso.Atualizador\PontoDoGesso.Atualizador.csproj" />
   </ItemGroup>
 
 </Project>

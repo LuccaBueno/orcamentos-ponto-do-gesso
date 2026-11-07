@@ -3,8 +3,16 @@
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
     <OutputType>WinExe</OutputType>
+    <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>PontoDoGesso.Atualizador</RootNamespace>
     <AssemblyName>PontoDoGesso.Atualizador</AssemblyName>
+    <ApplicationIcon>..\..\assets\icone-app.ico</ApplicationIcon>
+    <Description>Atualizador do Ponto do Gesso</Description>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+  </ItemGroup>
 
 </Project>
