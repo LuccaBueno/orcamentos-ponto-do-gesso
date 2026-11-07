@@ -8,7 +8,7 @@
 - [x] `Dados\Migracoes\001_inicial.sql` com o esquema de `C:\dev\orcamentos-ponto-do-gesso\docs\ARQUITETURA.md` (recurso embutido)
 - [x] Executor de migrações: lê `versao_banco`, faz backup em `backups\` antes de migrar, aplica em transação
 - [x] Inserir configurações padrão (tabela da ARQUITETURA)
-- [ ] `Dominio\`: `Cliente`, `Produto`, `Orcamento`, `ItemOrcamento`
+- [x] `Dominio\`: `Cliente`, `Produto`, `Orcamento`, `ItemOrcamento`
 - [ ] `Servicos\Formatacao.cs`: centavos ↔ texto (`"1.234,56"`, `"R$ 1.234,56"`), parse de quantidade com vírgula, telefone `(12) 99244-5402`
 - [ ] `Servicos\CalculoOrcamento.cs`: total do item (arredondamento meio para cima), subtotal, desconto (VALOR ou PERCENTUAL, só sobre o subtotal), total = subtotal − desconto + frete
 - [ ] Repositórios (`Dados\`): `ClienteRepositorio`, `ProdutoRepositorio`, `OrcamentoRepositorio` (salvar orçamento + itens numa transação; número atribuído no primeiro salvamento), `ConfiguracaoRepositorio`
