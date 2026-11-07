@@ -1,0 +1,17 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+TestResults/
+packages/
+
+# Publicação
+publicacao/
+*.zip
+*.sha256
+
+# Sistema
+Thumbs.db
+desktop.ini
