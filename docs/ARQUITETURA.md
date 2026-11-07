@@ -77,7 +77,7 @@ C:\dev\orcamentos-ponto-do-gesso\
 ```
 %APPDATA%\PontoDoGesso\          (ex.: C:\Users\Loja\AppData\Roaming\PontoDoGesso\)
 ├─ dados.db                 # banco SQLite
-├─ backups\                 # dados_AAAA-MM-DD_HHmm.db (automático diário + manuais)
+├─ backups\                 # dados_AAAA-MM-DD_HHmm_auto.db (diário, guarda 30), _manual.db, _antes-de-restaurar.db; sem sufixo = antes de migração
 ├─ logs\                    # erros_AAAA-MM.log
 └─ atualizacao\             # downloads temporários da atualização
 ```
@@ -180,9 +180,11 @@ Migrações numeradas em `src\PontoDoGesso\Dados\Migracoes\` (embutidas no exe),
 | `orcamento.validade_sugerida_dias` | `7` — só sugere o número quando a validade é ligada no orçamento |
 | `orcamento.perguntar_cadastro_avulso` | `1` — ao salvar orçamento de cliente avulso pela primeira vez, pergunta se quer cadastrar (`0` = não perguntar; tela na Fase 9) |
 | `cliente.ddd_padrao` | `12` (só pré-preenche o campo; sempre editável) |
+| `cliente.cidade_padrao` | `Pindamonhangaba` (cliente novo e entrega de avulso) |
 | `exportacao.pasta` | `Documentos\Orçamentos Ponto do Gesso` |
 | `impressao.impressora` | vazio (= impressora padrão do Windows) |
-| `backup.ultimo` | — |
+| `backup.ultimo` | — (data e hora do último backup) |
+| `backup.pasta_extra` | vazio (pasta extra opcional; cada backup é copiado para lá se ela existir) |
 
 ## Numeração (códigos)
 
