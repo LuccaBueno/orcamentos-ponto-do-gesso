@@ -9,6 +9,17 @@ namespace PontoDoGesso.Testes
     public class FormatacaoTestes
     {
         [Theory]
+        [InlineData("2", "2")]
+        [InlineData("2.5", "2,5")]
+        [InlineData("2.50", "2,5")]
+        [InlineData("0.125", "0,125")]
+        [InlineData("1234.75", "1.234,75")]
+        public void QuantidadeSemZerosSobrando(string quantidade, string esperado)
+        {
+            Assert.Equal(esperado, Formatacao.Quantidade(decimal.Parse(quantidade, System.Globalization.CultureInfo.InvariantCulture)));
+        }
+
+        [Theory]
         [InlineData(123456, "1.234,56")]
         [InlineData(0, "0,00")]
         [InlineData(5, "0,05")]

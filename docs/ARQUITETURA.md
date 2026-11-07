@@ -178,6 +178,7 @@ Migrações numeradas em `src\PontoDoGesso\Dados\Migracoes\` (embutidas no exe),
 | `loja.endereco_linha2` | `Cardoso - Pindamonhangaba - SP` |
 | `loja.rodape` | `As entregas são realizadas apenas até o térreo.` |
 | `orcamento.validade_sugerida_dias` | `7` — só sugere o número quando a validade é ligada no orçamento |
+| `orcamento.perguntar_cadastro_avulso` | `1` — ao salvar orçamento de cliente avulso pela primeira vez, pergunta se quer cadastrar (`0` = não perguntar; tela na Fase 9) |
 | `cliente.ddd_padrao` | `12` (só pré-preenche o campo; sempre editável) |
 | `exportacao.pasta` | `Documentos\Orçamentos Ponto do Gesso` |
 | `impressao.impressora` | vazio (= impressora padrão do Windows) |

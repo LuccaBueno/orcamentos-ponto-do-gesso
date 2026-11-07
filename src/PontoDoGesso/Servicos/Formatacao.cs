@@ -20,6 +20,9 @@ namespace PontoDoGesso.Servicos
 
         public static string Codigo(long numero) => numero.ToString("0000", CultureInfo.InvariantCulture);
 
+        /// <summary>Quantidade sem zeros sobrando: 2 → "2", 2,5 → "2,5", 1234,75 → "1.234,75".</summary>
+        public static string Quantidade(decimal quantidade) => quantidade.ToString("#,0.####", Cultura);
+
         public static bool TentarLerCentavos(string texto, out long centavos)
         {
             centavos = 0;
