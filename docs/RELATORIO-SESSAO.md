@@ -1,3 +1,149 @@
+# Relatório da sessão — 07/11/2026 (Fase 2 e releases v0.9.0 / v0.9.1)
+
+Sessão sem acompanhamento: Fase 2 (atualização pelo app e releases automáticas). **Releases publicadas:** v0.9.0 (versão completa, para instalar na loja) e v0.9.1 (só para testar a atualização).
+
+- v0.9.0: https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/releases/tag/v0.9.0
+- **v0.9.1: https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/releases/tag/v0.9.1**
+
+Ao final: **370 testes passando** (eram 317), CI verde em todos os commits e as duas releases geradas pelo workflow, sem nenhuma correção nem tag apagada.
+
+## O que foi feito
+
+### Publicação
+- `C:\dev\orcamentos-ponto-do-gesso\scripts\empacotar.ps1`: compila em Release e monta `publicacao\PontoDoGesso\` com exe, config, dlls, `x86\SQLite.Interop.dll` e Atualizador (sem `.pdb` e sem `x64\`). Gera `PontoDoGesso-vX.Y.Z.zip` (com a pasta `PontoDoGesso/` dentro) e o `.zip.sha256`.
+- `C:\dev\orcamentos-ponto-do-gesso\.github\workflows\release.yml`: roda ao enviar uma tag `v*`. Confere a tag com a `<Version>` (`scripts\conferir-versao.ps1`), compila, testa, empacota e cria a release com o zip, o `.sha256` e a seção da versão no CHANGELOG (`scripts\notas-versao.ps1`).
+
+### No app
+- Rodapé da tela principal: **Verificar atualizações** e o aviso laranja **Nova versão X!**, que aparece sozinho quando há versão nova. A verificação automática acontece ao abrir, no máximo 1 vez a cada 24 h, em segundo plano.
+- Tela **Verificar atualizações**: versão instalada, versão nova e o que mudou, com **Atualizar agora**, **Depois** e **Abrir página de downloads**. Barra de progresso e Cancelar durante o download.
+- Antes de instalar, o app confere o SHA-256 (se não bater, nada muda) e faz o backup `dados_..._antes-de-atualizar.db`. Depois copia o Atualizador para a pasta temporária e fecha. Se o Atualizador tiver sido apagado ou bloqueado, avisa e abre a página de downloads.
+- `PontoDoGesso.Atualizador.exe`: espera o app fechar, extrai em `<pasta>.nova`, guarda a versão atual em `<pasta>.anterior` e coloca a nova no lugar. Tenta 10 vezes se um arquivo estiver preso. Volta para a anterior se algo falhar ou se a versão nova não abrir, reabre o app e grava o log em `%APPDATA%\PontoDoGesso\logs\atualizacao_AAAA-MM.log`.
+- Metadados completos nos dois exes (título, empresa, autor, copyright, versão), para reduzir alarmes falsos de antivírus.
+
+### Testes de verdade (no PC do Lucca, tudo dentro de `C:\dev\orcamentos-ponto-do-gesso\.tmp\`)
+- **Atualização v0.9.0 → v0.9.1 pela interface:** a v0.9.0 foi instalada a partir da release e um cliente e um orçamento foram gravados. Ao abrir, o rodapé mostrou **Nova versão 0.9.1!**. **Verificar atualizações** → **Atualizar agora**: em cerca de 3 s o app fechou, foi atualizado e reabriu com **Versão 0.9.1**. Cliente, orçamento (R$ 37,50) e backups continuam lá, e a v0.9.0 ficou em `PontoDoGesso.anterior`.
+- **Hash errado:** zip corrompido → recusado, zip apagado, pasta do app idêntica.
+- **Rollback:** pacote com um exe que não abre → o Atualizador instalou, viu que não abria, voltou a v0.9.0, reabriu e avisou.
+- **Arquivo preso** (achado sem querer: o próprio script de teste travava um arquivo da pasta): o Atualizador tentou 10 vezes, desistiu sem mudar nada, reabriu a versão antiga e avisou.
+- Scripts em `C:\dev\orcamentos-ponto-do-gesso\scripts\teste-atualizacao\`.
+
+## Decisões tomadas sozinho
+
+- **Versões v0.9.0 e v0.9.1** no lugar de v0.2.0/v0.2.1, como pedido (registrado na Fase 2 e no `docs\fases\README.md`). A v0.9.1 só muda o número da versão: o texto do rodapé já é "Versão 0.9.1".
+- **JSON do GitHub** lido com o `JavaScriptSerializer`, que já vem no .NET Framework 4.8: nenhum pacote NuGet novo.
+- **Backup antes de atualizar** pela API de backup do SQLite (a mesma da Fase 9), em vez da cópia simples do arquivo permitida pela fase. Se o backup falhar, a atualização é cancelada.
+- **Sem internet, a verificação automática não mostra nada** e só tenta de novo no outro dia (o erro vai para o log). O botão **Verificar atualizações** mostra o motivo.
+- **Rollback também quando a versão nova não abre**, além de quando a troca de pastas falha.
+- **`<pasta>.anterior` fica guardada** até a próxima atualização, para voltar à mão se preciso (explicado em `docs\ATUALIZACAO.md`).
+- **Notas da versão** na tela em texto simples (sem `###`, `**` e crases).
+- **Scripts `.ps1` em UTF-8 com BOM:** sem o BOM, o PowerShell 5.1 mostra os acentos quebrados.
+- Exclusões do antivírus em `docs\INSTALACAO-WINDOWS7.md` agora incluem `%TEMP%\PontoDoGesso-atualizador\`, de onde o Atualizador roda.
+
+## Correções feitas no caminho
+
+- **Testes de tela travando com a caixa "Unhandled exception" do .NET:** o erro (`Value Dispose() cannot be called while doing CreateHandle()`) vinha da continuação do download, que rodava numa thread do thread pool porque a thread do teste herdava o contexto do xunit. Os testes de tela agora falham em vez de abrir a caixa, e a thread do teste usa o contexto do WinForms. No app, as continuações voltam para a tela por `BeginInvoke` e ignoram janela já fechada. Depois disso: 25 execuções seguidas sem falha. Detalhes nas Observações da Fase 2.
+- Zip com `\` nos nomes (padrão do PowerShell 5.1) → as entradas agora são montadas com `/`.
+
+## Pendências
+
+- **Uma caixa de erro do .NET pode ter ficado aberta no PC** ("Microsoft .NET Framework – Unhandled exception"), do processo de teste `testhost.net48.x86` (PID 7888) que travou antes da correção. A sessão não teve permissão para encerrá-lo. Enquanto ele estiver aberto, o build **Debug** falha (arquivo em uso); por isso os últimos commits foram compilados e testados em **Release**. Basta clicar em **Fechar** na caixa (ou encerrar o `testhost.net48.x86` no Gerenciador de Tarefas).
+- Teste no PC da loja e com o antivírus: ver o roteiro abaixo.
+- O teste de 5.000 orçamentos (Fase 8) não dá para rodar na loja sem ferramentas de desenvolvimento. Na visita, só observar se o histórico responde rápido. A medição formal no Windows 7 fica para quando houver o modo de demonstração (Fase 10).
+
+## Roteiro da visita à loja
+
+Roteiro único, na ordem de fazer, com todos os itens "aguardando teste do Lucca" das Fases 1 a 9. Primeiro tudo com **dados de teste** (parte A); depois os dados de teste são guardados num canto e começa o uso de verdade (parte B).
+
+### Antes de sair de casa (num PC com internet)
+
+1. Fechar a caixa de erro do .NET que ficou aberta neste PC (ver Pendências).
+2. Num pendrive, salvar:
+   - o **instalador offline do .NET Framework 4.8**, `ndp48-x86-x64-allos-enu.exe` (site da Microsoft, "Download .NET Framework 4.8 offline installer");
+   - `PontoDoGesso-v0.9.0.zip` e `PontoDoGesso-v0.9.0.zip.sha256`, de https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/releases/tag/v0.9.0 ;
+   - `PontoDoGesso-v0.9.1.zip`, de https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/releases/tag/v0.9.1 (só para o caso de a atualização pelo botão não funcionar).
+3. Levar: um 2º pendrive ou HD externo para a pasta extra de backup; algumas folhas do talão de papel para comparar; a lista de produtos e preços; o celular com WhatsApp; um cronômetro (o do celular serve).
+
+### Parte A — testes com dados de teste
+
+**1. Windows** (`C:\dev\orcamentos-ponto-do-gesso\docs\INSTALACAO-WINDOWS7.md`, seção 1)
+1. Iniciar → botão direito em **Computador** → **Propriedades**. Anotar a edição (precisa ter **Service Pack 1**) e se é 32 ou 64 bits.
+2. Anotar o nome do **antivírus** instalado (ícone perto do relógio). **Não** criar exclusões ainda: o teste da etapa 5 é com o antivírus ligado e sem exceções.
+   → Resultado vai para a tabela "PC da loja" em `C:\dev\orcamentos-ponto-do-gesso\docs\fases\README.md`.
+
+**2. .NET Framework 4.8** (seção 2 do mesmo arquivo)
+1. Painel de Controle → Programas e Recursos: se já aparece "Microsoft .NET Framework 4.8", pular.
+2. Senão, executar `ndp48-x86-x64-allos-enu.exe` do pendrive como administrador e reiniciar o PC.
+
+**3. Instalar a v0.9.0** (seção 3)
+1. Copiar `PontoDoGesso-v0.9.0.zip` e o `.sha256` para `C:\` e conferir o arquivo: no Prompt de Comando, `certutil -hashfile C:\PontoDoGesso-v0.9.0.zip SHA256`. O resultado tem de ser igual ao texto do `.sha256` (aberto no Bloco de Notas).
+2. Botão direito no zip → **Extrair tudo…** → `C:\`. O resultado tem de ser `C:\PontoDoGesso\PontoDoGesso.exe`, e **não** `C:\Arquivos de Programas\`.
+3. Botão direito em `C:\PontoDoGesso\PontoDoGesso.exe` → Enviar para → Área de trabalho (criar atalho). Abrir pelo atalho.
+4. Se aparecer **Nova versão 0.9.1!** no rodapé, ótimo: a internet e o GitHub funcionam. **Ainda não clicar.**
+
+**4. Diagnóstico** (Fases 1 e 3)
+1. **Ajuda → Diagnóstico** → **Copiar informações** e colar num Bloco de Notas salvo no pendrive (`diagnostico-loja.txt`). Vai para a tabela de `C:\dev\orcamentos-ponto-do-gesso\docs\fases\FASE-01-esqueleto-win7.md`.
+2. Conferir na tela: .NET **4.8**, processo **32 bits**, "Versão do banco" com **diário: wal** (Fase 3).
+3. **Testar banco**, **Testar PDF/PNG** (os dois arquivos abrem? o PDF abre no leitor de PDF da loja?) e **Testar conexão com GitHub** (OK 200?).
+4. Conferir se as janelas ficam legíveis, sem texto cortado (escala do Windows 7).
+
+**5. Atualização pelo botão, com o antivírus ligado** (Fase 2)
+1. Criar dados de teste: **Clientes** → cadastrar "João Teste" (com acento), telefone `12 99999-0000`. **Novo orçamento** para ele com 2 itens e **salvar**. Em **Clientes**, buscar `joao` (sem acento): tem de achar (funções do SQLite no Windows 7, Fase 3).
+2. Clicar em **Nova versão 0.9.1!** (ou **Verificar atualizações**) → conferir a tela com "Versão nova: 0.9.1" → **Atualizar agora**.
+3. O app tem de fechar e abrir sozinho em poucos segundos com **Versão 0.9.1** no rodapé. Conferir que o João Teste e o orçamento continuam lá.
+4. Conferir que existem `C:\PontoDoGesso.anterior\` e, em `%APPDATA%\PontoDoGesso\backups\` (colar esse caminho na barra do Explorer), um `dados_..._antes-de-atualizar.db`.
+5. **Se o antivírus reclamou ou bloqueou:** anotar a mensagem exata (foto com o celular), aplicar a seção 5 de `C:\dev\orcamentos-ponto-do-gesso\docs\INSTALACAO-WINDOWS7.md` (exclusões de `C:\PontoDoGesso\`, `%APPDATA%\PontoDoGesso\atualizacao\` e `%TEMP%\PontoDoGesso-atualizador\`) e repetir. Se nada funcionar: fechar o app, extrair `PontoDoGesso-v0.9.1.zip` do pendrive por cima de `C:\` e abrir de novo (atualização manual; os dados não são afetados).
+6. **Se o GitHub não respondeu** (etapa 4.3 falhou): rodar o Windows Update até não haver atualizações importantes e testar de novo; se continuar, usar a atualização manual do item anterior.
+7. Copiar `%APPDATA%\PontoDoGesso\logs\` inteiro para o pendrive.
+   → Resultados em `C:\dev\orcamentos-ponto-do-gesso\docs\fases\FASE-02-atualizacao.md` (itens "Teste real no PC da loja" e "Teste com o antivírus").
+
+**6. Exportação, impressão e WhatsApp** (Fases 1 e 7)
+1. Abrir o orçamento do João Teste → **PNG** e **PDF**: o PDF abre no leitor da loja? As letras estão certas (sem Calibri o app usa Arial)? Comparar com a folha de papel.
+2. **Imprimir** na impressora da loja: margens certas, nada cortado. Levar a folha impressa para casa.
+3. Abrir o WhatsApp Web no navegador da loja (Fase 1): funciona? Anotar o navegador e a versão.
+4. **WhatsApp** no orçamento: abre a conversa certa no navegador? (Usar o próprio celular como cliente, trocando o telefone do João Teste.)
+5. **Copiar imagem** → Ctrl+V na conversa do WhatsApp Web: a imagem vai?
+6. **Abrir pasta de orçamentos** → arrastar o PNG para a conversa: vai?
+7. No celular, abrir a imagem recebida e dar zoom no canto de baixo: o "Nº 0001" fica legível, mas discreto?
+   → Resultados em `C:\dev\orcamentos-ponto-do-gesso\docs\fases\FASE-07-exportacao-pdf-png.md` e na última linha da tabela de `FASE-01-esqueleto-win7.md`.
+
+**7. Histórico e backup** (Fases 8 e 9)
+1. Fazer mais 2 orçamentos de teste (1 avulso com frete, 1 com desconto). **Histórico**: testar os filtros e clicar nos cabeçalhos; a busca é rápida?
+2. **Configurações → Backup** → **Fazer backup agora** → **Copiar backup para…** o pendrive.
+3. Excluir 1 orçamento de teste no Histórico e depois **Restaurar backup** com o backup recém-feito: o app reinicia e o orçamento excluído volta.
+4. Tentar restaurar um arquivo qualquer (ex.: o `diagnostico-loja.txt` renomeado para `.db`): tem de recusar.
+
+**8. Guardar os dados de teste**
+1. Fechar o app.
+2. No Explorer, colar `%APPDATA%` na barra de endereço e renomear a pasta `PontoDoGesso` para `PontoDoGesso-teste-visita`.
+3. Abrir o app de novo: ele começa com banco limpo (orçamento nº 0001 de verdade).
+
+### Parte B — começar o uso de verdade
+
+**9. Configurações** (Fase 9)
+1. **Configurações → Loja:** conferir nome, telefone, endereço e rodapé na pré-visualização.
+2. **Orçamento:** validade sugerida, cidade e DDD padrão.
+3. **Exportação:** pasta dos orçamentos (padrão `Documentos\Orçamentos Ponto do Gesso`) e impressora.
+4. **Backup:** escolher o pendrive ou HD que vai ficar na loja como **pasta extra**.
+
+**10. Produtos e clientes** (Fases 4 e 5)
+1. **Produtos:** cadastrar a lista real com **Salvar e cadastrar outro**; mudar um preço direto na lista (digitar e Enter); selecionar 2 produtos com Ctrl+clique e reajustar 5% (R$ 12,50 → R$ 13,13 na prévia).
+2. **Clientes:** cadastrar 3 clientes reais, um deles com DDD 11; tentar DDD `00` (tem de recusar); repetir um telefone (tem de avisar que pode ser duplicado); na lista, duplo clique edita, Enter na busca abre o 1º e Esc fecha.
+
+**11. Orçamentos reais** (Fase 6)
+1. **Cronometrar** um orçamento de 5 itens do catálogo: meta **menos de 1 minuto**.
+2. Fazer 3 orçamentos reais em paralelo com o talão: cadastrado, avulso e retirada; com desconto em R$ e em %; com validade.
+3. Cliente com observações: aparece a faixa amarela?
+4. Fechar com alterações não salvas: tem de perguntar. **Duplicar** um orçamento salvo: ganha o próximo número ao salvar.
+5. A tela de orçamento abre rápido no PC da loja?
+6. **Clientes → Orçamentos deste cliente** mostra os dele.
+
+**12. Antes de ir embora**
+1. **Configurações → Backup → Fazer backup agora** (vai também para a pasta extra).
+2. Trazer no pendrive: `diagnostico-loja.txt`, a pasta `logs`, fotos das mensagens de erro (se houver) e a folha impressa.
+3. Passar os resultados para a próxima sessão, que marca os itens nos arquivos das fases (`C:\dev\orcamentos-ponto-do-gesso\docs\fases\FASE-01-esqueleto-win7.md` a `FASE-09-configuracoes-backup.md`) e preenche a tabela "PC da loja" de `C:\dev\orcamentos-ponto-do-gesso\docs\fases\README.md`.
+
+---
+
 # Relatório da sessão — 07/11/2026 (Fases 7, 8 e 9)
 
 Sessão sem acompanhamento: Fases 7, 8 e 9. **Nenhuma tag nem release foi criada.** Tudo foi enviado para `main`, com o CI verde. Ao final: **317 testes passando** (eram 244), e os builds Debug e Release compilam sem avisos. O app compilado em Release abre normalmente com os dados numa pasta de teste e faz o backup automático na abertura.
