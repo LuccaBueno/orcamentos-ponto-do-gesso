@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <OutputType>WinExe</OutputType>
+    <UseWindowsForms>true</UseWindowsForms>
+    <RootNamespace>PontoDoGesso</RootNamespace>
+    <AssemblyName>PontoDoGesso</AssemblyName>
+    <ApplicationIcon>..\..\assets\icone-app.ico</ApplicationIcon>
+  </PropertyGroup>
+
+</Project>

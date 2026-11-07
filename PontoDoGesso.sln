@@ -1,0 +1,33 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PontoDoGesso", "src\PontoDoGesso\PontoDoGesso.csproj", "{3B019FC1-D4AA-49AD-B0C4-68C4CC90ED63}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PontoDoGesso.Atualizador", "src\PontoDoGesso.Atualizador\PontoDoGesso.Atualizador.csproj", "{F0A73229-94BF-4B0D-84A3-28B30ED19B73}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PontoDoGesso.Testes", "src\PontoDoGesso.Testes\PontoDoGesso.Testes.csproj", "{BB5CAE2A-4E94-48B7-BA1F-0AE068AAAC09}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3B019FC1-D4AA-49AD-B0C4-68C4CC90ED63}.Debug|x86.ActiveCfg = Debug|x86
+		{3B019FC1-D4AA-49AD-B0C4-68C4CC90ED63}.Debug|x86.Build.0 = Debug|x86
+		{3B019FC1-D4AA-49AD-B0C4-68C4CC90ED63}.Release|x86.ActiveCfg = Release|x86
+		{3B019FC1-D4AA-49AD-B0C4-68C4CC90ED63}.Release|x86.Build.0 = Release|x86
+		{F0A73229-94BF-4B0D-84A3-28B30ED19B73}.Debug|x86.ActiveCfg = Debug|x86
+		{F0A73229-94BF-4B0D-84A3-28B30ED19B73}.Debug|x86.Build.0 = Debug|x86
+		{F0A73229-94BF-4B0D-84A3-28B30ED19B73}.Release|x86.ActiveCfg = Release|x86
+		{F0A73229-94BF-4B0D-84A3-28B30ED19B73}.Release|x86.Build.0 = Release|x86
+		{BB5CAE2A-4E94-48B7-BA1F-0AE068AAAC09}.Debug|x86.ActiveCfg = Debug|x86
+		{BB5CAE2A-4E94-48B7-BA1F-0AE068AAAC09}.Debug|x86.Build.0 = Debug|x86
+		{BB5CAE2A-4E94-48B7-BA1F-0AE068AAAC09}.Release|x86.ActiveCfg = Release|x86
+		{BB5CAE2A-4E94-48B7-BA1F-0AE068AAAC09}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
