@@ -4,13 +4,13 @@
 
 ## Tarefas
 
-- [ ] `Forms\FormProdutos.cs`: lista (**código**, nome, unidade, preço), busca enquanto digita (código ou nome), **Novo**, **Editar**, **Inativar/Reativar**
-- [ ] `Forms\FormProdutoEditar.cs`: nome (obrigatório), unidade (lista editável: un, m², m, kg, saco, cx, pç, rolo), preço
+- [x] `Forms\FormProdutos.cs`: lista (**código**, nome, unidade, preço), busca enquanto digita (código ou nome), **Novo**, **Editar**, **Inativar/Reativar**
+- [x] `Forms\FormProdutoEditar.cs`: nome (obrigatório), unidade (lista editável: un, m², m, kg, saco, cx, pç, rolo), preço
 - [x] `Controles\CampoMoeda.cs`: campo de valor que aceita `12,5`, `12,50`, `1.250,00` e formata ao sair
-- [ ] **Edição rápida de preços na própria lista**: coluna Preço editável direto na grade (Enter grava e desce para o próximo), sem abrir janela
-- [ ] **Cadastro em sequência**: na tela de novo produto, botão **Salvar e cadastrar outro** (mantém a unidade escolhida), para lançar a lista inicial da loja rápido
-- [ ] **Reajuste em lote**: selecionar vários produtos (ou todos do filtro) → aplicar +X% ou −X% (ou valor fixo), com prévia "antes → depois" e confirmação
-- [ ] Mostrar "Preço atualizado em dd/MM/aaaa" em cada produto
+- [x] **Edição rápida de preços na própria lista**: coluna Preço editável direto na grade (Enter grava e desce para o próximo), sem abrir janela
+- [x] **Cadastro em sequência**: na tela de novo produto, botão **Salvar e cadastrar outro** (mantém a unidade escolhida), para lançar a lista inicial da loja rápido
+- [x] **Reajuste em lote**: selecionar vários produtos (ou todos do filtro) → aplicar +X% ou −X% (ou valor fixo), com prévia "antes → depois" e confirmação
+- [x] Mostrar "Preço atualizado em dd/MM/aaaa" em cada produto
 - Tudo dentro do app; sem planilhas ou arquivos externos.
 - [ ] Habilitar o botão **Produtos** na tela principal
 
@@ -26,3 +26,8 @@ Publicar v0.5.0 e cadastrar a lista real de produtos da loja pelo app.
 
 ## Observações
 
+- Data do preço: criada a migração `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\Dados\Migracoes\002_preco_atualizado_em.sql` com a coluna `produtos.preco_atualizado_em`. Ela só muda quando o preço muda (cadastro, grade ou reajuste); corrigir só o nome não mexe na data. Produtos que já existiam recebem a data de `atualizado_em`.
+- Edição na grade: o preço é gravado ao sair da célula (Enter grava e desce). Valor inválido mostra o erro na linha e segura o cursor; Esc desfaz.
+- Reajuste em lote: com **mais de um** produto selecionado na lista (Ctrl/Shift + clique), reajusta só os selecionados; com um ou nenhum, reajusta **todos os que a busca está mostrando**. O título da janela diz quantos produtos serão alterados. Escolhe-se Aumentar/Diminuir e % ou R$; reajuste que deixaria preço negativo fica bloqueado. Arredondamento meio para cima.
+- Preço vazio não é aceito no cadastro (aviso "Informe o preço (pode ser 0,00)"), para não gravar produto com preço zero por esquecimento.
+- Os itens de tela foram feitos e testados juntos num commit só, porque a lista depende da edição e do reajuste para compilar.

@@ -20,29 +20,63 @@ namespace PontoDoGesso.Dados
             var agora = DateTime.Now;
             produto.CriadoEm = agora;
             produto.AtualizadoEm = agora;
+            produto.PrecoAtualizadoEm = agora;
 
             using (var conexao = _banco.Abrir())
             {
                 produto.Id = conexao.ExecuteScalar<long>(
-                    @"INSERT INTO produtos (nome, unidade, preco_centavos, ativo, criado_em, atualizado_em)
-                      VALUES (@Nome, @Unidade, @PrecoCentavos, @Ativo, @CriadoEm, @AtualizadoEm);
+                    @"INSERT INTO produtos (nome, unidade, preco_centavos, preco_atualizado_em, ativo, criado_em, atualizado_em)
+                      VALUES (@Nome, @Unidade, @PrecoCentavos, @PrecoAtualizadoEm, @Ativo, @CriadoEm, @AtualizadoEm);
                       SELECT last_insert_rowid();",
                     produto);
             }
         }
 
+        /// <summary>Grava o produto; a data do preço só muda se o preço mudou.</summary>
         public void Atualizar(Produto produto)
         {
             produto.AtualizadoEm = DateTime.Now;
 
             using (var conexao = _banco.Abrir())
             {
+                // No UPDATE do SQLite, preco_centavos à direita ainda é o valor antigo
                 conexao.Execute(
                     @"UPDATE produtos
-                      SET nome = @Nome, unidade = @Unidade, preco_centavos = @PrecoCentavos, ativo = @Ativo, atualizado_em = @AtualizadoEm
+                      SET nome = @Nome, unidade = @Unidade, preco_centavos = @PrecoCentavos, ativo = @Ativo, atualizado_em = @AtualizadoEm,
+                          preco_atualizado_em = CASE WHEN preco_centavos <> @PrecoCentavos THEN @AtualizadoEm ELSE preco_atualizado_em END
                       WHERE id = @Id",
                     produto);
+
+                produto.PrecoAtualizadoEm = conexao.ExecuteScalar<DateTime>("SELECT preco_atualizado_em FROM produtos WHERE id = @Id", produto);
             }
+        }
+
+        /// <summary>Troca só os preços (edição na grade e reajuste em lote), numa transação.</summary>
+        public void AtualizarPrecos(IEnumerable<KeyValuePair<long, long>> precosPorId)
+        {
+            var agora = DateTime.Now;
+
+            using (var conexao = _banco.Abrir())
+            using (var transacao = conexao.BeginTransaction())
+            {
+                foreach (var preco in precosPorId)
+                {
+                    conexao.Execute(
+                        @"UPDATE produtos
+                          SET preco_centavos = @preco, atualizado_em = @agora, preco_atualizado_em = @agora
+                          WHERE id = @id AND preco_centavos <> @preco",
+                        new { id = preco.Key, preco = preco.Value, agora }, transacao);
+                }
+
+                transacao.Commit();
+            }
+        }
+
+        /// <summary>Produtos não são excluídos: orçamentos antigos podem apontar para eles.</summary>
+        public void DefinirAtivo(long id, bool ativo)
+        {
+            using (var conexao = _banco.Abrir())
+                conexao.Execute("UPDATE produtos SET ativo = @ativo, atualizado_em = @agora WHERE id = @id", new { id, ativo, agora = DateTime.Now });
         }
 
         /// <summary>Busca por código ou nome (sem acento); o código exato vem primeiro.</summary>
