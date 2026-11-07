@@ -4,7 +4,26 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/); 
 
 ## [Não lançado]
 
+## [0.9.0] - 2026-11-07
+
+Primeira versão completa do **Ponto do Gesso**, para instalar no PC da loja. Roda no Windows 7 SP1 (32 e 64 bits) com o .NET Framework 4.8. Os dados ficam em `%APPDATA%\PontoDoGesso\` e nunca saem do computador.
+
+### O que o app faz
+- **Orçamentos:** cliente cadastrado (busca por código, nome ou telefone) ou avulso, entrega ou retirada, itens digitados pelo teclado com sugestões do catálogo, desconto opcional (R$ ou %, só nos produtos), frete, validade opcional e observações. Ctrl+S salva; dá para duplicar um orçamento.
+- **Folha do orçamento** em A4 retrato, igual ao modelo em papel: PNG, PDF, impressão com pré-visualização, **Copiar imagem** para colar no WhatsApp Web e botão **WhatsApp**, que abre a conversa com o cliente.
+- **Histórico** com filtros (período, cadastrado ou avulso, cliente, com ou sem frete, com ou sem desconto, texto), ordenação, soma dos valores e ações: abrir, duplicar, exportar, imprimir e excluir.
+- **Clientes** e **produtos** com códigos próprios, busca sem acento, inativação, reajuste de preços em lote e aviso de cliente duplicado.
+- **Configurações:** dados da loja no cabeçalho, validade sugerida, cidade e DDD padrão, pasta dos orçamentos e impressora.
+- **Backup:** automático todo dia (guarda os últimos 30), backup na hora, cópia para pendrive, pasta extra e restauração conferida.
+- **Atualização pelo próprio app:** **Verificar atualizações** no rodapé, aviso de versão nova ao abrir (no máximo 1 vez por dia), download conferido por SHA-256, backup antes de atualizar e volta automática para a versão anterior se algo der errado.
+- **Ajuda → Diagnóstico** para conferir o Windows, o .NET, o banco, o PDF/PNG e a conexão com o GitHub.
+
 ### Adicionado
+- Fase 2: botão **Verificar atualizações** e aviso **Nova versão X!** no rodapé da tela principal; tela com a versão instalada, a nova e o que mudou, com **Atualizar agora**, **Depois** e **Abrir página de downloads**.
+- Fase 2: download do `.zip` com barra de progresso, conferência do `.zip.sha256` (se não bater, nada é alterado), backup `dados_..._antes-de-atualizar.db` e `PontoDoGesso.Atualizador.exe`, que troca a pasta do app guardando a versão anterior em `<pasta>.anterior` e volta para ela se a nova não instalar ou não abrir. Log em `%APPDATA%\PontoDoGesso\logs\atualizacao_AAAA-MM.log`.
+- Fase 2: se o Atualizador for apagado ou bloqueado pelo antivírus, o app avisa e abre a página de downloads (atualização manual).
+- Fase 2: releases automáticas no GitHub ao criar a tag `vX.Y.Z`: o workflow confere a tag com a versão, compila, testa, gera o zip e o `.sha256` (`scripts\empacotar.ps1`) e usa a seção da versão no CHANGELOG como texto da release.
+- Fase 2: metadados completos nos exes (título, empresa, autor, copyright e versão) para reduzir alarmes falsos de antivírus.
 - Fase 3: banco SQLite em `%APPDATA%\PontoDoGesso\dados.db` com migrações embutidas, backup antes de migrar e configurações padrão.
 - Fase 3: domínio, repositórios, regras de cálculo, formatação pt-BR e busca sem acento por nome, telefone e código.
 - Fase 3: Diagnóstico mostra a versão do banco e o modo do diário; o teste de banco passa pelo Dapper (travado na 2.1.35).
