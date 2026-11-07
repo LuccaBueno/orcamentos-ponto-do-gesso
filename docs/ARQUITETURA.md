@@ -66,7 +66,7 @@ C:\dev\orcamentos-ponto-do-gesso\
 |---|---|---|---|
 | `System.Data.SQLite.Core` | `[1.0.119]` (SQLite 3.46.1) | domínio público | Passou no Windows 11; **falta o teste no Windows 7** |
 | `PDFsharp-GDI` | `[6.2.4]` | MIT | Passou no Windows 11; **falta o teste no Windows 7** |
-| `Dapper` | a definir na Fase 3 | — | Ainda não usado |
+| `Dapper` | `[2.1.35]` | Apache-2.0 | Passou no Windows 11; **falta o teste no Windows 7** (o botão Testar banco do Diagnóstico lê pelo Dapper). Sem dependências no alvo net461; a 2.1.66 traria `Microsoft.Bcl.AsyncInterfaces` |
 | `xunit` / `xunit.runner.visualstudio` / `Microsoft.NET.Test.Sdk` | `2.9.3` / `3.1.5` / `17.14.1` | — | Só nos testes, não vão para a loja |
 
 - **Não atualizar o PDFsharp para 6.5.0 ou mais novo.** A partir da 6.5.0 a licença mudou de MIT para **AGPL-3.0** e a biblioteca passou a exigir uma licença válida em tempo de execução (`PdfSharpLicenseException: The loaded license is not valid`). A 6.2.4 é a última versão MIT. Por isso a versão está travada com colchetes no `.csproj`.
@@ -188,7 +188,7 @@ Orçamento, cliente e produto têm **número próprio**, sequencial, começando 
 
 | Registro | Exemplo na tela | Origem |
 |---|---|---|
-| Orçamento | `Nº 0123` | coluna `numero` (atribuída ao salvar pela primeira vez) |
+| Orçamento | `Nº 0123` | coluna `numero` (atribuída ao salvar pela primeira vez, a partir de `sqlite_sequence`: não volta atrás nem se o último for excluído) |
 | Cliente cadastrado | `Cód. 0045` | `clientes.id` (`AUTOINCREMENT`: nunca é reaproveitado) |
 | Produto cadastrado | `Cód. 0012` | `produtos.id` (`AUTOINCREMENT`: nunca é reaproveitado) |
 

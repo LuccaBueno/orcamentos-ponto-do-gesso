@@ -2,6 +2,7 @@ using System;
 using System.Data.SQLite;
 using System.IO;
 using System.Net;
+using Dapper;
 using PontoDoGesso.Exportacao;
 
 namespace PontoDoGesso.Servicos
@@ -41,15 +42,10 @@ namespace PontoDoGesso.Servicos
                         comando.ExecuteNonQuery();
                     }
 
-                    using (var comando = conexao.CreateCommand())
-                    {
-                        comando.CommandText = "SELECT texto, valor_centavos FROM teste";
-                        using (var leitor = comando.ExecuteReader())
-                        {
-                            if (!leitor.Read() || leitor.GetString(0) != textoGravado || leitor.GetInt64(1) != valorGravado)
-                                return ResultadoTeste.Falha("o registro lido é diferente do gravado.");
-                        }
-                    }
+                    // Lido pelo Dapper de propósito: valida no PC da loja o mesmo caminho dos repositórios
+                    var lido = conexao.QuerySingle<RegistroTeste>("SELECT texto AS Texto, valor_centavos AS ValorCentavos FROM teste");
+                    if (lido.Texto != textoGravado || lido.ValorCentavos != valorGravado)
+                        return ResultadoTeste.Falha("o registro lido é diferente do gravado.");
                 }
 
                 return ResultadoTeste.Sucesso("banco criado, registro gravado e lido (SQLite " + SQLiteConnection.SQLiteVersion + ").");
@@ -104,6 +100,12 @@ namespace PontoDoGesso.Servicos
             {
                 return ResultadoTeste.Falha(erro.ToString());
             }
+        }
+
+        private class RegistroTeste
+        {
+            public string Texto { get; set; }
+            public long ValorCentavos { get; set; }
         }
 
         private static void ApagarSemFalhar(string arquivo)

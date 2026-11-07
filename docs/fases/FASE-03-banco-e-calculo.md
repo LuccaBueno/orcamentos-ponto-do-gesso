@@ -11,7 +11,7 @@
 - [x] `Dominio\`: `Cliente`, `Produto`, `Orcamento`, `ItemOrcamento`
 - [x] `Servicos\Formatacao.cs`: centavos ↔ texto (`"1.234,56"`, `"R$ 1.234,56"`), parse de quantidade com vírgula, telefone `(12) 99244-5402`
 - [x] `Servicos\CalculoOrcamento.cs`: total do item (arredondamento meio para cima), subtotal, desconto (VALOR ou PERCENTUAL, só sobre o subtotal), total = subtotal − desconto + frete
-- [ ] Repositórios (`Dados\`): `ClienteRepositorio`, `ProdutoRepositorio`, `OrcamentoRepositorio` (salvar orçamento + itens numa transação; número atribuído no primeiro salvamento), `ConfiguracaoRepositorio`
+- [x] Repositórios (`Dados\`): `ClienteRepositorio`, `ProdutoRepositorio`, `OrcamentoRepositorio` (salvar orçamento + itens numa transação; número atribuído no primeiro salvamento), `ConfiguracaoRepositorio`
 - [ ] Busca sem acento e sem diferenciar maiúsculas (coluna normalizada ou função `remover_acentos` registrada no SQLite)
 
 ## Testes obrigatórios
@@ -27,10 +27,10 @@
 - [x] Validade nula é aceita; validade de 7 dias a partir de 06/11/2026 = 13/11/2026
 - [x] Parse: `"10"`, `"2,5"`, `"1.000,5"`, `"abc"` (erro)
 - [x] Formatação de `123456` → `"1.234,56"`
-- [ ] Numeração: dois orçamentos seguidos recebem números consecutivos; excluir não libera o número
-- [ ] Códigos de cliente e produto sequenciais e não reaproveitados
+- [x] Numeração: dois orçamentos seguidos recebem números consecutivos; excluir não libera o número
+- [x] Códigos de cliente e produto sequenciais e não reaproveitados
 - [ ] `Formatacao.Codigo(45)` → `"0045"`; busca por `"45"` e `"0045"` acha o mesmo registro
-- [ ] Snapshot: alterar o cliente depois de salvar não altera o orçamento
+- [x] Snapshot: alterar o cliente depois de salvar não altera o orçamento
 - [x] Migração em banco novo e em banco já migrado (idempotente)
 
 ## Pronto quando

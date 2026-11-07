@@ -10,6 +10,11 @@ namespace PontoDoGesso.Dados
         public string Arquivo { get; }
         public string PastaBackups { get; }
 
+        static Banco()
+        {
+            ConversoresDapper.Registrar();
+        }
+
         public Banco() : this(Caminhos.ArquivoBanco, Caminhos.PastaBackups)
         {
         }
@@ -36,6 +41,7 @@ namespace PontoDoGesso.Dados
             {
                 DataSource = Arquivo,
                 ForeignKeys = true,
+                DateTimeFormatString = "yyyy-MM-ddTHH:mm:ss",
                 JournalMode = SQLiteJournalModeEnum.Wal
             }.ToString();
 
