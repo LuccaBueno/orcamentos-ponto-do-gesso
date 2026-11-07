@@ -13,20 +13,20 @@
 - [x] Duplo clique abre edição; Enter na busca abre o primeiro resultado; Esc fecha
 - [x] Botão **Novo orçamento para este cliente** (desabilitado até a Fase 6)
 - [x] Habilitar o botão **Clientes** na tela principal
-- [ ] Não excluir clientes, só inativar (orçamentos antigos podem apontar para eles)
+- [x] Não excluir clientes, só inativar (orçamentos antigos podem apontar para eles)
 
 ## Testes
 
-- [ ] Busca por "joao" encontra "João"
-- [ ] Busca por "99244" encontra pelo telefone
+- [x] Busca por "joao" encontra "João"
+- [x] Busca por "99244" encontra pelo telefone
 - [x] Cliente com DDD 11 salva e exibe `(11) 98765-4321`; DDD `00` é recusado
-- [ ] Busca por "45" encontra o cliente Cód. 0045
-- [ ] Código aparece no título da tela de edição ("Cliente Cód. 0045")
-- [ ] Cliente inativo não aparece na busca padrão
+- [x] Busca por "45" encontra o cliente Cód. 0045
+- [x] Código aparece no título da tela de edição ("Cliente Cód. 0045")
+- [x] Cliente inativo não aparece na busca padrão
 
 ## Pronto quando
 
-Publicar v0.4.0, atualizar a loja e cadastrar 3 clientes reais de teste.
+Publicar v0.4.0, atualizar a loja e cadastrar 3 clientes reais de teste. — **aguardando teste do Lucca** (sem tag nem release nesta sessão; a atualização pela loja depende da Fase 2).
 
 ## Observações
 
@@ -35,3 +35,6 @@ Publicar v0.4.0, atualizar a loja e cadastrar 3 clientes reais de teste.
 - Os testes agora gravam em `C:\dev\orcamentos-ponto-do-gesso\.tmp\`, e `PONTODOGESSO_DADOS` troca a pasta de dados (`C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\Servicos\Caminhos.cs`).
 - Telefone: decidido gravar **só os dígitos** (DDD + número, ex.: `12992445402`); a formatação `(12) 99244-5402` é feita na exibição. Regras em `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\Servicos\Telefone.cs` e o campo em `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\Controles\CampoTelefone.cs`. Número vazio = sem telefone (o DDD é ignorado). DDD ou número inválido **impede o salvamento** com o aviso, em vez de só avisar e gravar. Telefone antigo, gravado sem DDD, aparece com o DDD padrão ao abrir a edição.
 - Duplicado: compara o nome sem acento e sem maiúsculas (igual, não parecido) e qualquer um dos dois telefones, incluindo clientes inativos. Mostra até 5 clientes parecidos e pergunta "Salvar mesmo assim?" (o padrão é Não).
+- Não há botão nem método de exclusão de clientes: `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\Dados\ClienteRepositorio.cs` só tem `DefinirAtivo`.
+- Os testes da lista ficam em `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso.Testes\BuscaTestes.cs`, `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso.Testes\TelaClientesTestes.cs` e `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso.Testes\TelefoneTestes.cs`.
+- Fase concluída no código em 07/11/2026, sem tag nem release. Falta o Lucca abrir o app, cadastrar 3 clientes reais e conferir: aguardando teste do Lucca.

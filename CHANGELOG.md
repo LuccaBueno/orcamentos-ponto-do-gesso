@@ -8,6 +8,7 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/); 
 - Fase 3: banco SQLite em `%APPDATA%\PontoDoGesso\dados.db` com migrações embutidas, backup antes de migrar e configurações padrão.
 - Fase 3: domínio, repositórios, regras de cálculo, formatação pt-BR e busca sem acento por nome, telefone e código.
 - Fase 3: Diagnóstico mostra a versão do banco e o modo do diário; o teste de banco passa pelo Dapper (travado na 2.1.35).
+- Fase 4: cadastro de clientes com busca enquanto digita (código, nome ou telefone, sem acento), inativar/reativar, telefone com DDD separado e validado (lista da Anatel), aviso de possível duplicado e botão **Clientes** habilitado na tela principal.
 
 ## [0.1.0] - 2026-11-06
 

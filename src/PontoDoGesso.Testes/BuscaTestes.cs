@@ -58,7 +58,7 @@ namespace PontoDoGesso.Testes
         [InlineData("(12) 99244")]
         public void BuscaDeClienteAchaPeloTelefone(string texto)
         {
-            NovoCliente("João", "(12) 99244-5402");
+            NovoCliente("João", "12992445402");
             NovoCliente("Maria", "(11) 98765-4321");
 
             Assert.Equal("João", Assert.Single(_clientes.Buscar(texto)).Nome);

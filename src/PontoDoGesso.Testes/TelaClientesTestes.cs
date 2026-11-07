@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
+using Dapper;
 using PontoDoGesso.Controles;
 using PontoDoGesso.Dados;
 using PontoDoGesso.Dominio;
@@ -103,12 +104,15 @@ namespace PontoDoGesso.Testes
         [Fact]
         public void EdicaoMostraOCodigoNoTitulo()
         {
+            using (var conexao = _temporario.Banco.Abrir())
+                conexao.Execute("INSERT INTO sqlite_sequence (name, seq) VALUES ('clientes', 44)");
+
             var cliente = Novo("João");
 
             Tela.EmSta(() =>
             {
                 using (var form = new FormClienteEditar(_temporario.Banco, cliente))
-                    Assert.Equal("Cliente Cód. 0001", form.Text);
+                    Assert.Equal("Cliente Cód. 0045", form.Text);
             });
         }
 
