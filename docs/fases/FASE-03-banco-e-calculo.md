@@ -4,8 +4,8 @@
 
 ## Tarefas
 
-- [ ] `Dados\Banco.cs`: abre/cria `%APPDATA%\PontoDoGesso\dados.db`, `PRAGMA foreign_keys=ON`, `journal_mode=WAL` (testar no Win7; se der problema, `DELETE`)
-- [ ] `Dados\Migracoes\001_inicial.sql` com o esquema de `C:\dev\orcamentos-ponto-do-gesso\docs\ARQUITETURA.md` (recurso embutido)
+- [x] `Dados\Banco.cs`: abre/cria `%APPDATA%\PontoDoGesso\dados.db`, `PRAGMA foreign_keys=ON`, `journal_mode=WAL` (testar no Win7; se der problema, `DELETE`)
+- [x] `Dados\Migracoes\001_inicial.sql` com o esquema de `C:\dev\orcamentos-ponto-do-gesso\docs\ARQUITETURA.md` (recurso embutido)
 - [ ] Executor de migrações: lê `versao_banco`, faz backup em `backups\` antes de migrar, aplica em transação
 - [ ] Inserir configurações padrão (tabela da ARQUITETURA)
 - [ ] `Dominio\`: `Cliente`, `Produto`, `Orcamento`, `ItemOrcamento`
