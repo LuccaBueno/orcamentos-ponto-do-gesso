@@ -6,8 +6,8 @@ Cada fase termina com o app compilando, testes passando e algo testável. A atua
 |---|---|---|---|---|
 | 0 | [FASE-00-repositorio-e-ci.md](FASE-00-repositorio-e-ci.md) | Solução, projetos, CI no GitHub | — | ✅ Concluída |
 | 1 | [FASE-01-esqueleto-win7.md](FASE-01-esqueleto-win7.md) | Janela principal + diagnóstico; **teste no Windows 7** | v0.1.0 | 🟨 Em andamento |
-| 2 | [FASE-02-atualizacao.md](FASE-02-atualizacao.md) | Botão de atualização + release automática | v0.2.0 | ⬜ Pendente |
-| 3 | [FASE-03-banco-e-calculo.md](FASE-03-banco-e-calculo.md) | Banco, migrações, regras de cálculo com testes | v0.3.0 | ⬜ Pendente |
+| 2 | [FASE-02-atualizacao.md](FASE-02-atualizacao.md) | Botão de atualização + release automática | v0.2.0 | ⬜ Pendente (aguarda o teste no PC da loja) |
+| 3 | [FASE-03-banco-e-calculo.md](FASE-03-banco-e-calculo.md) | Banco, migrações, regras de cálculo com testes | v0.3.0 | 🟨 Em andamento |
 | 4 | [FASE-04-clientes.md](FASE-04-clientes.md) | Cadastro de clientes | v0.4.0 | ⬜ Pendente |
 | 5 | [FASE-05-produtos.md](FASE-05-produtos.md) | Catálogo simples de produtos | v0.5.0 | ⬜ Pendente |
 | 6 | [FASE-06-tela-orcamento.md](FASE-06-tela-orcamento.md) | Tela de orçamento completa (salvar) | v0.6.0 | ⬜ Pendente |
@@ -18,7 +18,7 @@ Cada fase termina com o app compilando, testes passando e algo testável. A atua
 
 Legenda: ⬜ Pendente · 🟨 Em andamento · ✅ Concluída
 
-**Fase atual: 1** — v0.1.0 publicada; falta só o teste no PC da loja com Windows 7 (resultado em `C:\dev\orcamentos-ponto-do-gesso\docs\fases\FASE-01-esqueleto-win7.md`).
+**Fase atual: 3** — adiantada antes da Fase 2, que fica pendente até o teste no PC da loja com Windows 7. A Fase 1 continua aguardando esse mesmo teste (resultado em `C:\dev\orcamentos-ponto-do-gesso\docs\fases\FASE-01-esqueleto-win7.md`).
 
 ## PC da loja
 
@@ -40,6 +40,7 @@ Controle de estoque, vendas/pedidos, financeiro, nota fiscal, múltiplos PCs/sin
 
 Registrar aqui o que for decidido durante o desenvolvimento.
 
+- Ordem das fases: a Fase 3 foi adiantada; a Fase 2 só começa depois do teste no PC da loja.
 - Numeração: orçamento, cliente cadastrado e produto cadastrado têm número sequencial próprio (`0001`), começando do 1. No orçamento final só aparece o número do orçamento, discreto no rodapé; os códigos de cliente e produto ficam só no app.
 - Validade: **opcional por orçamento** (desligada por padrão). Ao ligar, sugere 7 dias (configurável).
 - Desconto: **opcional**, em R$ ou %, só sobre os produtos (não sobre o frete). Só aparece no PDF/PNG se aplicado.
