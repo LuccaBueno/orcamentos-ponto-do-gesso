@@ -25,7 +25,7 @@
 - [ ] Teste real: publicar **v0.2.0**, instalar no PC, publicar **v0.2.1** (só mudando o texto do rodapé) e atualizar pelo botão — no seu PC e no PC da loja
 - [ ] Teste de falha: zip corrompido → hash não bate → nada é alterado
 - [ ] **Teste com o antivírus do PC da loja**: baixar a release, abrir o app e atualizar com o antivírus ligado; se houver bloqueio, aplicar `C:\dev\orcamentos-ponto-do-gesso\docs\INSTALACAO-WINDOWS7.md` seção 5 e registrar aqui
-- [ ] Reduzir alarmes falsos: preencher metadados do exe (`Product`, `Company`, `Description`, `Copyright`, versão) no `Directory.Build.props`; não usar compactadores de exe (UPX) nem ofuscadores
+- [x] Reduzir alarmes falsos: preencher metadados do exe (`Product`, `Company`, `Description`, `Copyright`, versão) no `Directory.Build.props`; não usar compactadores de exe (UPX) nem ofuscadores
 - [x] Se o Atualizador for apagado/bloqueado: o app detecta, avisa e cai no modo manual (abrir página de downloads)
 
 ## Pronto quando
@@ -47,5 +47,6 @@ O PC da loja vai da v0.2.0 para a v0.2.1 pelo botão, sem perder nada, ou (se o 
   2. `Tela.Exibir` só volta quando a janela e todos os controles visíveis já têm handle. O novo `Tela.Fechar` fecha como o usuário faria (`Close`) e processa as mensagens antes do descarte, sempre na mesma thread STA.
   3. App (`FormAtualizacao` e a verificação automática do `FormPrincipal`): as continuações e o progresso não dependem mais do contexto da thread. Voltam para a tela por `Control.BeginInvoke` e só mexem nos controles se a janela ainda estiver aberta (`!_fechada && !IsDisposed && !Disposing && IsHandleCreated`). No app real o contexto já era o do WinForms, mas agora fechar a janela durante o download não tem como dar esse erro. Teste novo: `FecharDuranteODownloadIgnoraOResultadoQueChegaDepois`.
   - Resultado: 25 execuções seguidas sem falha das classes `TelaAtualizacaoTestes` + `TelaPrincipalTestes`, e mais 25 seguidas dos dois testes de download sozinhos.
+- Metadados dos exes: `Product`, `Company`, `Authors`, `Copyright` e `Description` no `Directory.Build.props`. A descrição que o Windows mostra (FileDescription) vem do `AssemblyTitle` de cada projeto: "Ponto do Gesso - orçamentos" e "Atualizador do Ponto do Gesso". Os dois exes têm o ícone do app. Nada de UPX nem ofuscador.
 - Os scripts `.ps1` ficam em UTF-8 **com BOM**: sem o BOM, o Windows PowerShell 5.1 lê o arquivo como ANSI e as mensagens com acento saem quebradas.
 

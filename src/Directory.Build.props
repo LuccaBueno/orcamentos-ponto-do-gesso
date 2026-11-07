@@ -5,6 +5,10 @@
     <Nullable>disable</Nullable>
     <Product>Ponto do Gesso</Product>
     <Company>Ponto do Gesso</Company>
+    <Authors>Lucca Bueno Cuzzolin</Authors>
+    <Copyright>Copyright © 2026 Lucca Bueno Cuzzolin</Copyright>
+    <!-- Metadados completos no exe reduzem alarmes falsos de antivírus; não usar compactadores (UPX) nem ofuscadores -->
+    <Description>Orçamentos da loja Ponto do Gesso</Description>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <!-- Só existe a plataforma x86: roda no Windows 7 de 32 e de 64 bits -->
     <Platforms>x86</Platforms>
