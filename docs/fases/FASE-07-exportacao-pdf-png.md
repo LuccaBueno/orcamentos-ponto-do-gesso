@@ -13,7 +13,7 @@
 - [x] Muitos itens: continuação em nova página com "Página X de Y" (PDF/impressão) / imagem única mais alta (PNG)
 - [x] `Exportacao\ExportadorPng.cs`: A4 a 150 dpi, fundo branco
 - [x] `Exportacao\ExportadorPdf.cs`: A4 retrato
-- [ ] `Exportacao\Impressao.cs`: `PrintDocument` + `PrintPreviewDialog` (pré-visualização) + `PrintDialog` (impressora e cópias), papel A4 retrato
+- [x] `Exportacao\Impressao.cs`: `PrintDocument` + `PrintPreviewDialog` (pré-visualização) + `PrintDialog` (impressora e cópias), papel A4 retrato
 - [ ] **Copiar imagem**: PNG para a área de transferência (`Clipboard.SetImage`, em thread STA)
 - [x] Nome dos arquivos e pasta conforme a ARQUITETURA; criar pastas `AAAA\MM`
 - [ ] Após salvar: mensagem com **Abrir arquivo** e **Abrir pasta** — a pasta abre no Explorer **com o arquivo já selecionado** (`explorer.exe /select,"<arquivo>"`), pronto para arrastar para o WhatsApp Web
