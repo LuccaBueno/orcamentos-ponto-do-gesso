@@ -1,4 +1,4 @@
-# Gera o pacote da release: publicacao\PontoDoGesso-vX.Y.Z.zip e .zip.sha256
+﻿# Gera o pacote da release: publicacao\PontoDoGesso-vX.Y.Z.zip e .zip.sha256
 # Uso: powershell -ExecutionPolicy Bypass -File C:\dev\orcamentos-ponto-do-gesso\scripts\empacotar.ps1 [-SemCompilar]
 param(
     # Pula o dotnet build (o workflow de release já compilou e testou)

@@ -1,0 +1,38 @@
+name: release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+      - name: Conferir a tag com a versão
+        shell: powershell
+        run: .\scripts\conferir-versao.ps1 -Tag "${{ github.ref_name }}"
+      - name: Compilar
+        run: dotnet build PontoDoGesso.sln -c Release
+      - name: Testar
+        run: dotnet test PontoDoGesso.sln -c Release --no-build
+      - name: Empacotar
+        shell: powershell
+        run: .\scripts\empacotar.ps1 -SemCompilar
+      - name: Notas da versão
+        shell: powershell
+        run: .\scripts\notas-versao.ps1 -Versao "${{ github.ref_name }}" -Saida notas.md
+      - name: Publicar a release
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = "${{ github.ref_name }}"
+          gh release create $tag "publicacao\PontoDoGesso-$tag.zip" "publicacao\PontoDoGesso-$tag.zip.sha256" --title "Ponto do Gesso $tag" --notes-file notas.md
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
