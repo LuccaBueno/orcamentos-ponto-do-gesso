@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Windows.Forms;
+using PontoDoGesso.Controles;
 using PontoDoGesso.Dados;
 using PontoDoGesso.Dominio;
 using PontoDoGesso.Forms;
@@ -127,6 +128,87 @@ namespace PontoDoGesso.Testes
             });
 
             Assert.Equal("João", Assert.Single(_clientes.Buscar("")).Nome);
+        }
+
+        [Fact]
+        public void TelefoneVemComDddPadraoEGravaCompleto()
+        {
+            Tela.EmSta(() =>
+            {
+                using (var form = new EdicaoSemDialogos(_temporario.Banco, new Cliente()))
+                {
+                    var telefone = Tela.Achar<CampoTelefone>(form, "telefone");
+                    Assert.Equal("12", telefone.Ddd);
+
+                    Tela.Achar<TextBox>(form, "nome").Text = "João";
+                    telefone.Numero = "99244-5402";
+                    Assert.True(form.Salvar());
+                }
+            });
+
+            Assert.Equal("12992445402", Assert.Single(_clientes.Buscar("")).Telefone);
+        }
+
+        [Fact]
+        public void ClienteComDdd11SalvaEExibeFormatado()
+        {
+            Tela.EmSta(() =>
+            {
+                using (var form = new EdicaoSemDialogos(_temporario.Banco, new Cliente()))
+                {
+                    Tela.Achar<TextBox>(form, "nome").Text = "João";
+                    var telefone = Tela.Achar<CampoTelefone>(form, "telefone");
+                    telefone.Ddd = "11";
+                    telefone.Numero = "987654321";
+                    Assert.True(form.Salvar());
+                }
+
+                using (var lista = new FormClientes(_temporario.Banco))
+                {
+                    Tela.Exibir(lista);
+                    Assert.Equal("(11) 98765-4321", Tela.Achar<DataGridView>(lista, "lista").Rows[0].Cells["telefone"].Value);
+                }
+            });
+
+            Assert.Equal("11987654321", Assert.Single(_clientes.Buscar("")).Telefone);
+        }
+
+        [Fact]
+        public void Ddd00EhRecusadoAoSalvar()
+        {
+            Tela.EmSta(() =>
+            {
+                using (var form = new EdicaoSemDialogos(_temporario.Banco, new Cliente()))
+                {
+                    Tela.Achar<TextBox>(form, "nome").Text = "João";
+                    var telefone = Tela.Achar<CampoTelefone>(form, "telefone2");
+                    telefone.Ddd = "00";
+                    telefone.Numero = "987654321";
+
+                    Assert.False(form.Salvar());
+                    Assert.StartsWith("Telefone 2: O DDD \"00\" não existe", form.UltimoAviso);
+                }
+            });
+
+            Assert.Empty(_clientes.Buscar(""));
+        }
+
+        [Fact]
+        public void TelefoneGravadoApareceSeparadoNaEdicao()
+        {
+            var cliente = Novo("João", "11987654321");
+
+            Tela.EmSta(() =>
+            {
+                using (var form = new FormClienteEditar(_temporario.Banco, cliente))
+                {
+                    Tela.Exibir(form);
+                    Tela.Capturar(form, "cliente-editar");
+                    var telefone = Tela.Achar<CampoTelefone>(form, "telefone");
+                    Assert.Equal("11", telefone.Ddd);
+                    Assert.Equal("98765-4321", telefone.Numero);
+                }
+            });
         }
 
         private class EdicaoSemDialogos : FormClienteEditar

@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using PontoDoGesso.Controles;
 using PontoDoGesso.Dados;
 using PontoDoGesso.Dominio;
 using PontoDoGesso.Servicos;
@@ -12,8 +13,8 @@ namespace PontoDoGesso.Forms
         private readonly ClienteRepositorio _clientes;
         private readonly Cliente _cliente;
         private readonly TextBox _nome = new TextBox { Name = "nome", Dock = DockStyle.Fill, MaxLength = 120 };
-        private readonly TextBox _telefone = new TextBox { Name = "telefone", Dock = DockStyle.Fill };
-        private readonly TextBox _telefone2 = new TextBox { Name = "telefone2", Dock = DockStyle.Fill };
+        private readonly CampoTelefone _telefone = new CampoTelefone { Name = "telefone" };
+        private readonly CampoTelefone _telefone2 = new CampoTelefone { Name = "telefone2" };
         private readonly TextBox _endereco = new TextBox { Name = "endereco", Dock = DockStyle.Fill };
         private readonly TextBox _numero = new TextBox { Name = "numero", Width = 90 };
         private readonly TextBox _bairro = new TextBox { Name = "bairro", Dock = DockStyle.Fill };
@@ -25,6 +26,10 @@ namespace PontoDoGesso.Forms
         {
             _clientes = new ClienteRepositorio(banco);
             _cliente = cliente;
+
+            var dddPadrao = new ConfiguracaoRepositorio(banco).Obter("cliente.ddd_padrao") ?? "12";
+            _telefone.DddPadrao = dddPadrao;
+            _telefone2.DddPadrao = dddPadrao;
 
             Text = cliente.Id == 0 ? "Novo cliente" : "Cliente Cód. " + Formatacao.Codigo(cliente.Id);
             Estilo.Aplicar(this, 520, 420);
@@ -78,8 +83,8 @@ namespace PontoDoGesso.Forms
         private void Preencher()
         {
             _nome.Text = _cliente.Nome;
-            _telefone.Text = _cliente.Telefone;
-            _telefone2.Text = _cliente.Telefone2;
+            _telefone.Exibir(_cliente.Telefone);
+            _telefone2.Exibir(_cliente.Telefone2);
             _endereco.Text = _cliente.Endereco;
             _numero.Text = _cliente.Numero;
             _bairro.Text = _cliente.Bairro;
@@ -105,9 +110,12 @@ namespace PontoDoGesso.Forms
                 return false;
             }
 
+            if (!LerTelefone(_telefone, "Telefone", out var telefone) || !LerTelefone(_telefone2, "Telefone 2", out var telefone2))
+                return false;
+
             _cliente.Nome = nome;
-            _cliente.Telefone = Estilo.Limpo(_telefone.Text);
-            _cliente.Telefone2 = Estilo.Limpo(_telefone2.Text);
+            _cliente.Telefone = telefone;
+            _cliente.Telefone2 = telefone2;
             _cliente.Endereco = Estilo.Limpo(_endereco.Text);
             _cliente.Numero = Estilo.Limpo(_numero.Text);
             _cliente.Bairro = Estilo.Limpo(_bairro.Text);
@@ -121,6 +129,16 @@ namespace PontoDoGesso.Forms
                 _clientes.Atualizar(_cliente);
 
             return true;
+        }
+
+        private bool LerTelefone(CampoTelefone campo, string titulo, out string telefone)
+        {
+            if (campo.TentarLer(out telefone, out var erro))
+                return true;
+
+            Avisar(titulo + ": " + erro);
+            campo.FocarErro();
+            return false;
         }
 
         protected virtual void Avisar(string mensagem) =>
