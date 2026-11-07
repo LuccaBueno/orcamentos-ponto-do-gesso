@@ -1,5 +1,6 @@
 # Ponto do Gesso — app de orçamentos
-n[![build](https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/actions/workflows/build.yml/badge.svg)](https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/actions/workflows/build.yml)
+
+[![build](https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/actions/workflows/build.yml/badge.svg)](https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/actions/workflows/build.yml)
 
 App desktop para fazer orçamentos da loja **Ponto do Gesso** (Gesso e Ferramentas — Pindamonhangaba/SP) de forma rápida, com cadastro de clientes, catálogo simples de produtos e exportação em **PDF** e **PNG** no mesmo visual da folha de orçamento em papel.
 

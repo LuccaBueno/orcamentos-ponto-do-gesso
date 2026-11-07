@@ -5,6 +5,7 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/); 
 ## [Não lançado]
 
 ### Adicionado
+- Fase 0: solução `PontoDoGesso.sln`, projetos net48 x86 (app, atualizador e testes) e CI no GitHub Actions.
 - Kit inicial: README, CLAUDE.md, arquitetura, layout do orçamento, atualização, instalação no Windows 7 e plano de 11 fases.
 - Planejamento: desconto opcional (R$ ou %), validade opcional por orçamento e filtros do histórico (data, cadastrado/avulso, frete, desconto).
 - Planejamento: orçamento em A4 retrato (sem 2 vias), foco digital e botão Imprimir com pré-visualização.

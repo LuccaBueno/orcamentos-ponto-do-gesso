@@ -4,8 +4,8 @@ Cada fase termina com o app compilando, testes passando e algo testável. A atua
 
 | Fase | Arquivo | Entrega | Versão | Status |
 |---|---|---|---|---|
-| 0 | [FASE-00-repositorio-e-ci.md](FASE-00-repositorio-e-ci.md) | Solução, projetos, CI no GitHub | — | ⬜ Pendente |
-| 1 | [FASE-01-esqueleto-win7.md](FASE-01-esqueleto-win7.md) | Janela principal + diagnóstico; **teste no Windows 7** | v0.1.0 | ⬜ Pendente |
+| 0 | [FASE-00-repositorio-e-ci.md](FASE-00-repositorio-e-ci.md) | Solução, projetos, CI no GitHub | — | ✅ Concluída |
+| 1 | [FASE-01-esqueleto-win7.md](FASE-01-esqueleto-win7.md) | Janela principal + diagnóstico; **teste no Windows 7** | v0.1.0 | 🟨 Em andamento |
 | 2 | [FASE-02-atualizacao.md](FASE-02-atualizacao.md) | Botão de atualização + release automática | v0.2.0 | ⬜ Pendente |
 | 3 | [FASE-03-banco-e-calculo.md](FASE-03-banco-e-calculo.md) | Banco, migrações, regras de cálculo com testes | v0.3.0 | ⬜ Pendente |
 | 4 | [FASE-04-clientes.md](FASE-04-clientes.md) | Cadastro de clientes | v0.4.0 | ⬜ Pendente |
@@ -18,7 +18,7 @@ Cada fase termina com o app compilando, testes passando e algo testável. A atua
 
 Legenda: ⬜ Pendente · 🟨 Em andamento · ✅ Concluída
 
-**Fase atual: 0**
+**Fase atual: 1**
 
 ## PC da loja
 
