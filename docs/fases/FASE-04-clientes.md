@@ -10,8 +10,8 @@
 - [x] Validação: DDD precisa ser um DDD brasileiro válido (lista fixa da Anatel) e o número precisa ter 8 dígitos (fixo) ou 9 começando com 9 (celular); se não for válido, aviso ao salvar
 - [x] Telefone gravado sempre completo (DDD + número), nunca sem DDD — o mesmo valor gera o link do WhatsApp na Fase 7
 - [x] Aviso de possível duplicado ao salvar (mesmo telefone ou mesmo nome)
-- [ ] Duplo clique abre edição; Enter na busca abre o primeiro resultado; Esc fecha
-- [ ] Botão **Novo orçamento para este cliente** (desabilitado até a Fase 6)
+- [x] Duplo clique abre edição; Enter na busca abre o primeiro resultado; Esc fecha
+- [x] Botão **Novo orçamento para este cliente** (desabilitado até a Fase 6)
 - [ ] Habilitar o botão **Clientes** na tela principal
 - [ ] Não excluir clientes, só inativar (orçamentos antigos podem apontar para eles)
 

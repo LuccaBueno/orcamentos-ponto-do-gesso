@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
 using PontoDoGesso.Controles;
 using PontoDoGesso.Dados;
@@ -264,6 +266,85 @@ namespace PontoDoGesso.Testes
                     Assert.Null(form.UltimaPergunta);
                 }
             });
+        }
+
+        [Fact]
+        public void EnterNaBuscaAbreOPrimeiroResultado()
+        {
+            Novo("Ana");
+            var joao = Novo("João");
+
+            Tela.EmSta(() =>
+            {
+                using (var form = new ListaSemDialogos(_temporario.Banco))
+                {
+                    Tela.Exibir(form);
+                    var busca = Tela.Achar<TextBox>(form, "busca");
+                    busca.Text = "jo";
+                    busca.Focus();
+
+                    Assert.True(form.Teclar(Keys.Enter));
+                    Assert.Equal(joao.Id, Assert.Single(form.Abertos).Id);
+                }
+            });
+        }
+
+        [Fact]
+        public void DuploCliqueAbreEdicaoEEscFecha()
+        {
+            var joao = Novo("João");
+
+            Tela.EmSta(() =>
+            {
+                using (var form = new ListaSemDialogos(_temporario.Banco))
+                {
+                    Tela.Exibir(form);
+                    var lista = Tela.Achar<DataGridView>(form, "lista");
+                    typeof(DataGridView).GetMethod("OnCellDoubleClick", BindingFlags.NonPublic | BindingFlags.Instance)
+                        .Invoke(lista, new object[] { new DataGridViewCellEventArgs(1, 0) });
+
+                    Assert.Equal(joao.Id, Assert.Single(form.Abertos).Id);
+
+                    ((Button)form.CancelButton).PerformClick();
+                    Assert.False(form.Visible);
+                }
+            });
+        }
+
+        [Fact]
+        public void NovoOrcamentoParaEsteClienteFicaDesabilitadoAteAFase6()
+        {
+            Novo("João");
+
+            Tela.EmSta(() =>
+            {
+                using (var form = new FormClientes(_temporario.Banco))
+                {
+                    Tela.Exibir(form);
+                    Assert.False(Tela.Achar<Button>(form, "novoOrcamento").Enabled);
+                }
+            });
+        }
+
+        private class ListaSemDialogos : FormClientes
+        {
+            public List<Cliente> Abertos { get; } = new List<Cliente>();
+
+            public ListaSemDialogos(Banco banco) : base(banco)
+            {
+            }
+
+            protected override bool AbrirEdicao(Cliente cliente)
+            {
+                Abertos.Add(cliente);
+                return false;
+            }
+
+            public bool Teclar(Keys tecla)
+            {
+                var mensagem = new Message();
+                return ProcessCmdKey(ref mensagem, tecla);
+            }
         }
 
         private class EdicaoSemDialogos : FormClienteEditar

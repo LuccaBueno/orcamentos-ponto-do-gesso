@@ -17,6 +17,7 @@ namespace PontoDoGesso.Forms
         private readonly DataGridView _lista;
         private readonly Button _editar;
         private readonly Button _inativar;
+        private readonly Button _novoOrcamento;
 
         public FormClientes(Banco banco)
         {
@@ -49,17 +50,27 @@ namespace PontoDoGesso.Forms
             _lista.Columns.Add(Estilo.CriarColuna("bairro", "Bairro", 24));
             _lista.Columns.Add(Estilo.CriarColuna("cidade", "Cidade", 24));
             _lista.SelectionChanged += (s, e) => AtualizarBotoes();
+            _lista.CellDoubleClick += (s, e) =>
+            {
+                if (e.RowIndex >= 0)
+                    EditarSelecionado();
+            };
 
             _editar = Estilo.CriarBotao("Editar", (s, e) => EditarSelecionado());
             _editar.Name = "editar";
             _inativar = Estilo.CriarBotao("Inativar", (s, e) => AlternarAtivo());
             _inativar.Name = "inativar";
+            _novoOrcamento = Estilo.CriarBotao("Novo orçamento para este cliente", (s, e) => { });
+            _novoOrcamento.Name = "novoOrcamento";
+            _novoOrcamento.Enabled = false;
             var fechar = Estilo.CriarBotao("Fechar", (s, e) => Close());
+            CancelButton = fechar;
 
             var botoes = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, Padding = new Padding(6) };
             botoes.Controls.Add(Estilo.CriarBotao("Novo", (s, e) => Novo()));
             botoes.Controls.Add(_editar);
             botoes.Controls.Add(_inativar);
+            botoes.Controls.Add(_novoOrcamento);
             botoes.Controls.Add(fechar);
 
             Controls.Add(_lista);
@@ -70,6 +81,19 @@ namespace PontoDoGesso.Forms
         }
 
         private Cliente Selecionado => _lista.CurrentRow?.Tag as Cliente;
+
+        /// <summary>Enter na busca abre o primeiro resultado.</summary>
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData == Keys.Enter && _busca.Focused && _lista.Rows.Count > 0)
+            {
+                _lista.CurrentCell = _lista.Rows[0].Cells[0];
+                EditarSelecionado();
+                return true;
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
 
         public void Carregar(long? manterSelecionado = null)
         {
