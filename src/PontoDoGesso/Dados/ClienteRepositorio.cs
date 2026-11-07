@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Dapper;
 using PontoDoGesso.Dominio;
 
@@ -41,6 +43,25 @@ namespace PontoDoGesso.Dados
                           cidade = @Cidade, ponto_referencia = @PontoReferencia, observacoes = @Observacoes, ativo = @Ativo, atualizado_em = @AtualizadoEm
                       WHERE id = @Id",
                     cliente);
+            }
+        }
+
+        /// <summary>Busca por código, nome (sem acento) ou telefone; o código exato vem primeiro.</summary>
+        public List<Cliente> Buscar(string texto, bool incluirInativos = false)
+        {
+            var termo = new TermoBusca(texto);
+
+            using (var conexao = _banco.Abrir())
+            {
+                return conexao.Query<Cliente>(
+                    @"SELECT * FROM clientes
+                      WHERE (@incluirInativos OR ativo = 1)
+                        AND (id = @Codigo
+                             OR remover_acentos(nome) LIKE @Padrao ESCAPE '\'
+                             OR somente_digitos(telefone) LIKE @PadraoTelefone
+                             OR somente_digitos(telefone2) LIKE @PadraoTelefone)
+                      ORDER BY id = @Codigo DESC, remover_acentos(nome)",
+                    new { termo.Codigo, termo.Padrao, termo.PadraoTelefone, incluirInativos }).ToList();
             }
         }
 

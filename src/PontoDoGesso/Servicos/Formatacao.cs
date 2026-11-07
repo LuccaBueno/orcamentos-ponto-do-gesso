@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace PontoDoGesso.Servicos
@@ -55,6 +56,14 @@ namespace PontoDoGesso.Servicos
                 throw new FormatException("Quantidade inválida: " + texto);
 
             return quantidade;
+        }
+
+        /// <summary>Texto para comparar em buscas: sem acentos e em minúsculas.</summary>
+        public static string Normalizar(string texto)
+        {
+            var decomposto = (texto ?? "").Normalize(NormalizationForm.FormD);
+            var semAcentos = decomposto.Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark).ToArray();
+            return new string(semAcentos).Normalize(NormalizationForm.FormC).ToLowerInvariant();
         }
 
         public static string SomenteDigitos(string texto) =>

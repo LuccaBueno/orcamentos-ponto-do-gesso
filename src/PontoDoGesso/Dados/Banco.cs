@@ -49,6 +49,8 @@ namespace PontoDoGesso.Dados
             try
             {
                 conexao.Open();
+                FuncaoTexto.Registrar(conexao, "remover_acentos", Formatacao.Normalizar);
+                FuncaoTexto.Registrar(conexao, "somente_digitos", Formatacao.SomenteDigitos);
                 return conexao;
             }
             catch
