@@ -111,7 +111,7 @@ namespace PontoDoGesso.Forms
             var botoes = new[]
             {
                 CriarBotao("novoOrcamento", "Novo orçamento", () => new FormOrcamento(_banco)),
-                CriarBotao("historico", "Histórico", null),
+                CriarBotao("historico", "Histórico", () => new FormHistorico(_banco)),
                 CriarBotao("clientes", "Clientes", () => new FormClientes(_banco)),
                 CriarBotao("produtos", "Produtos", () => new FormProdutos(_banco)),
                 CriarBotao("configuracoes", "Configurações", null)

@@ -4,8 +4,8 @@
 
 ## Tarefas
 
-- [ ] `Forms\FormHistorico.cs`: lista com Nº, data, cliente, tipo (Cadastrado/Avulso), telefone, frete, desconto, total, entrega/retirada, validade (com destaque se vencida); mais recentes primeiro; clique no cabeçalho ordena
-- [ ] Painel de filtros (combináveis entre si):
+- [x] `Forms\FormHistorico.cs`: lista com Nº, data, cliente, tipo (Cadastrado/Avulso), telefone, frete, desconto, total, entrega/retirada, validade (com destaque se vencida); mais recentes primeiro; clique no cabeçalho ordena
+- [x] Painel de filtros (combináveis entre si):
 
 | Filtro | Opções |
 |---|---|
@@ -16,13 +16,13 @@
 | **Desconto** | Todos · Com desconto · Sem desconto |
 | **Texto** | nº do orçamento, código do cliente, nome ou telefone (sem acento; também acha avulsos pelo nome digitado) |
 
-- [ ] Botão **Limpar filtros**; filtros lembrados enquanto o app estiver aberto
+- [x] Botão **Limpar filtros**; filtros lembrados enquanto o app estiver aberto
 - [x] Consulta montada em `Dados\OrcamentoRepositorio.Buscar(FiltroHistorico)` com parâmetros (sem concatenar texto no SQL)
-- [ ] Ações: **Abrir**, **Duplicar**, **Copiar imagem**, **PNG**, **PDF**, **Imprimir**, **Excluir** (com confirmação; o número não é reaproveitado)
+- [x] Ações: **Abrir**, **Duplicar**, **Copiar imagem**, **PNG**, **PDF**, **Imprimir**, **Excluir** (com confirmação; o número não é reaproveitado)
 - [ ] Na tela do cliente: aba/lista "Orçamentos deste cliente"
-- [ ] Paginação ou carregamento sob demanda (rápido com milhares de orçamentos)
-- [ ] Rodapé da lista: quantidade e soma dos totais do filtro
-- [ ] Habilitar **Histórico** na tela principal
+- [x] Paginação ou carregamento sob demanda (rápido com milhares de orçamentos)
+- [x] Rodapé da lista: quantidade e soma dos totais do filtro
+- [x] Habilitar **Histórico** na tela principal
 
 ## Testes
 
