@@ -4,18 +4,18 @@
 
 ## Tarefas
 
-- [ ] `Exportacao\DesenhoOrcamento.cs`: desenha o orçamento num `XGraphics` em milímetros (**A4 retrato**), com paginação, lendo dados da loja das configurações
+- [x] `Exportacao\DesenhoOrcamento.cs`: desenha o orçamento num `XGraphics` em milímetros (**A4 retrato**), com paginação, lendo dados da loja das configurações
 - [x] Cabeçalho com moldura arredondada, título, subtítulo, telefone com ícone (`assets\icone-whatsapp.png`, opcional), endereço em 2 linhas
 - [x] Número do orçamento **discreto** (7 pt, cinza claro, canto inferior direito); códigos de cliente e produto **não** aparecem, conforme `C:\dev\orcamentos-ponto-do-gesso\docs\LAYOUT-ORCAMENTO.md`
 - [x] Campos Data, Nome, Tel, End, Nº, Bairro, Cidade, P.Ref, Entrega/Retirada
 - [x] Tabela só com os itens preenchidos, cabeçalho com fundo `#FBE4D5`, quebra de descrição em 2 linhas
 - [x] SUBTOTAL e DESCONTO **só quando houver desconto**; FRETE (`—` se não houver), TOTAL (fundo `#FBE4D5`), OBS, rodapé; validade **só quando ligada no orçamento**
 - [x] Muitos itens: continuação em nova página com "Página X de Y" (PDF/impressão) / imagem única mais alta (PNG)
-- [ ] `Exportacao\ExportadorPng.cs`: A4 a 150 dpi, fundo branco
-- [ ] `Exportacao\ExportadorPdf.cs`: A4 retrato
+- [x] `Exportacao\ExportadorPng.cs`: A4 a 150 dpi, fundo branco
+- [x] `Exportacao\ExportadorPdf.cs`: A4 retrato
 - [ ] `Exportacao\Impressao.cs`: `PrintDocument` + `PrintPreviewDialog` (pré-visualização) + `PrintDialog` (impressora e cópias), papel A4 retrato
 - [ ] **Copiar imagem**: PNG para a área de transferência (`Clipboard.SetImage`, em thread STA)
-- [ ] Nome dos arquivos e pasta conforme a ARQUITETURA; criar pastas `AAAA\MM`
+- [x] Nome dos arquivos e pasta conforme a ARQUITETURA; criar pastas `AAAA\MM`
 - [ ] Após salvar: mensagem com **Abrir arquivo** e **Abrir pasta** — a pasta abre no Explorer **com o arquivo já selecionado** (`explorer.exe /select,"<arquivo>"`), pronto para arrastar para o WhatsApp Web
 - [ ] Botão **Abrir pasta de orçamentos** também na tela principal
 - [ ] Botão **Abrir conversa no WhatsApp** (habilitado quando o orçamento tem telefone): salva o PNG se ainda não salvou, abre a pasta com o arquivo selecionado e abre `https://wa.me/55DDDNUMERO` no navegador padrão — basta arrastar o arquivo (ou `Ctrl+V` se usou Copiar imagem)
