@@ -211,6 +211,61 @@ namespace PontoDoGesso.Testes
             });
         }
 
+        [Fact]
+        public void AvisaDuplicadoPeloTelefoneENaoSalvaSeARespostaForNao()
+        {
+            Novo("Maria", "12992445402");
+
+            Tela.EmSta(() =>
+            {
+                using (var form = new EdicaoSemDialogos(_temporario.Banco, new Cliente()))
+                {
+                    Tela.Achar<TextBox>(form, "nome").Text = "Maria Souza";
+                    Tela.Achar<CampoTelefone>(form, "telefone2").Numero = "99244-5402";
+
+                    Assert.False(form.Salvar());
+                    Assert.Contains("Cód. 0001 – Maria – (12) 99244-5402", form.UltimaPergunta);
+
+                    form.Resposta = true;
+                    Assert.True(form.Salvar());
+                }
+            });
+
+            Assert.Equal(2, _clientes.Buscar("").Count);
+        }
+
+        [Fact]
+        public void AvisaDuplicadoPeloNomeSemAcento()
+        {
+            Novo("João Silva");
+
+            Tela.EmSta(() =>
+            {
+                using (var form = new EdicaoSemDialogos(_temporario.Banco, new Cliente()))
+                {
+                    Tela.Achar<TextBox>(form, "nome").Text = "JOAO SILVA";
+
+                    Assert.False(form.Salvar());
+                    Assert.Contains("João Silva", form.UltimaPergunta);
+                }
+            });
+        }
+
+        [Fact]
+        public void EditarOProprioClienteNaoContaComoDuplicado()
+        {
+            var cliente = Novo("João", "12992445402");
+
+            Tela.EmSta(() =>
+            {
+                using (var form = new EdicaoSemDialogos(_temporario.Banco, cliente))
+                {
+                    Assert.True(form.Salvar());
+                    Assert.Null(form.UltimaPergunta);
+                }
+            });
+        }
+
         private class EdicaoSemDialogos : FormClienteEditar
         {
             public string UltimoAviso { get; private set; }
@@ -220,6 +275,15 @@ namespace PontoDoGesso.Testes
             }
 
             protected override void Avisar(string mensagem) => UltimoAviso = mensagem;
+
+            public bool Resposta { get; set; }
+            public string UltimaPergunta { get; private set; }
+
+            protected override bool Confirmar(string pergunta)
+            {
+                UltimaPergunta = pergunta;
+                return Resposta;
+            }
         }
     }
 }

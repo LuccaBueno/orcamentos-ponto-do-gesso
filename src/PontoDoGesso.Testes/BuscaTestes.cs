@@ -94,6 +94,16 @@ namespace PontoDoGesso.Testes
         }
 
         [Fact]
+        public void DuplicadoNaoConfundeClientesSemTelefone()
+        {
+            NovoCliente("Maria");
+            NovoCliente("Ana", "12992445402", ativo: false);
+
+            Assert.Empty(_clientes.PossiveisDuplicados(new Cliente { Nome = "José" }));
+            Assert.Equal("Ana", Assert.Single(_clientes.PossiveisDuplicados(new Cliente { Nome = "José", Telefone = "(12) 99244-5402" })).Nome);
+        }
+
+        [Fact]
         public void InativoSoApareceQuandoPedido()
         {
             NovoCliente("João", ativo: false);

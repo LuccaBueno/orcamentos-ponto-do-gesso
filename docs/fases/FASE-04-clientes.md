@@ -9,7 +9,7 @@
 - [x] Telefone com **DDD sempre visível e editável**: campo separado `(DD)` já preenchido com o DDD padrão (12, configurável), mais o número; para cliente de outro estado é só trocar o DDD
 - [x] Validação: DDD precisa ser um DDD brasileiro válido (lista fixa da Anatel) e o número precisa ter 8 dígitos (fixo) ou 9 começando com 9 (celular); se não for válido, aviso ao salvar
 - [x] Telefone gravado sempre completo (DDD + número), nunca sem DDD — o mesmo valor gera o link do WhatsApp na Fase 7
-- [ ] Aviso de possível duplicado ao salvar (mesmo telefone ou mesmo nome)
+- [x] Aviso de possível duplicado ao salvar (mesmo telefone ou mesmo nome)
 - [ ] Duplo clique abre edição; Enter na busca abre o primeiro resultado; Esc fecha
 - [ ] Botão **Novo orçamento para este cliente** (desabilitado até a Fase 6)
 - [ ] Habilitar o botão **Clientes** na tela principal
@@ -34,3 +34,4 @@ Publicar v0.4.0, atualizar a loja e cadastrar 3 clientes reais de teste.
 - Até lá, os campos Telefone e Telefone 2 de `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\Forms\FormClienteEditar.cs` são texto livre, sem DDD separado e sem validação. O botão **Clientes** da tela principal ainda não foi habilitado, então as telas só são exercitadas pelos testes automáticos: aguardando teste do Lucca.
 - Os testes agora gravam em `C:\dev\orcamentos-ponto-do-gesso\.tmp\`, e `PONTODOGESSO_DADOS` troca a pasta de dados (`C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\Servicos\Caminhos.cs`).
 - Telefone: decidido gravar **só os dígitos** (DDD + número, ex.: `12992445402`); a formatação `(12) 99244-5402` é feita na exibição. Regras em `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\Servicos\Telefone.cs` e o campo em `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\Controles\CampoTelefone.cs`. Número vazio = sem telefone (o DDD é ignorado). DDD ou número inválido **impede o salvamento** com o aviso, em vez de só avisar e gravar. Telefone antigo, gravado sem DDD, aparece com o DDD padrão ao abrir a edição.
+- Duplicado: compara o nome sem acento e sem maiúsculas (igual, não parecido) e qualquer um dos dois telefones, incluindo clientes inativos. Mostra até 5 clientes parecidos e pergunta "Salvar mesmo assim?" (o padrão é Não).

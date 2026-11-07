@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using PontoDoGesso.Controles;
 using PontoDoGesso.Dados;
@@ -113,6 +114,9 @@ namespace PontoDoGesso.Forms
             if (!LerTelefone(_telefone, "Telefone", out var telefone) || !LerTelefone(_telefone2, "Telefone 2", out var telefone2))
                 return false;
 
+            if (!ConfirmarDuplicados(new Cliente { Id = _cliente.Id, Nome = nome, Telefone = telefone, Telefone2 = telefone2 }))
+                return false;
+
             _cliente.Nome = nome;
             _cliente.Telefone = telefone;
             _cliente.Telefone2 = telefone2;
@@ -141,7 +145,24 @@ namespace PontoDoGesso.Forms
             return false;
         }
 
+        private bool ConfirmarDuplicados(Cliente dados)
+        {
+            var parecidos = _clientes.PossiveisDuplicados(dados);
+            if (parecidos.Count == 0)
+                return true;
+
+            var lista = string.Join("\n", parecidos.Take(5).Select(cliente =>
+                "Cód. " + Formatacao.Codigo(cliente.Id) + " – " + cliente.Nome +
+                (cliente.Telefone == null ? "" : " – " + Formatacao.Telefone(cliente.Telefone)) +
+                (cliente.Ativo ? "" : " (inativo)")));
+
+            return Confirmar("Já existe cliente com o mesmo nome ou telefone:\n\n" + lista + "\n\nSalvar mesmo assim?");
+        }
+
         protected virtual void Avisar(string mensagem) =>
             MessageBox.Show(this, mensagem, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+        protected virtual bool Confirmar(string pergunta) =>
+            MessageBox.Show(this, pergunta, Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes;
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Dapper;
 using PontoDoGesso.Dominio;
+using PontoDoGesso.Servicos;
 
 namespace PontoDoGesso.Dados
 {
@@ -69,6 +70,27 @@ namespace PontoDoGesso.Dados
                              OR somente_digitos(telefone2) LIKE @PadraoTelefone)
                       ORDER BY id = @Codigo DESC, remover_acentos(nome)",
                     new { termo.Codigo, termo.Padrao, termo.PadraoTelefone, incluirInativos }).ToList();
+            }
+        }
+
+        /// <summary>Outros clientes (ativos ou não) com o mesmo nome, sem acento, ou com um dos mesmos telefones.</summary>
+        public List<Cliente> PossiveisDuplicados(Cliente cliente)
+        {
+            var telefones = new[] { cliente.Telefone, cliente.Telefone2 }
+                .Select(Formatacao.SomenteDigitos)
+                .Where(telefone => telefone.Length > 0)
+                .ToArray();
+
+            using (var conexao = _banco.Abrir())
+            {
+                return conexao.Query<Cliente>(
+                    @"SELECT * FROM clientes
+                      WHERE id <> @Id
+                        AND (remover_acentos(trim(nome)) = @nome
+                             OR somente_digitos(telefone) IN @telefones
+                             OR somente_digitos(telefone2) IN @telefones)
+                      ORDER BY id",
+                    new { cliente.Id, nome = Formatacao.Normalizar((cliente.Nome ?? "").Trim()), telefones }).ToList();
             }
         }
 
