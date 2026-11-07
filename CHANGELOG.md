@@ -4,7 +4,14 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/); 
 
 ## [Não lançado]
 
+## [0.1.0] - 2026-11-06
+
+Versão de teste de compatibilidade: ainda não faz orçamentos.
+
 ### Adicionado
+- Fase 1: janela principal com os botões ainda desabilitados, cultura pt-BR fixa, manifesto com suporte ao Windows 7 e tratamento global de erros com log em `%APPDATA%\PontoDoGesso\logs\`.
+- Fase 1: menu Ajuda → Diagnóstico com dados do sistema e os testes de banco, PDF/PNG e conexão com o GitHub.
+- Fase 1: versões travadas de `System.Data.SQLite.Core` 1.0.119 e `PDFsharp-GDI` 6.2.4 (última versão MIT do PDFsharp).
 - Fase 0: solução `PontoDoGesso.sln`, projetos net48 x86 (app, atualizador e testes) e CI no GitHub Actions.
 - Kit inicial: README, CLAUDE.md, arquitetura, layout do orçamento, atualização, instalação no Windows 7 e plano de 11 fases.
 - Planejamento: desconto opcional (R$ ou %), validade opcional por orçamento e filtros do histórico (data, cadastrado/avulso, frete, desconto).

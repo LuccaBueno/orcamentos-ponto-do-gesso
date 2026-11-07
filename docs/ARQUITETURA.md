@@ -58,7 +58,19 @@ C:\dev\orcamentos-ponto-do-gesso\
 
 - Todos os `.csproj` no formato SDK, com `Microsoft.NETFramework.ReferenceAssemblies`, para compilar com `dotnet build` sem precisar do Visual Studio.
 - Versão do app definida uma única vez em `src\Directory.Build.props` (`<Version>1.2.3</Version>`) e lida em tempo de execução pelo botão de atualização.
-- A versão exata de cada pacote é escolhida e travada na Fase 1, depois de testada no Windows 7.
+- As versões exatas estão travadas na tabela abaixo (Fase 1).
+
+### Versões travadas
+
+| Pacote | Versão | Licença | Situação |
+|---|---|---|---|
+| `System.Data.SQLite.Core` | `[1.0.119]` (SQLite 3.46.1) | domínio público | Passou no Windows 11; **falta o teste no Windows 7** |
+| `PDFsharp-GDI` | `[6.2.4]` | MIT | Passou no Windows 11; **falta o teste no Windows 7** |
+| `Dapper` | a definir na Fase 3 | — | Ainda não usado |
+| `xunit` / `xunit.runner.visualstudio` / `Microsoft.NET.Test.Sdk` | `2.9.3` / `3.1.5` / `17.14.1` | — | Só nos testes, não vão para a loja |
+
+- **Não atualizar o PDFsharp para 6.5.0 ou mais novo.** A partir da 6.5.0 a licença mudou de MIT para **AGPL-3.0** e a biblioteca passou a exigir uma licença válida em tempo de execução (`PdfSharpLicenseException: The loaded license is not valid`). A 6.2.4 é a última versão MIT. Por isso a versão está travada com colchetes no `.csproj`.
+- `SQLite.Interop.dll` (x86) conferido por inspeção do binário: exige Windows 6.0 ou mais novo, não depende do VC++ Redistributable e só importa funções que existem no Windows 7.
 
 ## Onde ficam os dados
 
