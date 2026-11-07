@@ -50,9 +50,30 @@ namespace PontoDoGesso.Testes
             });
         }
 
+        [Fact]
+        public void AbrirPastaDeOrcamentosUsaAPastaDasConfiguracoes()
+        {
+            var pasta = System.IO.Path.Combine(_temporario.Pasta, "exportados");
+            new ConfiguracaoRepositorio(_temporario.Banco).Definir("exportacao.pasta", pasta);
+
+            Tela.EmSta(() =>
+            {
+                using (var form = new PrincipalSemDialogos(_temporario.Banco))
+                {
+                    Tela.Exibir(form);
+                    Tela.Capturar(form, "principal");
+                    Tela.Achar<Button>(form, "pastaOrcamentos").PerformClick();
+                    Assert.Equal(pasta, Assert.Single(form.Pastas));
+                }
+            });
+        }
+
         private class PrincipalSemDialogos : FormPrincipal
         {
             public List<Form> Abertas { get; } = new List<Form>();
+            public List<string> Pastas { get; } = new List<string>();
+
+            protected override void AbrirPasta(string pasta) => Pastas.Add(pasta);
 
             public PrincipalSemDialogos(Banco banco) : base(banco)
             {

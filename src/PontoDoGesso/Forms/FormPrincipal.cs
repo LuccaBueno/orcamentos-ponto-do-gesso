@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using PontoDoGesso.Dados;
+using PontoDoGesso.Exportacao;
 using PontoDoGesso.Servicos;
 
 namespace PontoDoGesso.Forms
@@ -38,13 +39,7 @@ namespace PontoDoGesso.Forms
 
             layout.Controls.Add(CriarCabecalho(), 0, 0);
             layout.Controls.Add(CriarBotoes(), 0, 1);
-            layout.Controls.Add(new Label
-            {
-                Text = "Versão " + Diagnostico.VersaoApp,
-                AutoSize = true,
-                ForeColor = Color.Gray,
-                Anchor = AnchorStyles.Right
-            }, 0, 2);
+            layout.Controls.Add(CriarRodape(), 0, 2);
 
             Controls.Add(layout);
             var menu = CriarMenu();
@@ -74,6 +69,41 @@ namespace PontoDoGesso.Forms
             }, 0, 1);
             return cabecalho;
         }
+
+        private Control CriarRodape()
+        {
+            var rodape = new TableLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, ColumnCount = 2, Margin = new Padding(0) };
+            rodape.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            rodape.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+
+            var pasta = new Button { Name = "pastaOrcamentos", Text = "Abrir pasta de orçamentos", AutoSize = true, Padding = new Padding(6, 2, 6, 2), Anchor = AnchorStyles.Left };
+            pasta.Click += (s, e) => AbrirPastaOrcamentos();
+            rodape.Controls.Add(pasta, 0, 0);
+            rodape.Controls.Add(new Label
+            {
+                Text = "Versão " + Diagnostico.VersaoApp,
+                AutoSize = true,
+                ForeColor = Color.Gray,
+                Anchor = AnchorStyles.Right
+            }, 1, 0);
+            return rodape;
+        }
+
+        private void AbrirPastaOrcamentos()
+        {
+            var pasta = ArquivosOrcamento.PastaBase(new ConfiguracaoRepositorio(_banco));
+            try
+            {
+                AbrirPasta(pasta);
+            }
+            catch (Exception erro) when (erro is System.IO.IOException || erro is UnauthorizedAccessException || erro is System.ComponentModel.Win32Exception)
+            {
+                Log.RegistrarErro(erro);
+                MessageBox.Show(this, "Não foi possível abrir a pasta de orçamentos:\n" + pasta + "\n\n" + erro.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
+        protected virtual void AbrirPasta(string pasta) => Sistema.AbrirPasta(pasta);
 
         private Control CriarBotoes()
         {
