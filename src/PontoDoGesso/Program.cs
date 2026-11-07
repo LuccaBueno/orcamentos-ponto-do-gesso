@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.Threading;
 using System.Windows.Forms;
+using PontoDoGesso.Dados;
 using PontoDoGesso.Forms;
 using PontoDoGesso.Servicos;
 
@@ -27,7 +28,21 @@ namespace PontoDoGesso
             Application.SetCompatibleTextRenderingDefault(false);
 
             Caminhos.CriarPastas();
+            PrepararBanco();
             Application.Run(new FormPrincipal());
+        }
+
+        private static void PrepararBanco()
+        {
+            try
+            {
+                new Banco().Preparar();
+            }
+            catch (Exception erro)
+            {
+                // O app abre mesmo assim: o Diagnóstico precisa continuar disponível para investigar
+                TratarErro(erro);
+            }
         }
 
         private static void TratarErro(Exception erro)

@@ -20,6 +20,9 @@ namespace PontoDoGesso.Dados
             PastaBackups = pastaBackups;
         }
 
+        /// <summary>Deixa o banco pronto para uso e devolve a versão dele. Roda ao abrir o app.</summary>
+        public int Preparar() => ExecutorMigracoes.Aplicar(this, Migracao.Embutidas());
+
         public SQLiteConnection Abrir()
         {
             Directory.CreateDirectory(Path.GetDirectoryName(Arquivo));

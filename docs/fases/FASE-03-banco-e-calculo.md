@@ -6,7 +6,7 @@
 
 - [x] `Dados\Banco.cs`: abre/cria `%APPDATA%\PontoDoGesso\dados.db`, `PRAGMA foreign_keys=ON`, `journal_mode=WAL` (testar no Win7; se der problema, `DELETE`)
 - [x] `Dados\Migracoes\001_inicial.sql` com o esquema de `C:\dev\orcamentos-ponto-do-gesso\docs\ARQUITETURA.md` (recurso embutido)
-- [ ] Executor de migrações: lê `versao_banco`, faz backup em `backups\` antes de migrar, aplica em transação
+- [x] Executor de migrações: lê `versao_banco`, faz backup em `backups\` antes de migrar, aplica em transação
 - [ ] Inserir configurações padrão (tabela da ARQUITETURA)
 - [ ] `Dominio\`: `Cliente`, `Produto`, `Orcamento`, `ItemOrcamento`
 - [ ] `Servicos\Formatacao.cs`: centavos ↔ texto (`"1.234,56"`, `"R$ 1.234,56"`), parse de quantidade com vírgula, telefone `(12) 99244-5402`
@@ -31,7 +31,7 @@
 - [ ] Códigos de cliente e produto sequenciais e não reaproveitados
 - [ ] `Formatacao.Codigo(45)` → `"0045"`; busca por `"45"` e `"0045"` acha o mesmo registro
 - [ ] Snapshot: alterar o cliente depois de salvar não altera o orçamento
-- [ ] Migração em banco novo e em banco já migrado (idempotente)
+- [x] Migração em banco novo e em banco já migrado (idempotente)
 
 ## Pronto quando
 

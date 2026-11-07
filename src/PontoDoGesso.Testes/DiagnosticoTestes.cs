@@ -27,6 +27,20 @@ namespace PontoDoGesso.Testes
             Assert.Contains("Processo: 32 bits", resumo);
             Assert.Contains(".NET Framework: 4.8", resumo);
             Assert.Contains(Caminhos.ArquivoBanco, resumo);
+            Assert.Contains("Versão do banco: ", resumo);
+        }
+
+        [Fact]
+        public void DescricaoBancoMostraVersaoEDiario()
+        {
+            using (var temporario = new BancoTemporario())
+            {
+                Assert.Equal("banco ainda não criado", Diagnostico.DescricaoBanco(temporario.Banco));
+
+                var versao = temporario.Banco.Preparar();
+
+                Assert.Equal(versao + " (diário: wal)", Diagnostico.DescricaoBanco(temporario.Banco));
+            }
         }
     }
 }

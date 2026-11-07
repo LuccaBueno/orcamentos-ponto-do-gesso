@@ -1,6 +1,8 @@
 using System;
+using System.IO;
 using System.Text;
 using Microsoft.Win32;
+using PontoDoGesso.Dados;
 
 namespace PontoDoGesso.Servicos
 {
@@ -19,6 +21,7 @@ namespace PontoDoGesso.Servicos
             texto.AppendLine("Processo: " + (Environment.Is64BitProcess ? "64 bits" : "32 bits"));
             texto.AppendLine(".NET Framework: " + DescricaoFramework());
             texto.AppendLine("Banco: " + Caminhos.ArquivoBanco);
+            texto.AppendLine("Versão do banco: " + DescricaoBanco(new Banco()));
             return texto.ToString();
         }
 
@@ -28,6 +31,26 @@ namespace PontoDoGesso.Servicos
             if (release >= 528040) return "4.8";
             if (release >= 461808) return "4.7.2";
             return "anterior à 4.7.2";
+        }
+
+        public static string DescricaoBanco(Banco banco)
+        {
+            if (!File.Exists(banco.Arquivo))
+                return "banco ainda não criado";
+
+            try
+            {
+                using (var conexao = banco.Abrir())
+                using (var comando = conexao.CreateCommand())
+                {
+                    comando.CommandText = "PRAGMA journal_mode";
+                    return ExecutorMigracoes.LerVersao(conexao) + " (diário: " + comando.ExecuteScalar() + ")";
+                }
+            }
+            catch (Exception erro)
+            {
+                return "erro ao ler: " + erro.Message;
+            }
         }
 
         private static string ServicePack()
