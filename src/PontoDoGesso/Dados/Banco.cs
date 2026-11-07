@@ -21,7 +21,12 @@ namespace PontoDoGesso.Dados
         }
 
         /// <summary>Deixa o banco pronto para uso e devolve a versão dele. Roda ao abrir o app.</summary>
-        public int Preparar() => ExecutorMigracoes.Aplicar(this, Migracao.Embutidas());
+        public int Preparar()
+        {
+            var versao = ExecutorMigracoes.Aplicar(this, Migracao.Embutidas());
+            ConfiguracoesPadrao.Inserir(this);
+            return versao;
+        }
 
         public SQLiteConnection Abrir()
         {
