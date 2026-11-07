@@ -16,9 +16,11 @@ namespace PontoDoGesso.Dados
             ["orcamento.validade_sugerida_dias"] = "7",
             ["orcamento.perguntar_cadastro_avulso"] = "1",
             ["cliente.ddd_padrao"] = "12",
+            ["cliente.cidade_padrao"] = "Pindamonhangaba",
             ["exportacao.pasta"] = Caminhos.PastaExportacao,
             ["impressao.impressora"] = "",
-            ["backup.ultimo"] = null
+            ["backup.ultimo"] = null,
+            ["backup.pasta_extra"] = ""
         };
 
         /// <summary>Só acrescenta as chaves que faltam: o que o usuário já alterou fica como está.</summary>

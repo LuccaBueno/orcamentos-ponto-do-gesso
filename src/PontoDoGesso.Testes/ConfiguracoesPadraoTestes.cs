@@ -37,7 +37,7 @@ namespace PontoDoGesso.Testes
         {
             _temporario.Banco.Preparar();
 
-            Assert.Equal(12, Contar());
+            Assert.Equal(14, Contar());
             Assert.Equal("PONTO DO GESSO", Ler("loja.nome"));
             Assert.Equal("Gesso e Ferramentas", Ler("loja.subtitulo"));
             Assert.Equal("(12) 99244-5402", Ler("loja.telefone"));
@@ -66,7 +66,7 @@ namespace PontoDoGesso.Testes
             _temporario.Banco.Preparar();
 
             Assert.Equal("15", Ler("orcamento.validade_sugerida_dias"));
-            Assert.Equal(12, Contar());
+            Assert.Equal(14, Contar());
         }
     }
 }

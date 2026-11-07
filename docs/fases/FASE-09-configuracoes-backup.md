@@ -12,8 +12,8 @@
 - [ ] Habilitar **Configurações** na tela principal
 
 ### Backup (`Servicos\Backup.cs`)
-- [ ] Backup automático ao abrir, se o último tiver mais de 24 h, usando a API de backup do SQLite (seguro com o banco aberto)
-- [ ] Manter os últimos 30 backups automáticos
+- [x] Backup automático ao abrir, se o último tiver mais de 24 h, usando a API de backup do SQLite (seguro com o banco aberto)
+- [x] Manter os últimos 30 backups automáticos
 - [ ] **Fazer backup agora** e **Copiar backup para…** (pendrive/HD)
 - [ ] Pasta extra de backup opcional (copia também para lá se estiver acessível)
 - [ ] **Restaurar backup**: escolhe arquivo, valida que é um banco do app, faz backup do atual antes, reinicia o app
@@ -21,8 +21,8 @@
 
 ## Testes
 
-- [ ] Restaurar um backup antigo e conferir orçamentos
-- [ ] Restaurar arquivo inválido é recusado
+- [x] Restaurar um backup antigo e conferir orçamentos
+- [x] Restaurar arquivo inválido é recusado
 
 ## Pronto quando
 

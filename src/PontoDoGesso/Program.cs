@@ -36,7 +36,9 @@ namespace PontoDoGesso
         {
             try
             {
-                new Banco().Preparar();
+                var banco = new Banco();
+                banco.Preparar();
+                new Backup(banco).AutomaticoSeNecessario(DateTime.Now);
             }
             catch (Exception erro)
             {
