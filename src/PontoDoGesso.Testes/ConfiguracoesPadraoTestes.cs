@@ -37,7 +37,7 @@ namespace PontoDoGesso.Testes
         {
             _temporario.Banco.Preparar();
 
-            Assert.Equal(14, Contar());
+            Assert.Equal(15, Contar());
             Assert.Equal("PONTO DO GESSO", Ler("loja.nome"));
             Assert.Equal("Gesso e Ferramentas", Ler("loja.subtitulo"));
             Assert.Equal("(12) 99244-5402", Ler("loja.telefone"));
@@ -49,6 +49,7 @@ namespace PontoDoGesso.Testes
             Assert.Equal(Caminhos.PastaExportacao, Ler("exportacao.pasta"));
             Assert.Equal("", Ler("impressao.impressora"));
             Assert.Equal(DBNull.Value, Ler("backup.ultimo"));
+            Assert.Equal(DBNull.Value, Ler("atualizacao.ultima_verificacao"));
         }
 
         [Fact]
@@ -66,7 +67,7 @@ namespace PontoDoGesso.Testes
             _temporario.Banco.Preparar();
 
             Assert.Equal("15", Ler("orcamento.validade_sugerida_dias"));
-            Assert.Equal(14, Contar());
+            Assert.Equal(15, Contar());
         }
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using PontoDoGesso.Dados;
 using PontoDoGesso.Exportacao;
@@ -12,6 +13,8 @@ namespace PontoDoGesso.Forms
         private static readonly Color Laranja = Color.FromArgb(0xC5, 0x5A, 0x11);
 
         private readonly Banco _banco;
+        private LinkLabel _avisoAtualizacao;
+        private VersaoPublicada _versaoDisponivel;
 
         public FormPrincipal() : this(new Banco())
         {
@@ -72,21 +75,86 @@ namespace PontoDoGesso.Forms
 
         private Control CriarRodape()
         {
-            var rodape = new TableLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, ColumnCount = 2, Margin = new Padding(0) };
+            var rodape = new TableLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, ColumnCount = 4, Margin = new Padding(0) };
+            rodape.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             rodape.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            rodape.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             rodape.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
 
             var pasta = new Button { Name = "pastaOrcamentos", Text = "Abrir pasta de orçamentos", AutoSize = true, Padding = new Padding(6, 2, 6, 2), Anchor = AnchorStyles.Left };
             pasta.Click += (s, e) => AbrirPastaOrcamentos();
             rodape.Controls.Add(pasta, 0, 0);
+
+            // Aviso da verificação automática: só aparece quando há versão nova
+            _avisoAtualizacao = new LinkLabel { Name = "avisoAtualizacao", AutoSize = true, Visible = false, Anchor = AnchorStyles.Right, LinkColor = Laranja, Font = new Font("Segoe UI", 10F, FontStyle.Bold) };
+            _avisoAtualizacao.LinkClicked += (s, e) => AbrirTela(() => new FormAtualizacao(_banco, new Atualizacao(), _versaoDisponivel));
+            rodape.Controls.Add(_avisoAtualizacao, 1, 0);
+
+            var verificar = new LinkLabel { Name = "verificarAtualizacoes", Text = "Verificar atualizações", AutoSize = true, Anchor = AnchorStyles.Right, Margin = new Padding(12, 3, 6, 3) };
+            verificar.LinkClicked += (s, e) => AbrirTela(() => new FormAtualizacao(_banco));
+            rodape.Controls.Add(verificar, 2, 0);
+
             rodape.Controls.Add(new Label
             {
+                Name = "versao",
                 Text = "Versão " + Diagnostico.VersaoApp,
                 AutoSize = true,
                 ForeColor = Color.Gray,
                 Anchor = AnchorStyles.Right
-            }, 1, 0);
+            }, 3, 0);
             return rodape;
+        }
+
+        /// <summary>Ligada só pelo Program.cs: nos testes a tela não acessa a internet.</summary>
+        public bool VerificarAtualizacaoAoAbrir { get; set; }
+
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            if (VerificarAtualizacaoAoAbrir)
+                VerificarAtualizacaoEmSegundoPlano();
+        }
+
+        private void VerificarAtualizacaoEmSegundoPlano()
+        {
+            var verificacao = new VerificacaoAutomatica(_banco);
+            var atualizacao = new Atualizacao();
+
+            Task.Run(() => verificacao.VerificarSePrecisa(atualizacao.ConsultarUltima, Atualizacao.VersaoAtual, DateTime.Now)).ContinueWith(tarefa =>
+            {
+                // Sem internet ou GitHub fora do ar: não incomoda; o Verificar atualizações mostra o motivo
+                if (tarefa.IsFaulted)
+                    Log.RegistrarErro(tarefa.Exception.GetBaseException());
+                else if (tarefa.Result != null)
+                    NaTela(() => MostrarAvisoAtualizacao(tarefa.Result));
+            });
+        }
+
+        /// <summary>Volta para a thread da tela por BeginInvoke, só se a janela ainda estiver aberta.</summary>
+        private void NaTela(Action acao)
+        {
+            if (IsDisposed || Disposing || !IsHandleCreated)
+                return;
+
+            try
+            {
+                BeginInvoke((Action)(() =>
+                {
+                    if (!IsDisposed && !Disposing)
+                        acao();
+                }));
+            }
+            catch (InvalidOperationException)
+            {
+                // A janela fechou entre a conferência e o BeginInvoke
+            }
+        }
+
+        public void MostrarAvisoAtualizacao(VersaoPublicada versao)
+        {
+            _versaoDisponivel = versao;
+            _avisoAtualizacao.Text = "Nova versão " + versao.Versao.ToString(3) + "!";
+            _avisoAtualizacao.Visible = true;
         }
 
         private void AbrirPastaOrcamentos()

@@ -58,6 +58,44 @@ namespace PontoDoGesso.Testes
             });
         }
 
+        [Fact]
+        public void VerificarAtualizacoesAbreATelaDeAtualizacao()
+        {
+            Tela.EmSta(() =>
+            {
+                using (var form = new PrincipalSemDialogos(_temporario.Banco))
+                {
+                    Tela.Exibir(form);
+                    Assert.False(form.VerificarAtualizacaoAoAbrir);
+                    Assert.False(Tela.Achar<LinkLabel>(form, "avisoAtualizacao").Visible);
+
+                    Tela.Clicar(Tela.Achar<LinkLabel>(form, "verificarAtualizacoes"));
+                    Assert.IsType<FormAtualizacao>(Assert.Single(form.Abertas));
+                }
+            });
+        }
+
+        [Fact]
+        public void AvisoDeVersaoNovaNoRodapeAbreAAtualizacao()
+        {
+            Tela.EmSta(() =>
+            {
+                using (var form = new PrincipalSemDialogos(_temporario.Banco))
+                {
+                    Tela.Exibir(form);
+                    form.MostrarAvisoAtualizacao(new Servicos.VersaoPublicada { Tag = "v9.9.9", Versao = new Version(9, 9, 9), Notas = "" });
+                    Tela.Capturar(form, "principal-aviso-atualizacao");
+
+                    var aviso = Tela.Achar<LinkLabel>(form, "avisoAtualizacao");
+                    Assert.True(aviso.Visible);
+                    Assert.Equal("Nova versão 9.9.9!", aviso.Text);
+
+                    Tela.Clicar(aviso);
+                    Assert.IsType<FormAtualizacao>(Assert.Single(form.Abertas));
+                }
+            });
+        }
+
         private class PrincipalSemDialogos : FormPrincipal
         {
             public List<Form> Abertas { get; } = new List<Form>();

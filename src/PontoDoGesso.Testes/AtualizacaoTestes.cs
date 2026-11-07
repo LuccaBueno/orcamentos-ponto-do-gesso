@@ -79,6 +79,17 @@ namespace PontoDoGesso.Testes
         }
 
         [Fact]
+        public void NotasViramTextoSimples()
+        {
+            var notas = "### Adicionado\n- Botão **Verificar atualizações** no rodapé\n- Log em `%APPDATA%`\n\nTexto comum";
+
+            Assert.Equal(
+                "ADICIONADO" + Environment.NewLine + "• Botão Verificar atualizações no rodapé" + Environment.NewLine
+                + "• Log em %APPDATA%" + Environment.NewLine + Environment.NewLine + "Texto comum",
+                Atualizacao.TextoSimples(notas));
+        }
+
+        [Fact]
         public void ReleaseSemOShaNaoServe()
         {
             var semSha = RespostaGitHub.Replace("PontoDoGesso-v0.9.1.zip.sha256", "outro.txt");

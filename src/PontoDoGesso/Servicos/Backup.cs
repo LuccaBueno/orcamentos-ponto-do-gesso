@@ -10,7 +10,7 @@ namespace PontoDoGesso.Servicos
 {
     /// <summary>
     /// Cópias do banco pela API de backup do SQLite (segura com o banco aberto).
-    /// Nomes: dados_AAAA-MM-DD_HHmm_auto.db (diário), _manual.db (botão) e _antes-de-restaurar.db; os da migração não têm sufixo.
+    /// Nomes: dados_AAAA-MM-DD_HHmm_auto.db (diário), _manual.db (botão), _antes-de-restaurar.db e _antes-de-atualizar.db; os da migração não têm sufixo.
     /// </summary>
     public class Backup
     {
@@ -62,6 +62,15 @@ namespace PontoDoGesso.Servicos
         {
             Directory.CreateDirectory(pasta);
             var arquivo = NomeLivre(pasta, agora, "copia");
+            Copiar(arquivo);
+            return arquivo;
+        }
+
+        /// <summary>Antes de instalar uma versão nova do app. Não conta como o backup diário.</summary>
+        public string AntesDeAtualizar(DateTime agora)
+        {
+            Directory.CreateDirectory(Pasta);
+            var arquivo = NomeLivre(Pasta, agora, "antes-de-atualizar");
             Copiar(arquivo);
             return arquivo;
         }

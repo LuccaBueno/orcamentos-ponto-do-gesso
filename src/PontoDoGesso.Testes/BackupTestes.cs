@@ -37,6 +37,19 @@ namespace PontoDoGesso.Testes
             Directory.GetFiles(pasta).Select(Path.GetFileName).OrderBy(n => n).ToArray();
 
         [Fact]
+        public void AntesDeAtualizarCopiaOBancoSemContarComoODiario()
+        {
+            NovoOrcamento("Maria");
+
+            var arquivo = _backup.AntesDeAtualizar(Agora);
+
+            Assert.Equal("dados_2026-11-07_0930_antes-de-atualizar.db", Path.GetFileName(arquivo));
+            Assert.Null(Backup.Validar(arquivo));
+            Assert.Null(_backup.Ultimo);
+            Assert.Empty(_backup.Automaticos());
+        }
+
+        [Fact]
         public void AutomaticoSoQuandoOUltimoTemMaisDe24Horas()
         {
             var primeiro = _backup.AutomaticoSeNecessario(Agora);

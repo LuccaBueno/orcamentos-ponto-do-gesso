@@ -123,6 +123,21 @@ namespace PontoDoGesso.Servicos
             };
         }
 
+        /// <summary>Notas do CHANGELOG (Markdown) em texto simples: sem "###", "**" e crases; listas com "•".</summary>
+        public static string TextoSimples(string notas)
+        {
+            var linhas = (notas ?? "").Replace("\r\n", "\n").Split('\n').Select(linha =>
+            {
+                var texto = linha.TrimEnd().Replace("**", "").Replace("`", "");
+                if (texto.StartsWith("#"))
+                    return texto.TrimStart('#').Trim().ToUpper(new System.Globalization.CultureInfo("pt-BR"));
+                if (texto.StartsWith("- ") || texto.StartsWith("* "))
+                    return "• " + texto.Substring(2);
+                return texto;
+            });
+            return string.Join(Environment.NewLine, linhas).Trim();
+        }
+
         private static string Texto(Dictionary<string, object> objeto, string chave) =>
             objeto.TryGetValue(chave, out var valor) ? valor as string : null;
 

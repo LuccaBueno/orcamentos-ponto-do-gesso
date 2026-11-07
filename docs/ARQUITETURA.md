@@ -185,6 +185,7 @@ Migrações numeradas em `src\PontoDoGesso\Dados\Migracoes\` (embutidas no exe),
 | `impressao.impressora` | vazio (= impressora padrão do Windows) |
 | `backup.ultimo` | — (data e hora do último backup) |
 | `backup.pasta_extra` | vazio (pasta extra opcional; cada backup é copiado para lá se ela existir) |
+| `atualizacao.ultima_verificacao` | — (data e hora da última verificação automática de versão nova; no máximo 1 a cada 24 h) |
 
 ## Numeração (códigos)
 

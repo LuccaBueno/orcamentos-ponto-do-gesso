@@ -11,13 +11,13 @@
 
 ### No app
 - [x] `Servicos\Atualizacao.cs`: consultar `releases/latest`, comparar versões (`System.Version`), baixar zip e sha256 com barra de progresso, validar hash
-- [ ] `Forms\FormAtualizacao.cs`: mostra versão atual, versão nova, notas da versão, botões **Atualizar agora** / **Depois** / **Abrir página de downloads**
-- [ ] Verificação automática ao abrir, no máximo 1 vez por dia, em segundo plano (aviso no rodapé se houver versão nova)
-- [ ] Antes de atualizar: backup do banco (pode ser cópia simples do arquivo nesta fase)
+- [x] `Forms\FormAtualizacao.cs`: mostra versão atual, versão nova, notas da versão, botões **Atualizar agora** / **Depois** / **Abrir página de downloads**
+- [x] Verificação automática ao abrir, no máximo 1 vez por dia, em segundo plano (aviso no rodapé se houver versão nova)
+- [x] Antes de atualizar: backup do banco (pode ser cópia simples do arquivo nesta fase)
 
 ### Atualizador
 - [x] `PontoDoGesso.Atualizador\Program.cs`: argumentos `--pid --zip --destino`; espera o processo, extrai (`System.IO.Compression.ZipFile`), faz rollback via `<destino>.anterior` se falhar, reabre o app, grava log em `%APPDATA%\PontoDoGesso\logs\`
-- [ ] O app copia o Atualizador para a pasta temporária antes de executá-lo (para poder substituir o próprio Atualizador)
+- [x] O app copia o Atualizador para a pasta temporária antes de executá-lo (para poder substituir o próprio Atualizador)
 
 ### Testes
 - [x] Teste unitário de comparação de versões (`v0.10.0` > `v0.9.3`)
@@ -26,7 +26,7 @@
 - [ ] Teste de falha: zip corrompido → hash não bate → nada é alterado
 - [ ] **Teste com o antivírus do PC da loja**: baixar a release, abrir o app e atualizar com o antivírus ligado; se houver bloqueio, aplicar `C:\dev\orcamentos-ponto-do-gesso\docs\INSTALACAO-WINDOWS7.md` seção 5 e registrar aqui
 - [ ] Reduzir alarmes falsos: preencher metadados do exe (`Product`, `Company`, `Description`, `Copyright`, versão) no `Directory.Build.props`; não usar compactadores de exe (UPX) nem ofuscadores
-- [ ] Se o Atualizador for apagado/bloqueado: o app detecta, avisa e cai no modo manual (abrir página de downloads)
+- [x] Se o Atualizador for apagado/bloqueado: o app detecta, avisa e cai no modo manual (abrir página de downloads)
 
 ## Pronto quando
 
@@ -39,5 +39,13 @@ O PC da loja vai da v0.2.0 para a v0.2.1 pelo botão, sem perder nada, ou (se o 
 - Workflow de release: `C:\dev\orcamentos-ponto-do-gesso\scripts\conferir-versao.ps1` (falha se a tag não for `v` + `<Version>`) e `C:\dev\orcamentos-ponto-do-gesso\scripts\notas-versao.ps1` (copia a seção `## [X.Y.Z]` do `CHANGELOG.md`; falha se não existir ou estiver vazia). A release é criada pelo `gh release create` com o token do próprio workflow (`permissions: contents: write`).
 - `Atualizacao.cs`: a resposta do GitHub é lida com o `JavaScriptSerializer` (`System.Web.Extensions`, que já vem no .NET Framework 4.8 — nenhum pacote NuGet novo). A comparação usa só MAJOR.MINOR.PATCH (`0.9` = `0.9.0` = `0.9.0.0`). O download vai para `<arquivo>.parcial` e só vira o nome final quando termina; se o SHA-256 não bater, o zip é apagado e nada é alterado. As URLs podem ser `file://`, o que permite testar o download e o hash errado sem rede.
 - Atualizador: a troca de pastas fica em `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso.Atualizador\Instalacao.cs` (testada em `InstalacaoTestes`). O zip é extraído em `<destino>.nova` (ao lado da pasta do app, no mesmo disco, para mover ser instantâneo), a pasta atual vira `<destino>.anterior` e a nova toma o lugar. Se mover falhar (antivírus segurando arquivo), tenta 10 vezes, 1 s entre elas; se ainda falhar, volta a anterior. Se a versão nova não abrir, também volta a anterior e reabre o app antigo. A `.anterior` fica guardada até a próxima atualização (rollback manual). Log em `%APPDATA%\PontoDoGesso\logs\atualizacao_AAAA-MM.log` (o app passa `--logs`; sem ele, usa a mesma regra do `PONTODOGESSO_DADOS`).
+- Tela: rodapé da tela principal com o link **Verificar atualizações** (abre `FormAtualizacao`, que consulta o GitHub em segundo plano) e o aviso laranja **Versão X disponível — clique para atualizar**, que só aparece quando a verificação automática acha versão nova. A verificação automática (`Servicos\VerificacaoAutomatica.cs`) grava a tentativa em `atualizacao.ultima_verificacao` antes de consultar: sem internet, só tenta de novo 24 h depois e não mostra nada (o erro vai para o log). Só o `Program.cs` liga a verificação (`VerificarAtualizacaoAoAbrir`), então os testes nunca acessam a internet.
+- Backup antes de atualizar: em vez da cópia simples do arquivo, usa a API de backup do SQLite (a mesma da Fase 9), em `backups\dados_AAAA-MM-DD_HHmm_antes-de-atualizar.db`. Não conta como backup diário nem é apagado pela limpeza dos 30 automáticos. Se o backup falhar, a atualização é cancelada.
+- Atualizador ausente: se `PontoDoGesso.Atualizador.exe` não estiver na pasta do app ou o Windows não deixar executá-lo (antivírus), o app avisa e abre a página de downloads da versão. O Atualizador é copiado para `%TEMP%\PontoDoGesso-atualizador\<guid>\` e executado com a pasta de trabalho lá (com a pasta de trabalho dentro da pasta do app, o Windows não deixaria renomeá-la).
+- **Bug dos testes de tela (`Value Dispose() cannot be called while doing CreateHandle()`), corrigido:** o teste do hash errado falhava de forma intermitente (até 13 em 25 rodando sozinho) e, numa repetição, abriu a janela "Microsoft .NET Framework – Unhandled exception", que travou o processo de teste até alguém clicar. Causa encontrada registrando a pilha de criação e destruição do handle do painel de botões: a continuação do download rodava numa **thread do thread pool**, não na thread da tela. A thread STA criada pelo teste herdava o `SynchronizationContext` do xunit, cujo `Post` vai para o thread pool, e o `TaskScheduler.FromCurrentSynchronizationContext()` mandava a continuação para lá. Ela mexia nos controles (criando o handle do painel) enquanto a thread da tela fechava e descartava a janela. Correções:
+  1. `Tela.EmSta` (testes): `Application.SetUnhandledExceptionMode(ThrowException, true)` e um `Application.ThreadException` que guarda a exceção e faz o teste **falhar**, sem abrir a caixa de erro. A thread do teste também instala um `WindowsFormsSynchronizationContext`.
+  2. `Tela.Exibir` só volta quando a janela e todos os controles visíveis já têm handle. O novo `Tela.Fechar` fecha como o usuário faria (`Close`) e processa as mensagens antes do descarte, sempre na mesma thread STA.
+  3. App (`FormAtualizacao` e a verificação automática do `FormPrincipal`): as continuações e o progresso não dependem mais do contexto da thread. Voltam para a tela por `Control.BeginInvoke` e só mexem nos controles se a janela ainda estiver aberta (`!_fechada && !IsDisposed && !Disposing && IsHandleCreated`). No app real o contexto já era o do WinForms, mas agora fechar a janela durante o download não tem como dar esse erro. Teste novo: `FecharDuranteODownloadIgnoraOResultadoQueChegaDepois`.
+  - Resultado: 25 execuções seguidas sem falha das classes `TelaAtualizacaoTestes` + `TelaPrincipalTestes`, e mais 25 seguidas dos dois testes de download sozinhos.
 - Os scripts `.ps1` ficam em UTF-8 **com BOM**: sem o BOM, o Windows PowerShell 5.1 lê o arquivo como ANSI e as mensagens com acento saem quebradas.
 

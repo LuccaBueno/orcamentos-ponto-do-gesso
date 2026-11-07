@@ -12,12 +12,29 @@ namespace PontoDoGesso.Testes
     /// <summary>Ajuda a testar janelas: roda em STA, com a janela fora da área visível.</summary>
     public static class Tela
     {
+        /// <summary>
+        /// Roda o teste numa thread STA própria. Exceção dentro de evento de janela faz o teste falhar,
+        /// em vez de abrir a caixa "Unhandled exception" do .NET (que trava o processo até alguém clicar).
+        /// </summary>
         public static void EmSta(Action teste)
         {
             ExceptionDispatchInfo falha = null;
+            ExceptionDispatchInfo falhaDeJanela = null;
 
             var thread = new Thread(() =>
             {
+                // Vale só para esta thread; precisa vir antes de criar qualquer janela nela
+                Application.SetUnhandledExceptionMode(UnhandledExceptionMode.ThrowException, true);
+
+                // A thread nova herda o contexto do xunit, cujo Post vai para o thread pool; a tela precisa do contexto do WinForms
+                SynchronizationContext.SetSynchronizationContext(new WindowsFormsSynchronizationContext());
+                ThreadExceptionEventHandler aoFalhar = (s, e) =>
+                {
+                    if (falhaDeJanela == null)
+                        falhaDeJanela = ExceptionDispatchInfo.Capture(e.Exception);
+                };
+                Application.ThreadException += aoFalhar;
+
                 try
                 {
                     teste();
@@ -26,25 +43,66 @@ namespace PontoDoGesso.Testes
                 {
                     falha = ExceptionDispatchInfo.Capture(erro);
                 }
+                finally
+                {
+                    Application.ThreadException -= aoFalhar;
+                }
             });
             thread.SetApartmentState(ApartmentState.STA);
             thread.Start();
             thread.Join();
 
-            falha?.Throw();
+            (falhaDeJanela ?? falha)?.Throw();
         }
 
+        /// <summary>Mostra a janela e só volta quando ela e todos os controles visíveis já têm handle (nada fica no meio do CreateHandle).</summary>
         public static void Exibir(Form form)
         {
             form.StartPosition = FormStartPosition.Manual;
             form.Location = new Point(-4000, -4000);
             form.ShowInTaskbar = false;
             form.Show();
+
+            var relogio = System.Diagnostics.Stopwatch.StartNew();
+            while (!TodosComHandle(form))
+            {
+                if (relogio.Elapsed > TimeSpan.FromSeconds(10))
+                    throw new TimeoutException("A janela " + form.Text + " não terminou de criar os controles.");
+                Application.DoEvents();
+                Thread.Sleep(5);
+            }
             Application.DoEvents();
+        }
+
+        /// <summary>Fecha como o usuário faria (o Close de janela não modal já descarta) e processa as mensagens pendentes.</summary>
+        public static void Fechar(Form form)
+        {
+            if (!form.IsDisposed)
+                form.Close();
+            Application.DoEvents();
+        }
+
+        private static bool TodosComHandle(Control controle)
+        {
+            if (controle.Visible && !controle.IsHandleCreated)
+                return false;
+            foreach (Control filho in controle.Controls)
+            {
+                if (!TodosComHandle(filho))
+                    return false;
+            }
+            return true;
         }
 
         public static T Achar<T>(Control raiz, string nome) where T : Control =>
             (T)raiz.Controls.Find(nome, true).Single();
+
+        /// <summary>LinkLabel não tem PerformClick: dispara o mesmo evento do clique no link.</summary>
+        public static void Clicar(LinkLabel link)
+        {
+            var aoClicar = typeof(LinkLabel).GetMethod("OnLinkClicked", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            aoClicar.Invoke(link, new object[] { new LinkLabelLinkClickedEventArgs(link.Links[0]) });
+        }
 
         /// <summary>Foto da janela em .tmp\telas, só quando PONTODOGESSO_CAPTURA estiver definida.</summary>
         public static void Capturar(Form form, string nome)

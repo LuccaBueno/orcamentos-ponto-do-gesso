@@ -29,7 +29,7 @@ namespace PontoDoGesso
 
             Caminhos.CriarPastas();
             PrepararBanco();
-            Application.Run(new FormPrincipal());
+            Application.Run(new FormPrincipal { VerificarAtualizacaoAoAbrir = true });
         }
 
         private static void PrepararBanco()

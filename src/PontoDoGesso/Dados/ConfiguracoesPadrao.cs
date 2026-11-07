@@ -20,7 +20,8 @@ namespace PontoDoGesso.Dados
             ["exportacao.pasta"] = Caminhos.PastaExportacao,
             ["impressao.impressora"] = "",
             ["backup.ultimo"] = null,
-            ["backup.pasta_extra"] = ""
+            ["backup.pasta_extra"] = "",
+            ["atualizacao.ultima_verificacao"] = null
         };
 
         /// <summary>Só acrescenta as chaves que faltam: o que o usuário já alterou fica como está.</summary>
