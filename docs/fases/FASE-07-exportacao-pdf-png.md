@@ -14,13 +14,13 @@
 - [x] `Exportacao\ExportadorPng.cs`: A4 a 150 dpi, fundo branco
 - [x] `Exportacao\ExportadorPdf.cs`: A4 retrato
 - [x] `Exportacao\Impressao.cs`: `PrintDocument` + `PrintPreviewDialog` (pré-visualização) + `PrintDialog` (impressora e cópias), papel A4 retrato
-- [ ] **Copiar imagem**: PNG para a área de transferência (`Clipboard.SetImage`, em thread STA)
+- [x] **Copiar imagem**: PNG para a área de transferência (`Clipboard.SetImage`, em thread STA)
 - [x] Nome dos arquivos e pasta conforme a ARQUITETURA; criar pastas `AAAA\MM`
-- [ ] Após salvar: mensagem com **Abrir arquivo** e **Abrir pasta** — a pasta abre no Explorer **com o arquivo já selecionado** (`explorer.exe /select,"<arquivo>"`), pronto para arrastar para o WhatsApp Web
+- [x] Após salvar: mensagem com **Abrir arquivo** e **Abrir pasta** — a pasta abre no Explorer **com o arquivo já selecionado** (`explorer.exe /select,"<arquivo>"`), pronto para arrastar para o WhatsApp Web
 - [ ] Botão **Abrir pasta de orçamentos** também na tela principal
-- [ ] Botão **Abrir conversa no WhatsApp** (habilitado quando o orçamento tem telefone): salva o PNG se ainda não salvou, abre a pasta com o arquivo selecionado e abre `https://wa.me/55DDDNUMERO` no navegador padrão — basta arrastar o arquivo (ou `Ctrl+V` se usou Copiar imagem)
-- [ ] Link montado com o telefone completo gravado (55 + DDD + número); o botão mostra o número na dica ("Abrir conversa com (11) 98765-4321") para conferir antes; telefone inválido ou sem DDD mostra aviso em vez de abrir
-- [ ] Exportar exige o orçamento salvo (salva automaticamente se houver alterações, avisando)
+- [x] Botão **Abrir conversa no WhatsApp** (habilitado quando o orçamento tem telefone): salva o PNG se ainda não salvou, abre a pasta com o arquivo selecionado e abre `https://wa.me/55DDDNUMERO` no navegador padrão — basta arrastar o arquivo (ou `Ctrl+V` se usou Copiar imagem)
+- [x] Link montado com o telefone completo gravado (55 + DDD + número); o botão mostra o número na dica ("Abrir conversa com (11) 98765-4321") para conferir antes; telefone inválido ou sem DDD mostra aviso em vez de abrir
+- [x] Exportar exige o orçamento salvo (salva automaticamente se houver alterações, avisando)
 - [x] Teste visual: gerar orçamentos com 3, 15 e 20 itens, com e sem desconto, com e sem validade e salvar as imagens em `C:\dev\orcamentos-ponto-do-gesso\docs\referencia\comparacoes\`
 
 ## Testes no Windows 7

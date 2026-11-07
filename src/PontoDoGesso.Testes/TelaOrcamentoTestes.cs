@@ -748,20 +748,115 @@ namespace PontoDoGesso.Testes
             }, orcamento: _orcamentos.ObterPorId(orcamento.Id));
         }
 
-        [Theory]
-        [InlineData("copiarImagem")]
-        [InlineData("png")]
-        [InlineData("pdf")]
-        [InlineData("imprimir")]
-        [InlineData("whatsapp")]
-        public void BotoesDeExportacaoAparecemDesabilitadosAteAFase7(string botao)
+        private string PastaExportacao()
         {
+            var pasta = System.IO.Path.Combine(_temporario.Pasta, "exportados");
+            new ConfiguracaoRepositorio(_temporario.Banco).Definir("exportacao.pasta", pasta);
+            return pasta;
+        }
+
+        [Fact]
+        public void ExportarOrcamentoNovoSalvaAntesEAvisa()
+        {
+            var pasta = PastaExportacao();
+
             Rodar(_temporario.Banco, form =>
             {
-                var alvo = Tela.Achar<Button>(form, botao);
-                Assert.True(alvo.Visible);
-                Assert.False(alvo.Enabled);
+                Avulso(form, "José Fictício");
+                AdicionarItem(form, "2", "m²", "Placa", "12,50");
+
+                Tela.Achar<Button>(form, "png").PerformClick();
+
+                Assert.Equal("Orçamento Nº 0001", form.Text);
+                Assert.False(form.Alterado);
+                var arquivo = Assert.Single(form.Acoes.Salvos);
+                var hoje = DateTime.Today;
+                Assert.Equal(System.IO.Path.Combine(pasta, hoje.ToString("yyyy"), hoje.ToString("MM"), "Orc-0001_Jose-Ficticio_" + hoje.ToString("dd-MM-yyyy") + ".png"), arquivo);
+                Assert.True(System.IO.File.Exists(arquivo));
+                Assert.StartsWith("O orçamento foi salvo (Nº 0001) antes de exportar.", form.Acoes.Mensagens[0]);
+
+                // Já salvo e sem alterações: exporta direto, sem aviso
+                Tela.Achar<Button>(form, "pdf").PerformClick();
+                Assert.Equal("PDF salvo.", form.Acoes.Mensagens[1]);
+                Assert.True(System.IO.File.Exists(form.Acoes.Salvos[1]));
+                Assert.Single(_orcamentos.ObterPorId(1).Itens);
             });
+        }
+
+        [Fact]
+        public void ExportarComErroNoOrcamentoNaoGeraArquivo()
+        {
+            PastaExportacao();
+
+            Rodar(_temporario.Banco, form =>
+            {
+                Avulso(form, "José Fictício");
+                Tela.Achar<Button>(form, "pdf").PerformClick();
+
+                Assert.Equal("Inclua ao menos um item.", form.UltimoAviso);
+                Assert.Empty(form.Acoes.Salvos);
+            });
+        }
+
+        [Fact]
+        public void CopiarImagemEImprimirUsamOOrcamentoSalvo()
+        {
+            PastaExportacao();
+
+            Rodar(_temporario.Banco, form =>
+            {
+                Avulso(form, "José Fictício");
+                AdicionarItem(form, "2", "m²", "Placa", "12,50");
+
+                Tela.Achar<Button>(form, "copiarImagem").PerformClick();
+                Assert.Equal(new System.Drawing.Size(1240, 1754), Assert.Single(form.Acoes.Copias));
+                Assert.Contains("Ctrl+V", form.Acoes.Informacoes.Single());
+
+                Tela.Achar<Button>(form, "imprimir").PerformClick();
+                Assert.Equal("Orçamento Nº 0001", Assert.Single(form.Acoes.Impressoes));
+            });
+        }
+
+        [Fact]
+        public void WhatsAppSoComTelefoneEAbreAConversaComAImagemNaPasta()
+        {
+            PastaExportacao();
+
+            Rodar(_temporario.Banco, form =>
+            {
+                Avulso(form, "José Fictício");
+                AdicionarItem(form, "2", "m²", "Placa", "12,50");
+                var whatsapp = Tela.Achar<Button>(form, "whatsapp");
+                Assert.False(whatsapp.Enabled);
+
+                Tela.Achar<CampoTelefone>(form, "telefone").Ddd = "11";
+                Tela.Achar<CampoTelefone>(form, "telefone").Numero = "987654321";
+                Assert.True(whatsapp.Enabled);
+                Assert.Equal("Abrir conversa com (11) 98765-4321", form.DicaDe(whatsapp));
+
+                whatsapp.PerformClick();
+
+                Assert.Equal("https://wa.me/5511987654321", Assert.Single(form.Acoes.Links));
+                var arquivo = Assert.Single(form.Acoes.Selecionados);
+                Assert.EndsWith(".png", arquivo);
+                Assert.True(System.IO.File.Exists(arquivo));
+            });
+        }
+
+        [Fact]
+        public void WhatsAppComTelefoneInvalidoMostraAvisoEmVezDeAbrir()
+        {
+            PastaExportacao();
+            var orcamento = new Orcamento { Data = DateTime.Today, CliNome = "Antigo", CliTelefone = "99244540", Itens = { new ItemOrcamento { Quantidade = 1, Descricao = "Placa", UnitarioCentavos = 100 } } };
+            _orcamentos.Salvar(orcamento);
+
+            Rodar(_temporario.Banco, form =>
+            {
+                form.Acoes.WhatsApp(form.Orcamento);
+
+                Assert.Empty(form.Acoes.Links);
+                Assert.Contains("não está completo", form.Acoes.Avisos.Single());
+            }, orcamento: _orcamentos.ObterPorId(orcamento.Id));
         }
 
         private class OrcamentoSemDialogos : FormOrcamento
@@ -776,6 +871,11 @@ namespace PontoDoGesso.Testes
             public OrcamentoSemDialogos(Banco banco, Orcamento orcamento = null, Cliente cliente = null) : base(banco, orcamento, cliente)
             {
             }
+
+            public AcoesFalsas Acoes { get; private set; }
+
+            protected override AcoesExportacao CriarAcoes(Banco banco) => Acoes = new AcoesFalsas(banco, this);
+
 
             public bool Teclar(Keys tecla)
             {

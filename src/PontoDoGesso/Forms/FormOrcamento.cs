@@ -74,6 +74,10 @@ namespace PontoDoGesso.Forms
         private readonly Label _total = new Label { Name = "total", AutoSize = true, Anchor = AnchorStyles.Right, Font = new Font("Segoe UI", 12F, FontStyle.Bold) };
         private readonly Label _erroTotais = new Label { Name = "erroTotais", AutoSize = true, ForeColor = Color.Firebrick, Anchor = AnchorStyles.Right };
 
+        private readonly ToolTip _dicas = new ToolTip();
+        private readonly AcoesExportacao _acoes;
+        private Button _whatsapp;
+
         private readonly List<Control> _suspensos = new List<Control>();
         private readonly ListaSugestoes _sugestoesClientes;
         private readonly ListaSugestoes _sugestoesProdutos;
@@ -85,6 +89,7 @@ namespace PontoDoGesso.Forms
             _produtos = new ProdutoRepositorio(banco);
             _orcamentos = new OrcamentoRepositorio(banco);
             _configuracoes = new ConfiguracaoRepositorio(banco);
+            _acoes = CriarAcoes(banco);
 
             // O layout fica parado durante a montagem (ver Suspenso)
             SuspendLayout();
@@ -147,6 +152,8 @@ namespace PontoDoGesso.Forms
         public Orcamento Orcamento => _orcamento;
 
         public bool Alterado => _alterado;
+
+        public string DicaDe(Control controle) => _dicas.GetToolTip(controle);
 
         private static void AdicionarLinha(TableLayoutPanel layout, Control controle, SizeType tamanho)
         {
@@ -406,14 +413,24 @@ namespace PontoDoGesso.Forms
             salvar.Font = new Font(Font, FontStyle.Bold);
             botoes.Controls.Add(salvar);
 
-            // Exportação chega na Fase 7: os botões já aparecem, desabilitados
-            foreach (var (nome, texto) in new[] { ("copiarImagem", "Copiar imagem"), ("png", "PNG"), ("pdf", "PDF"), ("imprimir", "Imprimir"), ("whatsapp", "WhatsApp") })
+            // Exportar exige o orçamento salvo: se houver alterações, salva antes e avisa
+            var exportacoes = new (string Nome, string Texto, Action<string> Exportar)[]
             {
-                var botao = Estilo.CriarBotao(texto, (s, e) => { });
-                botao.Name = nome;
-                botao.Enabled = false;
+                ("copiarImagem", "Copiar imagem", aviso => _acoes.CopiarImagem(_orcamento, aviso)),
+                ("png", "PNG", aviso => _acoes.Png(_orcamento, aviso)),
+                ("pdf", "PDF", aviso => _acoes.Pdf(_orcamento, aviso)),
+                ("imprimir", "Imprimir", aviso => _acoes.Imprimir(_orcamento)),
+                ("whatsapp", "WhatsApp", aviso => _acoes.WhatsApp(_orcamento, aviso))
+            };
+
+            foreach (var exportacao in exportacoes)
+            {
+                var botao = Estilo.CriarBotao(exportacao.Texto, (s, e) => Exportar(exportacao.Exportar));
+                botao.Name = exportacao.Nome;
                 botoes.Controls.Add(botao);
             }
+
+            _whatsapp = (Button)botoes.Controls["whatsapp"];
 
             var duplicar = Estilo.CriarBotao("Duplicar", (s, e) => Duplicar());
             duplicar.Name = "duplicar";
@@ -437,6 +454,7 @@ namespace PontoDoGesso.Forms
                 caixa.CheckedChanged += (s, e) => MarcarAlterado();
 
             _telefone.Alterado += (s, e) => MarcarAlterado();
+            _telefone.Alterado += (s, e) => AtualizarWhatsApp();
             _validadeDias.ValueChanged += (s, e) => MarcarAlterado();
             _data.ValueChanged += (s, e) => MarcarAlterado();
         }
@@ -508,8 +526,20 @@ namespace PontoDoGesso.Forms
             }
 
             AtualizarValidade();
+            AtualizarWhatsApp();
             Recalcular();
             _alterado = false;
+        }
+
+        /// <summary>WhatsApp só com telefone; a dica mostra o número para conferir antes de abrir.</summary>
+        private void AtualizarWhatsApp()
+        {
+            if (_whatsapp == null)
+                return;
+
+            var valido = _telefone.TentarLer(out var telefone, out var erro);
+            _whatsapp.Enabled = !string.IsNullOrWhiteSpace(_telefone.Numero);
+            _dicas.SetToolTip(_whatsapp, !valido ? erro : telefone == null ? "Informe o telefone do cliente" : WhatsApp.Dica(telefone));
         }
 
         private void AtualizarTitulo()
@@ -938,6 +968,30 @@ namespace PontoDoGesso.Forms
             campo.Focus();
             return false;
         }
+
+        // ---------- exportar ----------
+
+        protected virtual AcoesExportacao CriarAcoes(Banco banco) => new AcoesExportacao(banco, this);
+
+        /// <summary>Salva antes, se for preciso (avisando na mensagem da exportação), e exporta.</summary>
+        private void Exportar(Action<string> exportar)
+        {
+            string aviso = null;
+
+            if (_alterado || _orcamento.Id == 0)
+            {
+                if (!Salvar())
+                    return;
+
+                aviso = "O orçamento foi salvo (Nº " + Formatacao.Codigo(_orcamento.Numero) + ") antes de exportar.";
+            }
+
+            exportar(aviso);
+        }
+
+        public void ExportarPng() => Exportar(aviso => _acoes.Png(_orcamento, aviso));
+
+        public void ExportarPdf() => Exportar(aviso => _acoes.Pdf(_orcamento, aviso));
 
         // ---------- duplicar e fechar ----------
 
