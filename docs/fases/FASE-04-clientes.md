@@ -30,3 +30,6 @@ Publicar v0.4.0, atualizar a loja e cadastrar 3 clientes reais de teste.
 
 ## Observações
 
+- Sessão interrompida a pedido do Lucca depois dos dois primeiros itens (`Forms\FormClientes.cs` e `Forms\FormClienteEditar.cs`). O próximo item é o do telefone com DDD visível e editável.
+- Até lá, os campos Telefone e Telefone 2 de `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\Forms\FormClienteEditar.cs` são texto livre, sem DDD separado e sem validação. O botão **Clientes** da tela principal ainda não foi habilitado, então as telas só são exercitadas pelos testes automáticos: aguardando teste do Lucca.
+- Os testes agora gravam em `C:\dev\orcamentos-ponto-do-gesso\.tmp\`, e `PONTODOGESSO_DADOS` troca a pasta de dados (`C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\Servicos\Caminhos.cs`).
