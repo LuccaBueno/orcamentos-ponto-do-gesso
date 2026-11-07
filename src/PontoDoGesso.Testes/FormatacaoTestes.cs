@@ -63,6 +63,7 @@ namespace PontoDoGesso.Testes
         [InlineData("2.5")]
         [InlineData("-1,00")]
         [InlineData("99999999999999999999,00")]
+        [InlineData("9999999999999999999999999999")]
         public void LerCentavosRecusaTextoInvalido(string texto)
         {
             Assert.False(Formatacao.TentarLerCentavos(texto, out _));

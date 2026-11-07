@@ -27,11 +27,11 @@ namespace PontoDoGesso.Servicos
             if (semMoeda.StartsWith("R$"))
                 semMoeda = semMoeda.Substring(2);
 
-            if (!TentarLerNumero(semMoeda, out var valor))
+            if (!TentarLerNumero(semMoeda, out var valor) || valor > long.MaxValue / 100m)
                 return false;
 
             var emCentavos = valor * 100;
-            if (emCentavos != decimal.Truncate(emCentavos) || emCentavos > long.MaxValue)
+            if (emCentavos != decimal.Truncate(emCentavos))
                 return false;
 
             centavos = (long)emCentavos;

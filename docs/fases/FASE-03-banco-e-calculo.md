@@ -10,21 +10,21 @@
 - [x] Inserir configurações padrão (tabela da ARQUITETURA)
 - [x] `Dominio\`: `Cliente`, `Produto`, `Orcamento`, `ItemOrcamento`
 - [x] `Servicos\Formatacao.cs`: centavos ↔ texto (`"1.234,56"`, `"R$ 1.234,56"`), parse de quantidade com vírgula, telefone `(12) 99244-5402`
-- [ ] `Servicos\CalculoOrcamento.cs`: total do item (arredondamento meio para cima), subtotal, desconto (VALOR ou PERCENTUAL, só sobre o subtotal), total = subtotal − desconto + frete
+- [x] `Servicos\CalculoOrcamento.cs`: total do item (arredondamento meio para cima), subtotal, desconto (VALOR ou PERCENTUAL, só sobre o subtotal), total = subtotal − desconto + frete
 - [ ] Repositórios (`Dados\`): `ClienteRepositorio`, `ProdutoRepositorio`, `OrcamentoRepositorio` (salvar orçamento + itens numa transação; número atribuído no primeiro salvamento), `ConfiguracaoRepositorio`
 - [ ] Busca sem acento e sem diferenciar maiúsculas (coluna normalizada ou função `remover_acentos` registrada no SQLite)
 
 ## Testes obrigatórios
 
-- [ ] `2,5 × R$ 12,33 = R$ 30,83` (30,825 → 30,83)
-- [ ] `3 × R$ 0,10 = R$ 0,30` (sem erro de ponto flutuante)
-- [ ] Subtotal + frete
-- [ ] Desconto em valor: subtotal R$ 125,00 − R$ 10,00 + frete R$ 20,00 = R$ 135,00
-- [ ] Desconto percentual: 5% de R$ 125,00 = R$ 6,25; 3% de R$ 33,33 = R$ 1,00 (0,9999 → 1,00)
-- [ ] Desconto não incide sobre o frete
-- [ ] Desconto maior que o subtotal é recusado
-- [ ] Desconto 0 vira "sem desconto"
-- [ ] Validade nula é aceita; validade de 7 dias a partir de 06/11/2026 = 13/11/2026
+- [x] `2,5 × R$ 12,33 = R$ 30,83` (30,825 → 30,83)
+- [x] `3 × R$ 0,10 = R$ 0,30` (sem erro de ponto flutuante)
+- [x] Subtotal + frete
+- [x] Desconto em valor: subtotal R$ 125,00 − R$ 10,00 + frete R$ 20,00 = R$ 135,00
+- [x] Desconto percentual: 5% de R$ 125,00 = R$ 6,25; 3% de R$ 33,33 = R$ 1,00 (0,9999 → 1,00)
+- [x] Desconto não incide sobre o frete
+- [x] Desconto maior que o subtotal é recusado
+- [x] Desconto 0 vira "sem desconto"
+- [x] Validade nula é aceita; validade de 7 dias a partir de 06/11/2026 = 13/11/2026
 - [x] Parse: `"10"`, `"2,5"`, `"1.000,5"`, `"abc"` (erro)
 - [x] Formatação de `123456` → `"1.234,56"`
 - [ ] Numeração: dois orçamentos seguidos recebem números consecutivos; excluir não libera o número
