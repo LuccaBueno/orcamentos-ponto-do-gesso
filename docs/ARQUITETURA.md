@@ -111,6 +111,7 @@ CREATE TABLE produtos (
   nome             TEXT NOT NULL,
   unidade          TEXT,           -- un, m², m, kg, saco, cx...
   preco_centavos   INTEGER NOT NULL DEFAULT 0,
+  preco_atualizado_em TEXT,        -- última mudança de preço (migração 002)
   ativo            INTEGER NOT NULL DEFAULT 1,
   criado_em        TEXT NOT NULL,
   atualizado_em    TEXT NOT NULL

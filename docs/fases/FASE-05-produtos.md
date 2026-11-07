@@ -12,17 +12,17 @@
 - [x] **Reajuste em lote**: selecionar vários produtos (ou todos do filtro) → aplicar +X% ou −X% (ou valor fixo), com prévia "antes → depois" e confirmação
 - [x] Mostrar "Preço atualizado em dd/MM/aaaa" em cada produto
 - Tudo dentro do app; sem planilhas ou arquivos externos.
-- [ ] Habilitar o botão **Produtos** na tela principal
+- [x] Habilitar o botão **Produtos** na tela principal
 
 ## Testes
 
-- [ ] Reajuste de 5% em R$ 12,50 → R$ 13,13 (arredondamento meio para cima)
-- [ ] Edição na grade grava e não altera orçamentos já salvos
-- [ ] Busca por "12" encontra o produto Cód. 0012
+- [x] Reajuste de 5% em R$ 12,50 → R$ 13,13 (arredondamento meio para cima)
+- [x] Edição na grade grava e não altera orçamentos já salvos
+- [x] Busca por "12" encontra o produto Cód. 0012
 
 ## Pronto quando
 
-Publicar v0.5.0 e cadastrar a lista real de produtos da loja pelo app.
+Publicar v0.5.0 e cadastrar a lista real de produtos da loja pelo app. — **aguardando teste do Lucca** (sem tag nem release nesta sessão).
 
 ## Observações
 
@@ -31,3 +31,5 @@ Publicar v0.5.0 e cadastrar a lista real de produtos da loja pelo app.
 - Reajuste em lote: com **mais de um** produto selecionado na lista (Ctrl/Shift + clique), reajusta só os selecionados; com um ou nenhum, reajusta **todos os que a busca está mostrando**. O título da janela diz quantos produtos serão alterados. Escolhe-se Aumentar/Diminuir e % ou R$; reajuste que deixaria preço negativo fica bloqueado. Arredondamento meio para cima.
 - Preço vazio não é aceito no cadastro (aviso "Informe o preço (pode ser 0,00)"), para não gravar produto com preço zero por esquecimento.
 - Os itens de tela foram feitos e testados juntos num commit só, porque a lista depende da edição e do reajuste para compilar.
+- Testes em `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso.Testes\TelaProdutosTestes.cs` e `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso.Testes\CampoMoedaTestes.cs`.
+- Fase concluída no código em 07/11/2026, sem tag nem release. Falta o Lucca cadastrar a lista real de produtos e conferir o reajuste: aguardando teste do Lucca.

@@ -83,7 +83,7 @@ namespace PontoDoGesso.Forms
                 CriarBotao("novoOrcamento", "Novo orçamento", null),
                 CriarBotao("historico", "Histórico", null),
                 CriarBotao("clientes", "Clientes", () => new FormClientes(_banco)),
-                CriarBotao("produtos", "Produtos", null),
+                CriarBotao("produtos", "Produtos", () => new FormProdutos(_banco)),
                 CriarBotao("configuracoes", "Configurações", null)
             };
 

@@ -9,8 +9,8 @@ Cada fase termina com o app compilando, testes passando e algo testável. A atua
 | 2 | [FASE-02-atualizacao.md](FASE-02-atualizacao.md) | Botão de atualização + release automática | v0.2.0 | ⬜ Pendente (aguarda o teste no PC da loja) |
 | 3 | [FASE-03-banco-e-calculo.md](FASE-03-banco-e-calculo.md) | Banco, migrações, regras de cálculo com testes | v0.3.0 | ✅ Concluída (sem release; falta testar no Windows 7) |
 | 4 | [FASE-04-clientes.md](FASE-04-clientes.md) | Cadastro de clientes | v0.4.0 | ✅ Concluída (sem release; falta o teste do Lucca) |
-| 5 | [FASE-05-produtos.md](FASE-05-produtos.md) | Catálogo simples de produtos | v0.5.0 | 🟨 Em andamento |
-| 6 | [FASE-06-tela-orcamento.md](FASE-06-tela-orcamento.md) | Tela de orçamento completa (salvar) | v0.6.0 | ⬜ Pendente |
+| 5 | [FASE-05-produtos.md](FASE-05-produtos.md) | Catálogo simples de produtos | v0.5.0 | ✅ Concluída (sem release; falta o teste do Lucca) |
+| 6 | [FASE-06-tela-orcamento.md](FASE-06-tela-orcamento.md) | Tela de orçamento completa (salvar) | v0.6.0 | 🟨 Em andamento |
 | 7 | [FASE-07-exportacao-pdf-png.md](FASE-07-exportacao-pdf-png.md) | PNG, copiar imagem, PDF e impressão (A4 retrato) | v0.7.0 | ⬜ Pendente |
 | 8 | [FASE-08-historico.md](FASE-08-historico.md) | Histórico com filtros (data, cadastrado/avulso, frete, desconto) | v0.8.0 | ⬜ Pendente |
 | 9 | [FASE-09-configuracoes-backup.md](FASE-09-configuracoes-backup.md) | Configurações e backup/restauração | v0.9.0 | ⬜ Pendente |
@@ -18,7 +18,7 @@ Cada fase termina com o app compilando, testes passando e algo testável. A atua
 
 Legenda: ⬜ Pendente · 🟨 Em andamento · ✅ Concluída
 
-**Fase atual: 5 (produtos)** — as Fases 3 e 4 foram adiantadas e concluídas, sem tag nem release. A Fase 2 fica pendente até o teste no PC da loja com Windows 7. A Fase 1 continua aguardando esse mesmo teste (resultado em `C:\dev\orcamentos-ponto-do-gesso\docs\fases\FASE-01-esqueleto-win7.md`).
+**Fase atual: 6 (tela de orçamento)** — as Fases 3, 4 e 5 foram adiantadas e concluídas, sem tag nem release. A Fase 2 fica pendente até o teste no PC da loja com Windows 7. A Fase 1 continua aguardando esse mesmo teste (resultado em `C:\dev\orcamentos-ponto-do-gesso\docs\fases\FASE-01-esqueleto-win7.md`).
 
 ## PC da loja
 
