@@ -46,6 +46,13 @@ namespace PontoDoGesso.Dados
             }
         }
 
+        /// <summary>Clientes não são excluídos: orçamentos antigos podem apontar para eles.</summary>
+        public void DefinirAtivo(long id, bool ativo)
+        {
+            using (var conexao = _banco.Abrir())
+                conexao.Execute("UPDATE clientes SET ativo = @ativo, atualizado_em = @agora WHERE id = @id", new { id, ativo, agora = DateTime.Now });
+        }
+
         /// <summary>Busca por código, nome (sem acento) ou telefone; o código exato vem primeiro.</summary>
         public List<Cliente> Buscar(string texto, bool incluirInativos = false)
         {

@@ -18,9 +18,9 @@ namespace PontoDoGesso.Testes
         [Fact]
         public void VariavelDeTesteTrocaAPastaDeDados()
         {
-            Assert.Equal(@"C:	este", Caminhos.ResolverPastaDados(@"C:	este", @"C:padrao"));
-            Assert.Equal(@"C:padrao", Caminhos.ResolverPastaDados(null, @"C:padrao"));
-            Assert.Equal(@"C:padrao", Caminhos.ResolverPastaDados(" ", @"C:padrao"));
+            Assert.Equal(@"C:	este", Caminhos.ResolverPastaDados(@"C:	este", @"C:\padrao"));
+            Assert.Equal(@"C:\padrao", Caminhos.ResolverPastaDados(null, @"C:\padrao"));
+            Assert.Equal(@"C:\padrao", Caminhos.ResolverPastaDados(" ", @"C:\padrao"));
         }
 
         [Fact]
