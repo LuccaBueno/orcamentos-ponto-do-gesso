@@ -5,7 +5,7 @@
 ## Tarefas
 
 ### Publicação
-- [ ] `C:\dev\orcamentos-ponto-do-gesso\scripts\empacotar.ps1`: compila Release, copia para `publicacao\PontoDoGesso\` (exe, config, dlls, `x86\SQLite.Interop.dll`, Atualizador, assets), gera `PontoDoGesso-vX.Y.Z.zip` e `.zip.sha256` (lendo a versão do `Directory.Build.props`)
+- [x] `C:\dev\orcamentos-ponto-do-gesso\scripts\empacotar.ps1`: compila Release, copia para `publicacao\PontoDoGesso\` (exe, config, dlls, `x86\SQLite.Interop.dll`, Atualizador, assets), gera `PontoDoGesso-vX.Y.Z.zip` e `.zip.sha256` (lendo a versão do `Directory.Build.props`)
 - [ ] `C:\dev\orcamentos-ponto-do-gesso\.github\workflows\release.yml`: em push de tag `v*`, roda build + testes + `empacotar.ps1` e cria a Release com os dois arquivos e o trecho do `CHANGELOG.md` daquela versão
 - [ ] Validar que a tag bate com `<Version>` (falhar o workflow se não bater)
 
@@ -33,4 +33,7 @@
 O PC da loja vai da v0.2.0 para a v0.2.1 pelo botão, sem perder nada, ou (se o HTTPS do Win7 falhar) o modo manual abre a página certa.
 
 ## Observações
+
+- **Mudança de plano das versões (07/11/2026):** como as Fases 3 a 9 já estavam prontas quando a Fase 2 começou, as versões desta fase passaram a ser **v0.9.0** (versão completa, a que será instalada na loja) e **v0.9.1** (só para testar a atualização), no lugar de v0.2.0/v0.2.1.
+- `empacotar.ps1`: as entradas do zip são gravadas uma a uma com `/` (o `ZipFile.CreateFromDirectory` do PowerShell 5.1 grava `\`, fora do padrão do formato zip). A pasta `x64\` e os `.pdb` ficam de fora (o app é só x86). O `.zip.sha256` segue o formato do `sha256sum` (`<hash>  <arquivo>`). Parâmetro `-SemCompilar` para o workflow, que já compilou e testou.
 
