@@ -57,6 +57,7 @@ namespace PontoDoGesso.Forms
             _lista.Columns["preco"].DefaultCellStyle.BackColor = Color.FromArgb(0xFF, 0xFB, 0xE6);
             _lista.Columns["preco"].ToolTipText = "Digite o novo preço e tecle Enter para gravar e descer";
             _lista.SelectionChanged += (s, e) => AtualizarBotoes();
+            _lista.CurrentCellChanged += (s, e) => AtualizarBotoes();
             _lista.CellValidating += ValidarPreco;
             _lista.CellEndEdit += (s, e) => GravarPrecoDaLinha(_lista.Rows[e.RowIndex]);
             _lista.CellDoubleClick += (s, e) =>

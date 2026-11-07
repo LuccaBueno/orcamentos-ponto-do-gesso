@@ -316,16 +316,27 @@ namespace PontoDoGesso.Testes
         }
 
         [Fact]
-        public void NovoOrcamentoParaEsteClienteFicaDesabilitadoAteAFase6()
+        public void NovoOrcamentoParaEsteClienteAbreOOrcamentoComOCliente()
         {
-            Novo("João");
+            var joao = Novo("João");
+            Novo("Zeca", ativo: false);
 
             Tela.EmSta(() =>
             {
-                using (var form = new FormClientes(_temporario.Banco))
+                using (var form = new ListaSemDialogos(_temporario.Banco))
                 {
                     Tela.Exibir(form);
-                    Assert.False(Tela.Achar<Button>(form, "novoOrcamento").Enabled);
+                    var botao = Tela.Achar<Button>(form, "novoOrcamento");
+                    Assert.True(botao.Enabled);
+
+                    botao.PerformClick();
+                    Assert.Equal(joao.Id, Assert.Single(form.Orcamentos).Id);
+
+                    // Cliente inativo não recebe orçamento novo
+                    Tela.Achar<CheckBox>(form, "mostrarInativos").Checked = true;
+                    var lista = Tela.Achar<DataGridView>(form, "lista");
+                    lista.CurrentCell = lista.Rows.Cast<DataGridViewRow>().Single(linha => ((Cliente)linha.Tag).Nome == "Zeca").Cells[0];
+                    Assert.False(botao.Enabled);
                 }
             });
         }
@@ -333,6 +344,9 @@ namespace PontoDoGesso.Testes
         private class ListaSemDialogos : FormClientes
         {
             public List<Cliente> Abertos { get; } = new List<Cliente>();
+            public List<Cliente> Orcamentos { get; } = new List<Cliente>();
+
+            protected override void AbrirOrcamento(Cliente cliente) => Orcamentos.Add(cliente);
 
             public ListaSemDialogos(Banco banco) : base(banco)
             {

@@ -80,7 +80,7 @@ namespace PontoDoGesso.Forms
             // Botão sem ação = tela de uma fase que ainda não chegou: fica visível, mas desabilitado
             var botoes = new[]
             {
-                CriarBotao("novoOrcamento", "Novo orçamento", null),
+                CriarBotao("novoOrcamento", "Novo orçamento", () => new FormOrcamento(_banco)),
                 CriarBotao("historico", "Histórico", null),
                 CriarBotao("clientes", "Clientes", () => new FormClientes(_banco)),
                 CriarBotao("produtos", "Produtos", () => new FormProdutos(_banco)),

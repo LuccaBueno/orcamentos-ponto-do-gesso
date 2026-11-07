@@ -21,6 +21,7 @@ namespace PontoDoGesso.Testes
         [Theory]
         [InlineData("clientes", typeof(FormClientes))]
         [InlineData("produtos", typeof(FormProdutos))]
+        [InlineData("novoOrcamento", typeof(FormOrcamento))]
         public void BotaoHabilitadoAbreATela(string botao, Type tela)
         {
             Tela.EmSta(() =>
@@ -38,7 +39,6 @@ namespace PontoDoGesso.Testes
         }
 
         [Theory]
-        [InlineData("novoOrcamento")]
         [InlineData("historico")]
         [InlineData("configuracoes")]
         public void BotaoDeFaseFuturaFicaDesabilitado(string botao)

@@ -10,6 +10,7 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/); 
 - Fase 3: Diagnóstico mostra a versão do banco e o modo do diário; o teste de banco passa pelo Dapper (travado na 2.1.35).
 - Fase 4: cadastro de clientes com busca enquanto digita (código, nome ou telefone, sem acento), inativar/reativar, telefone com DDD separado e validado (lista da Anatel), aviso de possível duplicado e botão **Clientes** habilitado na tela principal.
 - Fase 5: catálogo de produtos com busca, preço editável direto na lista, "Salvar e cadastrar outro", reajuste em lote (% ou R$, com prévia e confirmação), data da última mudança de preço (migração 002) e botão **Produtos** habilitado.
+- Fase 6: tela de orçamento com cliente cadastrado (autocomplete por código, nome ou telefone, "+ Novo", aviso das observações internas) ou avulso (pergunta se quer cadastrar), entrega ou retirada, grade de itens pelo teclado com autocomplete do catálogo, desconto opcional (R$ ou %), frete, validade opcional, observações, Ctrl+S, aviso de alterações não salvas e Duplicar. Botões **Novo orçamento** (tela principal) e **Novo orçamento para este cliente** (clientes) habilitados; exportação continua desabilitada até a Fase 7.
 
 ## [0.1.0] - 2026-11-06
 

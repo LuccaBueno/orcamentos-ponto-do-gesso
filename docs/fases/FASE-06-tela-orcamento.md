@@ -41,7 +41,7 @@
 - [x] Aviso ao fechar com alterações não salvas
 - [x] **Duplicar**: cria um novo orçamento (sem número) com os mesmos dados e data de hoje
 - [x] Botões Copiar imagem/PNG/PDF/Imprimir/WhatsApp visíveis mas desabilitados até a Fase 7
-- [ ] Habilitar **Novo orçamento** na tela principal e **Novo orçamento para este cliente** na tela de clientes
+- [x] Habilitar **Novo orçamento** na tela principal e **Novo orçamento para este cliente** na tela de clientes
 
 ## Testes
 
@@ -53,7 +53,7 @@
 
 ## Pronto quando
 
-Publicar v0.6.0 e fazer 3 orçamentos reais em paralelo com a folha de papel.
+Publicar v0.6.0 e fazer 3 orçamentos reais em paralelo com a folha de papel. — **aguardando teste do Lucca** (sem tag nem release nesta sessão).
 
 ## Observações
 
@@ -68,3 +68,6 @@ Publicar v0.6.0 e fazer 3 orçamentos reais em paralelo com a folha de papel.
 - **Duplicar** transforma a própria janela no orçamento novo (sem número, data de hoje), em vez de abrir outra janela. Se houver alterações não salvas num orçamento já numerado, pergunta antes se quer salvar.
 - Desempenho: a montagem da tela levava ~350 ms; com o layout suspenso durante a montagem caiu para ~65 ms no PC de desenvolvimento. Exibir a janela ainda leva ~300 ms (custo do WinForms para ~90 controles). **Aguardando teste do Lucca**: ver se a tela abre rápido no PC da loja.
 - O GroupBox com AutoSize cortava linhas (o nome do cliente sumia ao esconder o aviso); trocado por blocos com título.
+- O botão **Novo orçamento para este cliente** fica desabilitado para cliente inativo.
+- Corrigido junto: os botões das listas de clientes e produtos às vezes olhavam a linha anterior (o `SelectionChanged` dispara antes de a linha atual mudar); agora também atualizam no `CurrentCellChanged`.
+- Fase concluída no código em 07/11/2026, sem tag nem release. Falta o Lucca: cronometrar 5 itens do catálogo em menos de 1 minuto, fazer 3 orçamentos reais em paralelo com o papel e ver se a tela abre rápido no PC da loja: aguardando teste do Lucca.

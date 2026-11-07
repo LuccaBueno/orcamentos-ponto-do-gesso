@@ -50,6 +50,7 @@ namespace PontoDoGesso.Forms
             _lista.Columns.Add(Estilo.CriarColuna("bairro", "Bairro", 24));
             _lista.Columns.Add(Estilo.CriarColuna("cidade", "Cidade", 24));
             _lista.SelectionChanged += (s, e) => AtualizarBotoes();
+            _lista.CurrentCellChanged += (s, e) => AtualizarBotoes();
             _lista.CellDoubleClick += (s, e) =>
             {
                 if (e.RowIndex >= 0)
@@ -60,9 +61,8 @@ namespace PontoDoGesso.Forms
             _editar.Name = "editar";
             _inativar = Estilo.CriarBotao("Inativar", (s, e) => AlternarAtivo());
             _inativar.Name = "inativar";
-            _novoOrcamento = Estilo.CriarBotao("Novo orçamento para este cliente", (s, e) => { });
+            _novoOrcamento = Estilo.CriarBotao("Novo orçamento para este cliente", (s, e) => NovoOrcamento());
             _novoOrcamento.Name = "novoOrcamento";
-            _novoOrcamento.Enabled = false;
             var fechar = Estilo.CriarBotao("Fechar", (s, e) => Close());
             CancelButton = fechar;
 
@@ -123,6 +123,7 @@ namespace PontoDoGesso.Forms
             _editar.Enabled = cliente != null;
             _inativar.Enabled = cliente != null;
             _inativar.Text = cliente != null && !cliente.Ativo ? "Reativar" : "Inativar";
+            _novoOrcamento.Enabled = cliente != null && cliente.Ativo;
         }
 
         private void Novo()
@@ -145,6 +146,20 @@ namespace PontoDoGesso.Forms
         {
             using (var form = new FormClienteEditar(_banco, cliente))
                 return form.ShowDialog(this) == DialogResult.OK;
+        }
+
+        private void NovoOrcamento()
+        {
+            var cliente = Selecionado;
+
+            if (cliente != null && cliente.Ativo)
+                AbrirOrcamento(cliente);
+        }
+
+        protected virtual void AbrirOrcamento(Cliente cliente)
+        {
+            using (var form = new FormOrcamento(_banco, null, cliente))
+                form.ShowDialog(this);
         }
 
         private void AlternarAtivo()
