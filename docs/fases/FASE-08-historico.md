@@ -17,7 +17,7 @@
 | **Texto** | nº do orçamento, código do cliente, nome ou telefone (sem acento; também acha avulsos pelo nome digitado) |
 
 - [ ] Botão **Limpar filtros**; filtros lembrados enquanto o app estiver aberto
-- [ ] Consulta montada em `Dados\OrcamentoRepositorio.Buscar(FiltroHistorico)` com parâmetros (sem concatenar texto no SQL)
+- [x] Consulta montada em `Dados\OrcamentoRepositorio.Buscar(FiltroHistorico)` com parâmetros (sem concatenar texto no SQL)
 - [ ] Ações: **Abrir**, **Duplicar**, **Copiar imagem**, **PNG**, **PDF**, **Imprimir**, **Excluir** (com confirmação; o número não é reaproveitado)
 - [ ] Na tela do cliente: aba/lista "Orçamentos deste cliente"
 - [ ] Paginação ou carregamento sob demanda (rápido com milhares de orçamentos)
@@ -26,8 +26,8 @@
 
 ## Testes
 
-- [ ] Cada filtro isolado e combinado (ex.: avulsos + com frete + mês passado)
-- [ ] Cliente específico traz só os orçamentos daquele cadastro
+- [x] Cada filtro isolado e combinado (ex.: avulsos + com frete + mês passado)
+- [x] Cliente específico traz só os orçamentos daquele cadastro
 - [ ] Gerar 5.000 orçamentos falsos num banco de teste e medir a busca (< 1 s no Win7)
 
 ## Pronto quando

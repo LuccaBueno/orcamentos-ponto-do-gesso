@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Linq;
@@ -66,6 +67,83 @@ namespace PontoDoGesso.Dados
 
                 return orcamento;
             }
+        }
+
+        /// <summary>Orçamentos do histórico, sem os itens, na ordem pedida; <paramref name="limite"/> e <paramref name="pular"/> fazem a paginação.</summary>
+        public List<Orcamento> Buscar(FiltroHistorico filtro, DateTime hoje, int limite = 200, int pular = 0)
+        {
+            var (condicao, parametros) = Condicao(filtro, hoje);
+            parametros.Add("limite", limite);
+            parametros.Add("pular", pular);
+            var ordem = Ordenacao(filtro.OrdenarPor) + (filtro.Crescente ? " ASC" : " DESC");
+
+            using (var conexao = _banco.Abrir())
+            {
+                return conexao.Query<Orcamento>(
+                    "SELECT * FROM orcamentos WHERE " + condicao + " ORDER BY " + ordem + ", numero DESC LIMIT @limite OFFSET @pular",
+                    parametros).ToList();
+            }
+        }
+
+        /// <summary>Quantidade e soma dos totais de tudo que o filtro encontra (não só da página carregada).</summary>
+        public (int Quantidade, long TotalCentavos) Somar(FiltroHistorico filtro, DateTime hoje)
+        {
+            var (condicao, parametros) = Condicao(filtro, hoje);
+
+            using (var conexao = _banco.Abrir())
+            {
+                return conexao.QuerySingle<(int, long)>(
+                    "SELECT count(*), coalesce(sum(total_centavos), 0) FROM orcamentos WHERE " + condicao, parametros);
+            }
+        }
+
+        /// <summary>Só a coluna escolhida vira texto no SQL, e sempre de uma lista fixa; os valores vão como parâmetros.</summary>
+        private static string Ordenacao(ColunaHistorico coluna)
+        {
+            switch (coluna)
+            {
+                case ColunaHistorico.Numero: return "numero";
+                case ColunaHistorico.Cliente: return "remover_acentos(cli_nome)";
+                case ColunaHistorico.Tipo: return "cliente_id IS NULL";
+                case ColunaHistorico.Telefone: return "cli_telefone";
+                case ColunaHistorico.Frete: return "frete_centavos";
+                case ColunaHistorico.Desconto: return "desconto_centavos";
+                case ColunaHistorico.Total: return "total_centavos";
+                case ColunaHistorico.Entrega: return "tipo_entrega";
+                case ColunaHistorico.Validade: return "date(data, '+' || validade_dias || ' days')";
+                default: return "data";
+            }
+        }
+
+        private static (string Condicao, DynamicParameters Parametros) Condicao(FiltroHistorico filtro, DateTime hoje)
+        {
+            var (de, ate) = filtro.Intervalo(hoje);
+            var texto = (filtro.Texto ?? "").Trim();
+            var termo = new TermoBusca(texto);
+
+            var parametros = new DynamicParameters();
+            parametros.Add("de", de?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+            parametros.Add("ate", ate?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+            parametros.Add("tipoCliente", (int)filtro.TipoCliente);
+            parametros.Add("clienteId", filtro.TipoCliente == TipoClienteHistorico.Avulsos ? null : filtro.ClienteId);
+            parametros.Add("frete", (int)filtro.Frete);
+            parametros.Add("desconto", (int)filtro.Desconto);
+            parametros.Add("semTexto", texto.Length == 0);
+            parametros.Add("codigo", termo.Codigo);
+            parametros.Add("padrao", termo.Padrao);
+            parametros.Add("padraoTelefone", termo.PadraoTelefone);
+
+            const string condicao =
+                @"(@de IS NULL OR data >= @de) AND (@ate IS NULL OR data <= @ate)
+                  AND (@tipoCliente = 0 OR (@tipoCliente = 1 AND cliente_id IS NOT NULL) OR (@tipoCliente = 2 AND cliente_id IS NULL))
+                  AND (@clienteId IS NULL OR cliente_id = @clienteId)
+                  AND (@frete = 0 OR (@frete = 1 AND frete_centavos > 0) OR (@frete = 2 AND frete_centavos = 0))
+                  AND (@desconto = 0 OR (@desconto = 1 AND desconto_centavos > 0) OR (@desconto = 2 AND desconto_centavos = 0))
+                  AND (@semTexto OR numero = @codigo OR cliente_id = @codigo
+                       OR remover_acentos(cli_nome) LIKE @padrao ESCAPE '\'
+                       OR somente_digitos(cli_telefone) LIKE @padraoTelefone)";
+
+            return (condicao, parametros);
         }
 
         public void Excluir(long id)
