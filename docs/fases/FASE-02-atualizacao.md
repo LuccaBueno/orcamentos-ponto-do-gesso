@@ -22,15 +22,17 @@
 ### Testes
 - [x] Teste unitário de comparação de versões (`v0.10.0` > `v0.9.3`)
 - [x] Teste unitário da validação SHA-256
-- [ ] Teste real: publicar **v0.2.0**, instalar no PC, publicar **v0.2.1** (só mudando o texto do rodapé) e atualizar pelo botão — no seu PC e no PC da loja
+- [x] Teste real no PC do Lucca: publicar **v0.9.0** (era v0.2.0), instalar, publicar **v0.9.1** (era v0.2.1; só muda a versão no rodapé) e atualizar pelo botão. Feito em 07/11/2026 dentro de `C:\dev\orcamentos-ponto-do-gesso\.tmp\` (ver Observações)
+- [ ] Teste real no PC da loja: instalar a v0.9.0 e ir para a v0.9.1 pelo botão — **aguardando teste do Lucca**
 - [x] Teste de falha: zip corrompido → hash não bate → nada é alterado
-- [ ] **Teste com o antivírus do PC da loja**: baixar a release, abrir o app e atualizar com o antivírus ligado; se houver bloqueio, aplicar `C:\dev\orcamentos-ponto-do-gesso\docs\INSTALACAO-WINDOWS7.md` seção 5 e registrar aqui
+- [x] Teste de rollback: versão nova que não abre → o Atualizador volta a anterior sozinho (teste extra, ver Observações)
+- [ ] **Teste com o antivírus do PC da loja**: baixar a release, abrir o app e atualizar com o antivírus ligado; se houver bloqueio, aplicar `C:\dev\orcamentos-ponto-do-gesso\docs\INSTALACAO-WINDOWS7.md` seção 5 e registrar aqui — **aguardando teste do Lucca**
 - [x] Reduzir alarmes falsos: preencher metadados do exe (`Product`, `Company`, `Description`, `Copyright`, versão) no `Directory.Build.props`; não usar compactadores de exe (UPX) nem ofuscadores
 - [x] Se o Atualizador for apagado/bloqueado: o app detecta, avisa e cai no modo manual (abrir página de downloads)
 
 ## Pronto quando
 
-O PC da loja vai da v0.2.0 para a v0.2.1 pelo botão, sem perder nada, ou (se o HTTPS do Win7 falhar) o modo manual abre a página certa.
+O PC da loja vai da v0.9.0 para a v0.9.1 pelo botão, sem perder nada, ou (se o HTTPS do Win7 falhar) o modo manual abre a página certa.
 
 ## Observações
 
@@ -48,9 +50,15 @@ O PC da loja vai da v0.2.0 para a v0.2.1 pelo botão, sem perder nada, ou (se o 
   3. App (`FormAtualizacao` e a verificação automática do `FormPrincipal`): as continuações e o progresso não dependem mais do contexto da thread. Voltam para a tela por `Control.BeginInvoke` e só mexem nos controles se a janela ainda estiver aberta (`!_fechada && !IsDisposed && !Disposing && IsHandleCreated`). No app real o contexto já era o do WinForms, mas agora fechar a janela durante o download não tem como dar esse erro. Teste novo: `FecharDuranteODownloadIgnoraOResultadoQueChegaDepois`.
   - Resultado: 25 execuções seguidas sem falha das classes `TelaAtualizacaoTestes` + `TelaPrincipalTestes`, e mais 25 seguidas dos dois testes de download sozinhos.
 - Metadados dos exes: `Product`, `Company`, `Authors`, `Copyright` e `Description` no `Directory.Build.props`. A descrição que o Windows mostra (FileDescription) vem do `AssemblyTitle` de cada projeto: "Ponto do Gesso - orçamentos" e "Atualizador do Ponto do Gesso". Os dois exes têm o ícone do app. Nada de UPX nem ofuscador.
-- **Testes reais na v0.9.0 instalada (07/11/2026, no PC do Lucca, tudo dentro de `C:\dev\orcamentos-ponto-do-gesso\.tmp\`):** release v0.9.0 baixada com `gh release download` e hash conferido; instalada em `.tmp\instalacao\PontoDoGesso\` com `PONTODOGESSO_DADOS=.tmp\dados-atualizacao`; o app abriu, criou o banco e o backup automático; um cliente e um orçamento (3 × R$ 12,50) foram gravados pelos repositórios do próprio app (`.tmp\scripts\dados-teste.ps1`, no PowerShell 32 bits).
-  - **Hash errado** (`.tmp\scripts\teste-hash-errado.ps1`): zip corrompido em 100 bytes, publicado em `file://` com o `.sha256` do original e baixado pelo `Atualizacao` do app instalado → `PacoteInvalidoException`, o zip foi apagado da pasta `atualizacao` e a pasta do app ficou idêntica (hash de todos os arquivos).
-  - **Rollback** (`.tmp\scripts\teste-rollback.ps1`): zip válido, mas com um `PontoDoGesso.exe` que não é executável, entregue ao Atualizador real pelo `IniciarAtualizador` (com `TEMP`/`TMP` em `.tmp\temp`) com a v0.9.0 aberta → o app fechou, o Atualizador instalou, a versão nova não abriu ("not a valid application"), ele voltou a `.anterior`, reabriu a v0.9.0 e avisou. Pasta do app idêntica à de antes, sem `.anterior` nem `.nova` sobrando.
+- **Testes reais na v0.9.0 instalada (07/11/2026, no PC do Lucca, tudo dentro de `C:\dev\orcamentos-ponto-do-gesso\.tmp\`):** release v0.9.0 baixada com `gh release download` e hash conferido; instalada em `.tmp\instalacao\PontoDoGesso\` com `PONTODOGESSO_DADOS=.tmp\dados-atualizacao`; o app abriu, criou o banco e o backup automático; um cliente e um orçamento (3 × R$ 12,50) foram gravados pelos repositórios do próprio app (`scripts\teste-atualizacao\dados-teste.ps1`, no PowerShell 32 bits).
+  - **Hash errado** (`scripts\teste-atualizacao\teste-hash-errado.ps1`): zip corrompido em 100 bytes, publicado em `file://` com o `.sha256` do original e baixado pelo `Atualizacao` do app instalado → `PacoteInvalidoException`, o zip foi apagado da pasta `atualizacao` e a pasta do app ficou idêntica (hash de todos os arquivos).
+  - **Rollback** (`scripts\teste-atualizacao\teste-rollback.ps1`): zip válido, mas com um `PontoDoGesso.exe` que não é executável, entregue ao Atualizador real pelo `IniciarAtualizador` (com `TEMP`/`TMP` em `.tmp\temp`) com a v0.9.0 aberta → o app fechou, o Atualizador instalou, a versão nova não abriu ("not a valid application"), ele voltou a `.anterior`, reabriu a v0.9.0 e avisou. Pasta do app idêntica à de antes, sem `.anterior` nem `.nova` sobrando.
   - Achado da primeira tentativa: o script de teste tinha carregado o `PontoDoGesso.exe` da pasta instalada (`LoadFrom` trava o arquivo), e o Windows negou renomear a pasta. O Atualizador tentou 10 vezes, desistiu sem mudar nada, reabriu a v0.9.0 e avisou: é exatamente o comportamento esperado quando um antivírus ou outro programa segura um arquivo. O script passou a carregar o app de uma cópia.
+- **Atualização real v0.9.0 → v0.9.1 pela interface (07/11/2026, PC do Lucca)** com `C:\dev\orcamentos-ponto-do-gesso\scripts\teste-atualizacao\teste-atualizacao-real.ps1`, que usa UI Automation e, no LinkLabel, a ação padrão do MSAA (sem mexer no mouse). App instalado em `.tmp\instalacao\PontoDoGesso\`, dados em `.tmp\dados-atualizacao\`, `TEMP` em `.tmp\temp\`. Resultado:
+  - Ao abrir a v0.9.0 (com a última verificação apagada), o rodapé mostrou sozinho **Nova versão 0.9.1!**.
+  - **Verificar atualizações** → "Versão nova: 0.9.1" → **Atualizar agora**: baixou do GitHub, conferiu o SHA-256, fez `backups\dados_2026-11-07_1813_antes-de-atualizar.db`, fechou e o Atualizador instalou em cerca de 1 s.
+  - O app reabriu sozinho com **Versão 0.9.1** no rodapé; o exe instalado ficou com a versão 0.9.1.0 e a v0.9.0 ficou guardada em `PontoDoGesso.anterior`. O zip baixado foi apagado.
+  - **Dados intactos:** o cliente "Cliente Teste Atualização" e o orçamento de 3 × R$ 12,50 (3.750 centavos) continuam lá, e o backup automático do dia também.
+  - Os scripts dos testes reais ficam em `C:\dev\orcamentos-ponto-do-gesso\scripts\teste-atualizacao\` (rodam no PowerShell de 32 bits, `C:\Windows\SysWOW64\WindowsPowerShell\v1.0\powershell.exe`, porque o app é x86).
 - Os scripts `.ps1` ficam em UTF-8 **com BOM**: sem o BOM, o Windows PowerShell 5.1 lê o arquivo como ANSI e as mensagens com acento saem quebradas.
 

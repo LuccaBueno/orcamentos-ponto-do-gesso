@@ -4,6 +4,9 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/); 
 
 ## [Não lançado]
 
+### Adicionado
+- Scripts dos testes reais da atualização (instalação com dados de teste, hash errado, rollback e atualização pela interface) em `scripts\teste-atualizacao\`.
+
 ## [0.9.1] - 2026-11-07
 
 Versão de teste da atualização automática: serve para conferir que o botão **Verificar atualizações** leva a v0.9.0 para a v0.9.1 sem perder nada. Nenhuma mudança no uso do app; o rodapé passa a mostrar **Versão 0.9.1**.
