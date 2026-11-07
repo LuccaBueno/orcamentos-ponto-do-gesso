@@ -4,8 +4,8 @@
 
 ## Tarefas
 
-- [ ] `Forms\FormClientes.cs`: lista (**código**, nome, telefone, bairro, cidade), campo de busca no topo filtrando enquanto digita (código, nome ou telefone, sem acento), botões **Novo**, **Editar**, **Inativar/Reativar**, filtro "Mostrar inativos"
-- [ ] `Forms\FormClienteEditar.cs`: nome (obrigatório), telefone, telefone 2, endereço, número, bairro, cidade (padrão Pindamonhangaba), ponto de referência, observações internas (com aviso "não sai no orçamento")
+- [x] `Forms\FormClientes.cs`: lista (**código**, nome, telefone, bairro, cidade), campo de busca no topo filtrando enquanto digita (código, nome ou telefone, sem acento), botões **Novo**, **Editar**, **Inativar/Reativar**, filtro "Mostrar inativos"
+- [x] `Forms\FormClienteEditar.cs`: nome (obrigatório), telefone, telefone 2, endereço, número, bairro, cidade (padrão Pindamonhangaba), ponto de referência, observações internas (com aviso "não sai no orçamento")
 - [ ] Telefone com **DDD sempre visível e editável**: campo separado `(DD)` já preenchido com o DDD padrão (12, configurável), mais o número; para cliente de outro estado é só trocar o DDD
 - [ ] Validação: DDD precisa ser um DDD brasileiro válido (lista fixa da Anatel) e o número precisa ter 8 dígitos (fixo) ou 9 começando com 9 (celular); se não for válido, aviso ao salvar
 - [ ] Telefone gravado sempre completo (DDD + número), nunca sem DDD — o mesmo valor gera o link do WhatsApp na Fase 7
