@@ -39,3 +39,4 @@
 
 ## Observações
 
+- `journal_mode=WAL` passou no Windows 11. **Falta testar no Windows 7**: o modo em uso aparece no Diagnóstico; se der problema, trocar para `DELETE` em `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\Dados\Banco.cs`.
