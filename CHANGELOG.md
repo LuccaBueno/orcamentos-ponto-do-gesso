@@ -5,7 +5,7 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/); 
 ## [Não lançado]
 
 ### Adicionado
-- Fase 3: banco SQLite em `%APPDATA%PontoDoGessodados.db` com migrações embutidas, backup antes de migrar e configurações padrão.
+- Fase 3: banco SQLite em `%APPDATA%\PontoDoGesso\dados.db` com migrações embutidas, backup antes de migrar e configurações padrão.
 - Fase 3: domínio, repositórios, regras de cálculo, formatação pt-BR e busca sem acento por nome, telefone e código.
 - Fase 3: Diagnóstico mostra a versão do banco e o modo do diário; o teste de banco passa pelo Dapper (travado na 2.1.35).
 
