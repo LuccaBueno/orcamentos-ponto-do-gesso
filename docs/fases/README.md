@@ -18,7 +18,7 @@ Cada fase termina com o app compilando, testes passando e algo testável. A atua
 
 Legenda: ⬜ Pendente · 🟨 Em andamento · ✅ Concluída
 
-**Fase atual: 1**
+**Fase atual: 1** — v0.1.0 publicada; falta só o teste no PC da loja com Windows 7 (resultado em `C:\dev\orcamentos-ponto-do-gesso\docs\fases\FASE-01-esqueleto-win7.md`).
 
 ## PC da loja
 
@@ -45,3 +45,4 @@ Registrar aqui o que for decidido durante o desenvolvimento.
 - Desconto: **opcional**, em R$ ou %, só sobre os produtos (não sobre o frete). Só aparece no PDF/PNG se aplicado.
 - Status do orçamento (Pendente/Aprovado/Recusado): **a decidir** pelo Lucca.
 - Licença: MIT (`C:\dev\orcamentos-ponto-do-gesso\LICENSE`).
+- PDFsharp: travado na 6.2.4, a última versão MIT. A 6.5.0 passou para AGPL-3.0 (ver `C:\dev\orcamentos-ponto-do-gesso\docs\ARQUITETURA.md`).
