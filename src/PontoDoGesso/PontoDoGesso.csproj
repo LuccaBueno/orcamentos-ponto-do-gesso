@@ -17,6 +17,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- JavaScriptSerializer (resposta do GitHub): já vem no .NET Framework 4.8, sem pacote NuGet -->
+    <Reference Include="System.Web.Extensions" />
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="Dados\Migracoes\*.sql" LogicalName="Migracoes.%(Filename)%(Extension)" />
   </ItemGroup>
 
