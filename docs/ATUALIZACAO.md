@@ -19,20 +19,28 @@ PontoDoGesso.exe
  3. Compara tag_name (v1.4.0) com a versão do exe (Directory.Build.props)
  4. Baixa PontoDoGesso-v1.4.0.zip e PontoDoGesso-v1.4.0.zip.sha256
     para %APPDATA%\PontoDoGesso\atualizacao\
- 5. Confere o SHA-256 — se não bater, cancela
- 6. Faz backup de dados.db em %APPDATA%\PontoDoGesso\backups\
- 7. Copia PontoDoGesso.Atualizador.exe para a pasta temporária e o executa com:
-    --pid <id do processo> --zip <caminho do zip> --destino <pasta do app>
+ 5. Confere o SHA-256 — se não bater, apaga o zip e cancela (nada é alterado)
+ 6. Faz backup de dados.db em %APPDATA%\PontoDoGesso\backups\dados_AAAA-MM-DD_HHmm_antes-de-atualizar.db
+    (se o backup falhar, cancela)
+ 7. Copia PontoDoGesso.Atualizador.exe para %TEMP%\PontoDoGesso-atualizador\<código>\ e o executa com:
+    --pid <id do processo> --zip <caminho do zip> --destino <pasta do app> --logs <pasta de logs>
+    (se o Atualizador sumiu ou foi bloqueado: avisa e abre a página de downloads)
  8. Fecha
 
 PontoDoGesso.Atualizador.exe
  1. Espera o processo <pid> terminar (até 30 s)
- 2. Extrai o zip numa pasta temporária
+ 2. Extrai o zip em <pasta>.nova (ao lado da pasta do app, ex.: C:\PontoDoGesso.nova)
  3. Renomeia a pasta do app atual para <pasta>.anterior (rollback)
- 4. Move os arquivos novos para a pasta do app
- 5. Se algo falhar: restaura <pasta>.anterior e avisa
- 6. Abre o PontoDoGesso.exe novo e se encerra
+ 4. Renomeia a pasta nova para a pasta do app
+    (cada passo tenta 10 vezes, 1 s entre elas, caso o antivírus esteja lendo algum arquivo)
+ 5. Se algo falhar: restaura <pasta>.anterior, reabre o app antigo e avisa
+ 6. Abre o PontoDoGesso.exe novo; se ele não abrir, volta para <pasta>.anterior e avisa
+ 7. Apaga o zip baixado e se encerra
+ Log: %APPDATA%\PontoDoGesso\logs\atualizacao_AAAA-MM.log
 ```
+
+- A `<pasta>.anterior` (ex.: `C:\PontoDoGesso.anterior`) fica guardada até a próxima atualização. Para voltar à versão anterior à mão: fechar o app, renomear `C:\PontoDoGesso` para `C:\PontoDoGesso.ruim` e `C:\PontoDoGesso.anterior` para `C:\PontoDoGesso`.
+- Por isso o usuário também precisa poder criar pastas ao lado da pasta do app. Em `C:\` isso já é permitido por padrão no Windows 7.
 
 - A pasta do app precisa ter permissão de escrita para o usuário. Por isso a instalação recomendada é `C:\PontoDoGesso\` (e não `C:\Arquivos de Programas\`).
 - Os dados ficam em `%APPDATA%\PontoDoGesso\`, fora da pasta do app, então nunca são apagados pela atualização.

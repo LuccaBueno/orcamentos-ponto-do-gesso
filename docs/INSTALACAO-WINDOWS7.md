@@ -49,7 +49,7 @@ O `PontoDoGesso.exe` não tem assinatura digital paga e se atualiza sozinho baix
 Se acontecer:
 1. Abrir o antivírus instalado no PC da loja → Exceções / Exclusões / Itens permitidos.
 2. Adicionar a pasta `C:\PontoDoGesso\` inteira (não só o exe).
-3. Adicionar também `%APPDATA%\PontoDoGesso\atualizacao\` (onde a atualização é baixada).
+3. Adicionar também `%APPDATA%\PontoDoGesso\atualizacao\` (onde a atualização é baixada) e `%TEMP%\PontoDoGesso-atualizador\` (de onde o Atualizador roda durante a atualização). Se o antivírus pedir arquivos, adicionar `C:\PontoDoGesso\PontoDoGesso.exe` e `C:\PontoDoGesso\PontoDoGesso.Atualizador.exe`.
 4. Se o antivírus colocou algum arquivo em quarentena, restaurar e marcar como confiável.
 5. Anotar o nome do antivírus em `C:\dev\orcamentos-ponto-do-gesso\docs\fases\README.md`, seção "PC da loja".
 
