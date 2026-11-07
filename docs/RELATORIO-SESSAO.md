@@ -46,7 +46,7 @@ Ao final: **370 testes passando** (eram 317), CI verde em todos os commits e as 
 
 ## Pendências
 
-- **Uma caixa de erro do .NET pode ter ficado aberta no PC** ("Microsoft .NET Framework – Unhandled exception"), do processo de teste `testhost.net48.x86` (PID 7888) que travou antes da correção. A sessão não teve permissão para encerrá-lo. Enquanto ele estiver aberto, o build **Debug** falha (arquivo em uso); por isso os últimos commits foram compilados e testados em **Release**. Basta clicar em **Fechar** na caixa (ou encerrar o `testhost.net48.x86` no Gerenciador de Tarefas).
+- Resolvido: a caixa de erro do .NET do processo de teste que travou antes da correção foi fechada. Enquanto ela esteve aberta, o build Debug ficou bloqueado e alguns commits foram compilados e testados só em Release. Depois que ela fechou, o Debug compilou e passou nos 370 testes.
 - Teste no PC da loja e com o antivírus: ver o roteiro abaixo.
 - O teste de 5.000 orçamentos (Fase 8) não dá para rodar na loja sem ferramentas de desenvolvimento. Na visita, só observar se o histórico responde rápido. A medição formal no Windows 7 fica para quando houver o modo de demonstração (Fase 10).
 
@@ -56,12 +56,11 @@ Roteiro único, na ordem de fazer, com todos os itens "aguardando teste do Lucca
 
 ### Antes de sair de casa (num PC com internet)
 
-1. Fechar a caixa de erro do .NET que ficou aberta neste PC (ver Pendências).
-2. Num pendrive, salvar:
+1. Num pendrive, salvar:
    - o **instalador offline do .NET Framework 4.8**, `ndp48-x86-x64-allos-enu.exe` (site da Microsoft, "Download .NET Framework 4.8 offline installer");
    - `PontoDoGesso-v0.9.0.zip` e `PontoDoGesso-v0.9.0.zip.sha256`, de https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/releases/tag/v0.9.0 ;
    - `PontoDoGesso-v0.9.1.zip`, de https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/releases/tag/v0.9.1 (só para o caso de a atualização pelo botão não funcionar).
-3. Levar: um 2º pendrive ou HD externo para a pasta extra de backup; algumas folhas do talão de papel para comparar; a lista de produtos e preços; o celular com WhatsApp; um cronômetro (o do celular serve).
+2. Levar: um 2º pendrive ou HD externo para a pasta extra de backup; algumas folhas do talão de papel para comparar; a lista de produtos e preços; o celular com WhatsApp; um cronômetro (o do celular serve).
 
 ### Parte A — testes com dados de teste
 
