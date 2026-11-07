@@ -4,6 +4,13 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/); 
 
 ## [Não lançado]
 
+## [0.9.1] - 2026-11-07
+
+Versão de teste da atualização automática: serve para conferir que o botão **Verificar atualizações** leva a v0.9.0 para a v0.9.1 sem perder nada. Nenhuma mudança no uso do app; o rodapé passa a mostrar **Versão 0.9.1**.
+
+### Alterado
+- Só o número da versão (0.9.0 → 0.9.1).
+
 ## [0.9.0] - 2026-11-07
 
 Primeira versão completa do **Ponto do Gesso**, para instalar no PC da loja. Roda no Windows 7 SP1 (32 e 64 bits) com o .NET Framework 4.8. Os dados ficam em `%APPDATA%\PontoDoGesso\` e nunca saem do computador.
