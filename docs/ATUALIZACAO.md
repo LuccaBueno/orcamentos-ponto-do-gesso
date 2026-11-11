@@ -62,7 +62,8 @@ PontoDoGesso.Atualizador.exe
 4. O workflow `C:\dev\orcamentos-ponto-do-gesso\.github\workflows\release.yml` compila em Release, roda os testes, executa `scripts\empacotar.ps1` e publica a Release com:
    - `PontoDoGesso-v1.4.0.zip`
    - `PontoDoGesso-v1.4.0.zip.sha256`
-   - texto da Release = seção da versão no CHANGELOG.
+   - `PontoDoGesso.zip` — cópia idêntica com nome fixo, para o link `releases/latest/download/PontoDoGesso.zip` do README. O atualizador **não** usa esse arquivo: só procura `PontoDoGesso-vX.Y.Z.zip` e o `.sha256`.
+   - texto da Release = "Para instalar, baixe PontoDoGesso.zip abaixo em Assets." + seção da versão no CHANGELOG.
 
 Versionamento: `MAJOR.MINOR.PATCH` — PATCH para correções, MINOR para funções novas, MAJOR para mudanças grandes no banco ou na forma de usar.
 

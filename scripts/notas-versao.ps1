@@ -1,4 +1,4 @@
-﻿# Extrai do CHANGELOG.md a seção de uma versão (texto da Release no GitHub).
+﻿# Extrai do CHANGELOG.md a seção de uma versão (texto da Release no GitHub), com o aviso de instalação no topo.
 # Uso: powershell -ExecutionPolicy Bypass -File C:\dev\orcamentos-ponto-do-gesso\scripts\notas-versao.ps1 -Versao 0.9.0 -Saida notas.md
 param(
     [Parameter(Mandatory = $true)][string]$Versao,
@@ -25,5 +25,6 @@ for ($i = $inicio; $i -lt $linhas.Length; $i++) {
 $notas = ($linhas[$inicio..($fim - 1)] -join "`n").Trim()
 if (-not $notas) { throw "A seção '$cabecalho' do CHANGELOG.md está vazia" }
 
-[System.IO.File]::WriteAllText($Saida, $notas + "`n", (New-Object System.Text.UTF8Encoding $false))
+$aviso = 'Para instalar, baixe PontoDoGesso.zip abaixo em Assets.'
+[System.IO.File]::WriteAllText($Saida, $aviso + "`n`n" + $notas + "`n", (New-Object System.Text.UTF8Encoding $false))
 Write-Host "Notas da versão $Versao gravadas em $Saida"

@@ -6,6 +6,8 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/); 
 
 ### Adicionado
 - Scripts dos testes reais da atualização (instalação com dados de teste, hash errado, rollback e atualização pela interface) em `scripts\teste-atualizacao\`.
+- Seção **⬇️ Baixar o app** no topo do README, com link fixo para `releases/latest/download/PontoDoGesso.zip`.
+- Cada release publica também `PontoDoGesso.zip`, cópia idêntica do `PontoDoGesso-vX.Y.Z.zip` (o atualizador continua usando só o zip com a versão e o `.sha256`), e o texto da release começa com "Para instalar, baixe PontoDoGesso.zip abaixo em Assets.". Adicionado também às releases v0.9.0 e v0.9.1 já publicadas.
 
 ## [0.9.1] - 2026-11-07
 

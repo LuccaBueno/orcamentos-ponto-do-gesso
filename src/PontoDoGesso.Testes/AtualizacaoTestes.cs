@@ -90,6 +90,19 @@ namespace PontoDoGesso.Testes
         }
 
         [Fact]
+        public void IgnoraOZipComNomeFixoDoReadme()
+        {
+            var comZipFixo = RespostaGitHub.Replace(@"""assets"": [", @"""assets"": [
+    { ""name"": ""PontoDoGesso.zip"", ""browser_download_url"": ""https://exemplo/PontoDoGesso.zip"" },");
+
+            var versao = Atualizacao.LerRelease(comZipFixo);
+
+            Assert.Equal("PontoDoGesso-v0.9.1.zip", versao.NomeZip);
+            Assert.Equal("https://exemplo/PontoDoGesso-v0.9.1.zip", versao.UrlZip);
+            Assert.Equal("https://exemplo/PontoDoGesso-v0.9.1.zip.sha256", versao.UrlSha256);
+        }
+
+        [Fact]
         public void ReleaseSemOShaNaoServe()
         {
             var semSha = RespostaGitHub.Replace("PontoDoGesso-v0.9.1.zip.sha256", "outro.txt");

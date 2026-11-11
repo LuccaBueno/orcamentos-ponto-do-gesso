@@ -1,5 +1,15 @@
 # Ponto do Gesso — app de orçamentos
 
+## ⬇️ Baixar o app
+
+### [👉 Clique aqui para baixar o PontoDoGesso.zip (versão mais nova)](https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/releases/latest/download/PontoDoGesso.zip)
+
+1. **Baixe** o `PontoDoGesso.zip` pelo link acima.
+2. **Extraia** em `C:\`: botão direito no arquivo → **Extrair tudo...** → digite `C:\` → **Extrair**. O zip já traz a pasta, então vai aparecer `C:\PontoDoGesso\`.
+3. **Abra** `C:\PontoDoGesso\PontoDoGesso.exe`.
+
+No **Windows 7**, antes é preciso instalar o .NET Framework 4.8 uma vez: siga o [guia de instalação no Windows 7](docs/INSTALACAO-WINDOWS7.md).
+
 [![build](https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/actions/workflows/build.yml/badge.svg)](https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/actions/workflows/build.yml)
 
 App desktop para fazer orçamentos da loja **Ponto do Gesso** (Gesso e Ferramentas — Pindamonhangaba/SP) de forma rápida, com cadastro de clientes, catálogo simples de produtos e exportação em **PDF** e **PNG** no mesmo visual da folha de orçamento em papel.

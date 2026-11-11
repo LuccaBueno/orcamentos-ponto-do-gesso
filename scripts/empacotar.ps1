@@ -1,4 +1,5 @@
-﻿# Gera o pacote da release: publicacao\PontoDoGesso-vX.Y.Z.zip e .zip.sha256
+﻿# Gera o pacote da release: publicacao\PontoDoGesso-vX.Y.Z.zip e .zip.sha256 (usados pelo atualizador)
+# e publicacao\PontoDoGesso.zip, cópia idêntica para o link fixo releases/latest/download/PontoDoGesso.zip do README
 # Uso: powershell -ExecutionPolicy Bypass -File C:\dev\orcamentos-ponto-do-gesso\scripts\empacotar.ps1 [-SemCompilar]
 param(
     # Pula o dotnet build (o workflow de release já compilou e testou)
@@ -18,6 +19,7 @@ $publicacao = Join-Path $raiz 'publicacao'
 $pasta = Join-Path $publicacao 'PontoDoGesso'
 $nomeZip = "PontoDoGesso-v$versao.zip"
 $zip = Join-Path $publicacao $nomeZip
+$zipFixo = Join-Path $publicacao 'PontoDoGesso.zip'
 
 Write-Host "Empacotando a versão $versao"
 
@@ -28,7 +30,7 @@ if (-not $SemCompilar) {
 
 if (Test-Path $pasta) { Remove-Item -Recurse -Force $pasta }
 New-Item -ItemType Directory -Force $pasta | Out-Null
-foreach ($antigo in @($zip, "$zip.sha256")) {
+foreach ($antigo in @($zip, "$zip.sha256", $zipFixo)) {
     if (Test-Path $antigo) { Remove-Item -Force $antigo }
 }
 
@@ -73,5 +75,9 @@ finally {
 $hash = (Get-FileHash -Algorithm SHA256 $zip).Hash.ToLowerInvariant()
 [System.IO.File]::WriteAllText("$zip.sha256", "$hash  $nomeZip`n", (New-Object System.Text.UTF8Encoding $false))
 
+# Cópia com nome fixo para o link do README (o atualizador não usa)
+Copy-Item $zip $zipFixo
+
 Write-Host "Pacote: $zip"
+Write-Host "Cópia para o link do README: $zipFixo"
 Write-Host "SHA-256: $hash"

@@ -34,5 +34,5 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $tag = "${{ github.ref_name }}"
-          gh release create $tag "publicacao\PontoDoGesso-$tag.zip" "publicacao\PontoDoGesso-$tag.zip.sha256" --title "Ponto do Gesso $tag" --notes-file notas.md
+          gh release create $tag "publicacao\PontoDoGesso-$tag.zip" "publicacao\PontoDoGesso-$tag.zip.sha256" "publicacao\PontoDoGesso.zip" --title "Ponto do Gesso $tag" --notes-file notas.md
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

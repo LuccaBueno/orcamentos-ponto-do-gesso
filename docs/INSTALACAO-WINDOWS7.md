@@ -19,8 +19,8 @@ Conferir se instalou: Painel de Controle → Programas e Recursos → deve apare
 
 ## 3. Instalar o app
 
-1. Baixar `PontoDoGesso-vX.Y.Z.zip` em https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/releases/latest
-2. Extrair para `C:\PontoDoGesso\` (o resultado deve ser `C:\PontoDoGesso\PontoDoGesso.exe`).
+1. Baixar `PontoDoGesso.zip` em https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/releases/latest/download/PontoDoGesso.zip (sempre a versão mais nova; é o mesmo arquivo que o `PontoDoGesso-vX.Y.Z.zip` da release).
+2. Extrair em `C:\` (botão direito → Extrair tudo... → `C:\`): o zip já traz a pasta `PontoDoGesso`, e o resultado deve ser `C:\PontoDoGesso\PontoDoGesso.exe`.
 3. Criar atalho na Área de Trabalho: botão direito em `C:\PontoDoGesso\PontoDoGesso.exe` → Enviar para → Área de trabalho (criar atalho).
 4. Abrir. Na primeira vez o app cria `%APPDATA%\PontoDoGesso\dados.db`.
 
