@@ -1,14 +1,23 @@
 # Ponto do Gesso — app de orçamentos
 
-## ⬇️ Baixar o app
+<h2>⬇️ Baixar</h2>
 
-### [👉 Clique aqui para baixar o PontoDoGesso.zip (versão mais nova)](https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/releases/latest/download/PontoDoGesso.zip)
+<p align="center">
+  <a href="https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/releases/latest/download/PontoDoGesso.zip">
+    <img alt="Baixar o Ponto do Gesso" src="https://img.shields.io/badge/Baixar_o_Ponto_do_Gesso-Windows_7%2C_10_e_11-2ea44f?style=for-the-badge">
+  </a>
+</p>
 
-1. **Baixe** o `PontoDoGesso.zip` pelo link acima.
-2. **Extraia** em `C:\`: botão direito no arquivo → **Extrair tudo...** → digite `C:\` → **Extrair**. O zip já traz a pasta, então vai aparecer `C:\PontoDoGesso\`.
-3. **Abra** `C:\PontoDoGesso\PontoDoGesso.exe`.
+<ol>
+  <li>Clique no botão acima para baixar o <code>PontoDoGesso.zip</code>.</li>
+  <li>Clique com o botão direito no arquivo baixado → <b>Extrair tudo...</b> → digite <code>C:\</code> e clique em <b>Extrair</b>.</li>
+  <li>Abra <code>C:\PontoDoGesso\PontoDoGesso.exe</code>. Se aparecer <b>"O Windows protegeu o computador"</b>, clique em <b>Mais informações › Executar assim mesmo</b> (o app ainda não tem assinatura digital).</li>
+</ol>
 
-No **Windows 7**, antes é preciso instalar o .NET Framework 4.8 uma vez: siga o [guia de instalação no Windows 7](docs/INSTALACAO-WINDOWS7.md).
+<blockquote>
+  ⚠️ Não baixe <b>"Source code (zip)"</b> nem <b>"Source code (tar.gz)"</b>: isso é o código-fonte para programadores, não o app.<br>
+  No Windows 7, instale antes o .NET Framework 4.8 — veja <a href="docs/INSTALACAO-WINDOWS7.md">docs/INSTALACAO-WINDOWS7.md</a>.
+</blockquote>
 
 [![build](https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/actions/workflows/build.yml/badge.svg)](https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/actions/workflows/build.yml)
 
