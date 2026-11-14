@@ -25,7 +25,7 @@
   - snapshot dos dados do cliente/produto no orçamento
   - atualização automática com verificação SHA-256 e rollback
   - um único código de desenho gerando PDF, PNG e impressão
-- [ ] Badges: CI, última versão, licença
+- [x] Badges: CI, última versão, licença
 - [ ] Conferir que nenhum print, GIF ou arquivo do repositório tem dado real de cliente
 - [ ] Rodada de testes completa no Windows 7 da loja e no Windows 10/11
 - [ ] Publicar **v1.0.0**
@@ -58,3 +58,4 @@ v1.0.0 publicada e a loja usando o app no lugar do talão de papel por uma seman
 - **Manual (14/11/2026):** `C:\dev\orcamentos-ponto-do-gesso\docs\MANUAL.md`, com os prints da demonstração: tela principal, orçamento, envio (imagem, PDF, impressão, WhatsApp), histórico, clientes, produtos, configurações e backup, atualização, atalhos, modo de demonstração e o que fazer quando algo dá errado. O link fica em **Ajuda → Manual do usuário** e no **F1** de qualquer janela, e abre a página do manual no GitHub. Decisão: não levar uma cópia do manual dentro do zip; o GitHub mostra os prints e fica sempre atualizado. Sem internet, o app avisa e mostra o endereço.
 - **CHANGELOG (14/11/2026):** as seções publicadas (0.1.0, 0.9.0, 0.9.1) estão corretas e não foram mexidas (o texto das releases já publicadas vem delas). A seção **[Não lançado]** ganhou tudo da Fase 10, separado em Adicionado e Alterado. Na hora de publicar a v1.0.0, basta trocar o título por `## [1.0.0] - AAAA-MM-DD` e mudar a `<Version>` em `C:\dev\orcamentos-ponto-do-gesso\src\Directory.Build.props` (o `scripts\notas-versao.ps1` usa essa seção como texto da release).
 - **README (14/11/2026):** reorganizado em: frase de apresentação, bloco **⬇️ Baixar** (mantido igual, no topo, como o Lucca deixou), GIF, o problema (talão de papel), a solução, funcionalidades com prints, stack, como instalar, como rodar o código, documentação e status/licença. O texto de "O problema" foi escrito a partir do que está nos documentos (talão de papel, foco no WhatsApp); o Lucca deve conferir se descreve bem a loja.
+- **Badges (14/11/2026):** CI (do próprio GitHub Actions), última versão e licença (shields.io, leem do repositório), e mais dois fixos: Windows 7 a 11 e .NET Framework 4.8. Ficam logo abaixo do bloco Baixar. Não foram vistos no navegador (regra da sessão): conferir se aparecem na página do GitHub.

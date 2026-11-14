@@ -22,6 +22,10 @@ App desktop que substituiu o talão de papel nos orçamentos da loja **Ponto do 
 </blockquote>
 
 [![build](https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/actions/workflows/build.yml/badge.svg)](https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/actions/workflows/build.yml)
+[![última versão](https://img.shields.io/github/v/release/LuccaBueno/orcamentos-ponto-do-gesso?label=%C3%BAltima%20vers%C3%A3o)](https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/releases/latest)
+[![licença](https://img.shields.io/github/license/LuccaBueno/orcamentos-ponto-do-gesso?label=licen%C3%A7a)](LICENSE)
+![Windows 7 a 11](https://img.shields.io/badge/Windows-7%20a%2011-0078D6)
+![.NET Framework 4.8](https://img.shields.io/badge/.NET%20Framework-4.8-512BD4)
 
 <p align="center">
   <img src="docs/imagens/demo.gif" alt="Fazendo um orçamento do zero até copiar a imagem para o WhatsApp" width="673">
