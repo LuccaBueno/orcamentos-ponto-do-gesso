@@ -132,6 +132,6 @@ O layout do orçamento (cópia fiel da folha em papel, em milímetros) está num
 
 ## Status e licença
 
-Fase 10 (polimento) em andamento: falta o teste no Windows 7 da loja para publicar a v1.0.0 — ver [docs/fases/README.md](docs/fases/README.md).
+Versão atual: **v0.9.2**, em teste na loja; a v1.0.0 sai depois do teste no Windows 7 — ver [docs/fases/README.md](docs/fases/README.md).
 
 Licença [MIT](LICENSE).

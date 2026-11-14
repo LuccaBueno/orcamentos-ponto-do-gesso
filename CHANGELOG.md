@@ -4,7 +4,9 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/); 
 
 ## [Não lançado]
 
-Fase 10 (polimento para a v1.0.0). Falta o teste no Windows 7 da loja antes de publicar.
+## [0.9.2] - 2026-11-14
+
+Versão para instalar na loja: tudo da v0.9.1 mais a Fase 10 (polimento). A v1.0.0 sai depois do teste no Windows 7 da loja. Os dados não mudam de formato: quem está na v0.9.0 ou v0.9.1 continua com os mesmos clientes, produtos e orçamentos.
 
 ### Adicionado
 - **Atalhos:** `Ctrl+N` novo orçamento, `Ctrl+S` salvar, `Ctrl+Shift+C` copiar imagem, `Ctrl+P` imprimir, `Ctrl+E` PDF, `Ctrl+F` buscar e `F1` ajuda. Os botões mostram o atalho.
