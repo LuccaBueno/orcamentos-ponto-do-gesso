@@ -26,7 +26,7 @@
   - atualização automática com verificação SHA-256 e rollback
   - um único código de desenho gerando PDF, PNG e impressão
 - [x] Badges: CI, última versão, licença
-- [ ] Conferir que nenhum print, GIF ou arquivo do repositório tem dado real de cliente
+- [x] Conferir que nenhum print, GIF ou arquivo do repositório tem dado real de cliente
 - [ ] Rodada de testes completa no Windows 7 da loja e no Windows 10/11
 - [ ] Publicar **v1.0.0**
 
@@ -59,3 +59,4 @@ v1.0.0 publicada e a loja usando o app no lugar do talão de papel por uma seman
 - **CHANGELOG (14/11/2026):** as seções publicadas (0.1.0, 0.9.0, 0.9.1) estão corretas e não foram mexidas (o texto das releases já publicadas vem delas). A seção **[Não lançado]** ganhou tudo da Fase 10, separado em Adicionado e Alterado. Na hora de publicar a v1.0.0, basta trocar o título por `## [1.0.0] - AAAA-MM-DD` e mudar a `<Version>` em `C:\dev\orcamentos-ponto-do-gesso\src\Directory.Build.props` (o `scripts\notas-versao.ps1` usa essa seção como texto da release).
 - **README (14/11/2026):** reorganizado em: frase de apresentação, bloco **⬇️ Baixar** (mantido igual, no topo, como o Lucca deixou), GIF, o problema (talão de papel), a solução, funcionalidades com prints, stack, como instalar, como rodar o código, documentação e status/licença. O texto de "O problema" foi escrito a partir do que está nos documentos (talão de papel, foco no WhatsApp); o Lucca deve conferir se descreve bem a loja.
 - **Badges (14/11/2026):** CI (do próprio GitHub Actions), última versão e licença (shields.io, leem do repositório), e mais dois fixos: Windows 7 a 11 e .NET Framework 4.8. Ficam logo abaixo do bloco Baixar. Não foram vistos no navegador (regra da sessão): conferir se aparecem na página do GitHub.
+- **Dados reais (14/11/2026):** conferidos todos os arquivos de imagem e PDF do repositório e uma busca por telefones, CPFs e e-mails no texto. `docs\imagens\` só tem dados do modo de demonstração; `docs\referencia\comparacoes\` usa a cliente inventada "Maria Fictícia de Souza" e o telefone de exemplo (11) 98765-4321; `docs\referencia\folha-orcamento-atual.pdf` é a folha em branco. Os testes e scripts usam nomes de teste ("João Silva", "Cliente Teste Atualização") e o telefone da própria loja ou números de exemplo. O único dado de verdade que aparece é o da loja (nome, telefone e endereço do cabeçalho), que é público e é o padrão das Configurações. Nenhum banco `.db` está no Git (a pasta `.tmp\` é ignorada).
