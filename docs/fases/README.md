@@ -26,7 +26,7 @@ Legenda: ⬜ Pendente · 🟨 Em andamento · ✅ Concluída
 |---|---|
 | Windows | 7 — *a conferir* |
 | Service Pack 1 | *a conferir* |
-| 32/64 bits | *a conferir* (o app é x86 e roda nos dois) |
+| 32/64 bits | 64 bits (conferido pelo Lucca em 14/11/2026) |
 | .NET Framework 4.8 instalado | *a conferir* |
 | Conexão HTTPS com GitHub funciona | *a testar na Fase 1* |
 | WhatsApp Web funciona no navegador | *a testar na Fase 1* |
