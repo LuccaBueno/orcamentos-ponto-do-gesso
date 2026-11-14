@@ -35,6 +35,7 @@ namespace PontoDoGesso.Forms
             ClientSize = new Size(640, 480);
             MinimumSize = new Size(560, 460);
             StartPosition = FormStartPosition.CenterScreen;
+            AjusteTela.Ligar(this);
 
             var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, Padding = new Padding(24, 16, 24, 8) };
             layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));

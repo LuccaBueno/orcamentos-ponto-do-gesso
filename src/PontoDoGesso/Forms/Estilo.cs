@@ -18,6 +18,7 @@ namespace PontoDoGesso.Forms
             form.ShowInTaskbar = false;
             form.MinimizeBox = false;
             form.ShowIcon = false;
+            AjusteTela.Ligar(form);
             form.HelpRequested += (s, e) =>
             {
                 AbrirManual(form);

@@ -25,8 +25,8 @@ C:\dev\orcamentos-ponto-do-gesso\
 │  └─ release.yml            # ao criar tag vX.Y.Z, gera o zip e publica a Release
 ├─ scripts\
 │  ├─ empacotar.ps1          # monta PontoDoGesso-vX.Y.Z.zip + .sha256 + PontoDoGesso.zip
-│  └─ gerar-icone.ps1        # desenha o assetsicone.ico
-├─ assets\                   # ícone do app, ícone do WhatsApp para o cabeçalho
+│  └─ gerar-icone.ps1        # desenha o assets\icone.ico
+├─ assets\                   # icone.ico (ícone do app), ícone do WhatsApp para o cabeçalho
 ├─ docs\
 │  ├─ ARQUITETURA.md
 │  ├─ LAYOUT-ORCAMENTO.md
