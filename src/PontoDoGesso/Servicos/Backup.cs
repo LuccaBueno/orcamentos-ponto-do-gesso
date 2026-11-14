@@ -190,7 +190,7 @@ namespace PontoDoGesso.Servicos
             }
             catch (Exception erro) when (erro is IOException || erro is UnauthorizedAccessException)
             {
-                return "Não foi possível ler o arquivo: " + erro.Message;
+                return "Não foi possível ler o arquivo: " + MensagemErro.Explicar(erro);
             }
 
             return null;
@@ -204,7 +204,7 @@ namespace PontoDoGesso.Servicos
         {
             var erro = Validar(arquivo);
             if (erro != null)
-                throw new InvalidOperationException(erro);
+                throw new ErroConhecidoException(erro);
 
             Directory.CreateDirectory(Pasta);
             var antes = NomeLivre(Pasta, agora, "antes-de-restaurar");

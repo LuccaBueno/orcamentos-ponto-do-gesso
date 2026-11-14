@@ -78,7 +78,7 @@ namespace PontoDoGesso.Forms
             catch (Exception falha) when (falha is System.ComponentModel.Win32Exception || falha is InvalidOperationException)
             {
                 Log.RegistrarErro(falha);
-                Avisar("Não foi possível abrir o navegador ou a pasta: " + falha.Message + "\n\nA imagem foi salva em:\n" + arquivo);
+                Avisar("Não foi possível abrir o navegador ou a pasta. " + MensagemErro.Explicar(falha) + "\n\nA imagem foi salva em:\n" + arquivo);
                 return false;
             }
 
@@ -100,7 +100,7 @@ namespace PontoDoGesso.Forms
             catch (Exception erro) when (erro is IOException || erro is UnauthorizedAccessException || erro is System.Runtime.InteropServices.ExternalException)
             {
                 Log.RegistrarErro(erro);
-                Avisar("Não foi possível salvar o arquivo na pasta de exportação:\n" + PastaBase + "\n\n" + erro.Message
+                Avisar("Não foi possível salvar o arquivo na pasta de exportação:\n" + PastaBase + "\n\n" + MensagemErro.Explicar(erro)
                     + "\n\nSe o arquivo estiver aberto em outro programa, feche e tente de novo. A pasta pode ser trocada em Configurações.");
                 return null;
             }

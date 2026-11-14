@@ -170,7 +170,7 @@ namespace PontoDoGesso.Forms
             catch (Exception erro) when (erro is System.IO.IOException || erro is UnauthorizedAccessException || erro is System.ComponentModel.Win32Exception)
             {
                 Log.RegistrarErro(erro);
-                MessageBox.Show(this, "Não foi possível abrir a pasta de orçamentos:\n" + pasta + "\n\n" + erro.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(this, "Não foi possível abrir a pasta de orçamentos:\n" + pasta + "\n\n" + MensagemErro.Explicar(erro), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 

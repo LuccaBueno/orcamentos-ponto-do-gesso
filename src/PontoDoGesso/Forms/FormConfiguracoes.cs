@@ -404,10 +404,10 @@ namespace PontoDoGesso.Forms
             {
                 return acao();
             }
-            catch (Exception erro) when (erro is System.IO.IOException || erro is UnauthorizedAccessException || erro is System.Data.SQLite.SQLiteException || erro is InvalidOperationException)
+            catch (Exception erro) when (erro is System.IO.IOException || erro is UnauthorizedAccessException || erro is System.Data.SQLite.SQLiteException || erro is ErroConhecidoException)
             {
                 Log.RegistrarErro(erro);
-                Avisar("Não foi possível concluir: " + erro.Message);
+                Avisar("Não foi possível concluir. " + MensagemErro.Explicar(erro));
                 return null;
             }
         }
@@ -421,7 +421,7 @@ namespace PontoDoGesso.Forms
             catch (Exception erro) when (erro is System.IO.IOException || erro is UnauthorizedAccessException || erro is System.ComponentModel.Win32Exception || erro is ArgumentException)
             {
                 Log.RegistrarErro(erro);
-                Avisar("Não foi possível abrir a pasta: " + erro.Message);
+                Avisar("Não foi possível abrir a pasta. " + MensagemErro.Explicar(erro));
             }
         }
 

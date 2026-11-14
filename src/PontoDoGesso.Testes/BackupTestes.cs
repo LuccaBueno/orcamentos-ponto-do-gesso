@@ -170,7 +170,7 @@ namespace PontoDoGesso.Testes
             Assert.Equal("O arquivo não existe.", Backup.Validar(Path.Combine(_temporario.Pasta, "sumiu.db")));
 
             NovoOrcamento("Continua aqui");
-            Assert.Throws<InvalidOperationException>(() => _backup.Restaurar(texto, Agora));
+            Assert.Throws<ErroConhecidoException>(() => _backup.Restaurar(texto, Agora));
             Assert.Equal("Continua aqui", _orcamentos.ObterPorId(1).CliNome);
             Assert.False(Directory.Exists(_temporario.Banco.PastaBackups) && Directory.GetFiles(_temporario.Banco.PastaBackups, "*antes-de-restaurar*").Any());
         }

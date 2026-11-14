@@ -106,14 +106,14 @@ namespace PontoDoGesso.Testes
         public void ReleaseSemOShaNaoServe()
         {
             var semSha = RespostaGitHub.Replace("PontoDoGesso-v0.9.1.zip.sha256", "outro.txt");
-            Assert.Throws<InvalidDataException>(() => Atualizacao.LerRelease(semSha));
+            Assert.Throws<RespostaInvalidaException>(() => Atualizacao.LerRelease(semSha));
         }
 
         [Fact]
         public void ReleaseComTagInvalidaNaoServe()
         {
-            Assert.Throws<InvalidDataException>(() => Atualizacao.LerRelease(RespostaGitHub.Replace("\"v0.9.1\"", "\"ultima\"")));
-            Assert.Throws<InvalidDataException>(() => Atualizacao.LerRelease("[]"));
+            Assert.Throws<RespostaInvalidaException>(() => Atualizacao.LerRelease(RespostaGitHub.Replace("\"v0.9.1\"", "\"ultima\"")));
+            Assert.Throws<RespostaInvalidaException>(() => Atualizacao.LerRelease("[]"));
         }
 
         // ---------- SHA-256 ----------

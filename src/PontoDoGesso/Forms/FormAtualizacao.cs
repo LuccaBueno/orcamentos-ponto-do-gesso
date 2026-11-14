@@ -182,7 +182,7 @@ namespace PontoDoGesso.Forms
         {
             Log.RegistrarErro(erro);
             _nova.Text = "Não foi possível verificar.";
-            _situacao.Text = "Sem internet ou o GitHub não respondeu (" + erro.Message + ").\n\n"
+            _situacao.Text = "Não foi possível falar com o GitHub. " + MensagemErro.Explicar(erro) + "\n\n"
                 + "Para atualizar à mão, clique em Abrir página de downloads, baixe o .zip da versão mais nova e siga o docs\\INSTALACAO-WINDOWS7.md.";
             _atualizar.Enabled = false;
             _depois.Text = "Fechar";
@@ -225,7 +225,7 @@ namespace PontoDoGesso.Forms
             _atualizar.Enabled = true;
             _situacao.Text = erro is PacoteInvalidoException
                 ? erro.Message
-                : "Não foi possível baixar a versão nova (" + erro.Message + "). Nada foi alterado. Tente de novo ou use a página de downloads.";
+                : "Não foi possível baixar a versão nova. " + MensagemErro.Explicar(erro) + " Nada foi alterado. Tente de novo ou use a página de downloads.";
         }
 
         private void Instalar(string zip)
@@ -240,7 +240,7 @@ namespace PontoDoGesso.Forms
             catch (Exception erro)
             {
                 Log.RegistrarErro(erro);
-                _situacao.Text = "Não foi possível fazer o backup dos dados antes de atualizar (" + erro.Message + "). A atualização foi cancelada; nada foi alterado.";
+                _situacao.Text = "Não foi possível fazer o backup dos dados antes de atualizar. " + MensagemErro.Explicar(erro) + " A atualização foi cancelada; nada foi alterado.";
                 _progresso.Visible = false;
                 _downloads.Enabled = true;
                 _depois.Text = "Fechar";

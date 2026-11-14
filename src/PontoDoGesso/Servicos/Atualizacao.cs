@@ -24,15 +24,23 @@ namespace PontoDoGesso.Servicos
     }
 
     /// <summary>O pacote baixado não confere com o .sha256 (download incompleto ou arquivo alterado).</summary>
-    public class PacoteInvalidoException : Exception
+    public class PacoteInvalidoException : ErroConhecidoException
     {
         public PacoteInvalidoException(string mensagem) : base(mensagem)
         {
         }
     }
 
+    /// <summary>A resposta do GitHub não tem o que o app precisa (release sem o .zip, versão com nome errado...).</summary>
+    public class RespostaInvalidaException : ErroConhecidoException
+    {
+        public RespostaInvalidaException(string mensagem) : base(mensagem)
+        {
+        }
+    }
+
     /// <summary>O PontoDoGesso.Atualizador.exe sumiu da pasta do app (apagado pelo antivírus, por exemplo).</summary>
-    public class AtualizadorAusenteException : Exception
+    public class AtualizadorAusenteException : ErroConhecidoException
     {
         public AtualizadorAusenteException(string mensagem) : base(mensagem)
         {
@@ -96,10 +104,10 @@ namespace PontoDoGesso.Servicos
         public static VersaoPublicada LerRelease(string json)
         {
             var release = new JavaScriptSerializer().DeserializeObject(json) as Dictionary<string, object>
-                ?? throw new InvalidDataException("Resposta do GitHub em formato inesperado.");
+                ?? throw new RespostaInvalidaException("Resposta do GitHub em formato inesperado.");
 
             var tag = Texto(release, "tag_name");
-            var versao = LerVersao(tag) ?? throw new InvalidDataException("A versão publicada \"" + tag + "\" não é válida.");
+            var versao = LerVersao(tag) ?? throw new RespostaInvalidaException("A versão publicada \"" + tag + "\" não é válida.");
 
             var nomeZip = "PontoDoGesso-v" + versao.ToString(3) + ".zip";
             var arquivos = (release.TryGetValue("assets", out var lista) ? lista as object[] : null) ?? new object[0];
@@ -109,7 +117,7 @@ namespace PontoDoGesso.Servicos
                 .ToDictionary(grupo => grupo.Key, grupo => Texto(grupo.First(), "browser_download_url"), StringComparer.OrdinalIgnoreCase);
 
             if (!urls.TryGetValue(nomeZip, out var urlZip) || !urls.TryGetValue(nomeZip + ".sha256", out var urlSha256))
-                throw new InvalidDataException("A versão " + versao.ToString(3) + " foi publicada sem o " + nomeZip + " ou sem o " + nomeZip + ".sha256.");
+                throw new RespostaInvalidaException("A versão " + versao.ToString(3) + " foi publicada sem o " + nomeZip + " ou sem o " + nomeZip + ".sha256.");
 
             return new VersaoPublicada
             {
@@ -265,7 +273,8 @@ namespace PontoDoGesso.Servicos
             }
             catch (System.ComponentModel.Win32Exception erro)
             {
-                throw new AtualizadorAusenteException("O Windows não deixou abrir o " + NomeAtualizador + " (" + erro.Message + "). Pode ter sido bloqueado pelo antivírus.");
+                Log.RegistrarErro(erro);
+                throw new AtualizadorAusenteException("O Windows não deixou abrir o " + NomeAtualizador + ". Pode ter sido bloqueado pelo antivírus.");
             }
         }
 

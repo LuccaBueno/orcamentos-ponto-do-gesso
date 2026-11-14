@@ -53,7 +53,7 @@ namespace PontoDoGesso.Forms
             catch (Exception erro)
             {
                 Log.RegistrarErro(erro);
-                MessageBox.Show(this, "Não foi possível abrir: " + erro.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(this, "Não foi possível abrir. " + MensagemErro.Explicar(erro), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
     }
