@@ -4,10 +4,24 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/); 
 
 ## [Não lançado]
 
+Fase 10 (polimento para a v1.0.0). Falta o teste no Windows 7 da loja antes de publicar.
+
 ### Adicionado
+- **Atalhos:** `Ctrl+N` novo orçamento, `Ctrl+S` salvar, `Ctrl+Shift+C` copiar imagem, `Ctrl+P` imprimir, `Ctrl+E` PDF, `Ctrl+F` buscar e `F1` ajuda. Os botões mostram o atalho.
+- **Ajuda → Manual do usuário** (`F1` em qualquer janela) abre o manual (`docs\MANUAL.md`) no navegador.
+- **Ajuda → Sobre:** versão, link do repositório, pasta de dados e botão **Abrir pasta de dados**.
+- **Ajuda → Dados de demonstração:** banco separado (`demo.db`) com clientes, produtos e orçamentos fictícios e a faixa **MODO DEMONSTRAÇÃO**; **Sair da demonstração** volta aos dados reais sem tocar neles.
+- Ícone definitivo do app (`assets\icone.ico`, gerado por `scripts\gerar-icone.ps1`).
+- Prints e GIF de demonstração em `docs\imagens\`, gerados com dados fictícios por `scripts\gerar-prints.ps1`.
 - Scripts dos testes reais da atualização (instalação com dados de teste, hash errado, rollback e atualização pela interface) em `scripts\teste-atualizacao\`.
 - Seção **⬇️ Baixar o app** no topo do README, com link fixo para `releases/latest/download/PontoDoGesso.zip`.
 - Cada release publica também `PontoDoGesso.zip`, cópia idêntica do `PontoDoGesso-vX.Y.Z.zip` (o atualizador continua usando só o zip com a versão e o `.sha256`), e o texto da release começa com "Para instalar, baixe PontoDoGesso.zip abaixo em Assets.". Adicionado também às releases v0.9.0 e v0.9.1 já publicadas.
+
+### Alterado
+- Mensagens de erro em português claro, sem o texto técnico do Windows/.NET (que continua indo para o log).
+- Toda janela cabe em monitores 1024×768 e 1366×768: as maiores (Imprimir e Histórico) diminuem para caber na tela.
+- Ordem do Tab segue a tela em todas as janelas; Clientes e Produtos abrem com o cursor na busca e o orçamento na busca de cliente.
+- Título da janela principal: "Ponto do Gesso – Orçamentos".
 
 ## [0.9.1] - 2026-11-07
 

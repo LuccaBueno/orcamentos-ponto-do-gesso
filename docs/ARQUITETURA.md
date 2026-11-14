@@ -34,7 +34,7 @@ C:\dev\orcamentos-ponto-do-gesso\
 │  ├─ COMO-COMECAR.md
 │  ├─ INSTALACAO-WINDOWS7.md
 │  ├─ MANUAL.md              # manual do usuário (F1 no app)
-│  ├─ imagens              # prints e GIF do README e do manual (scriptsgerar-prints.ps1)
+│  ├─ imagens\               # prints e GIF do README e do manual (scripts\gerar-prints.ps1)
 │  └─ fases\
 └─ src\
    ├─ Directory.Build.props         # versão do app (<Version>) e configurações comuns
