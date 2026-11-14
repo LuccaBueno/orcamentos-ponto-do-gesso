@@ -28,7 +28,7 @@
 
 - [x] Cada filtro isolado e combinado (ex.: avulsos + com frete + mês passado)
 - [x] Cliente específico traz só os orçamentos daquele cadastro
-- [ ] Gerar 5.000 orçamentos falsos num banco de teste e medir a busca (< 1 s no Win7) — medido no PC de desenvolvimento: ~65 ms para as 4 consultas (teste `BuscaRapidaComCincoMilOrcamentos`); **aguardando teste do Lucca** no Windows 7
+- [ ] Gerar 5.000 orçamentos falsos num banco de teste e medir a busca (< 1 s no Win7) — medido no PC de desenvolvimento: ~65 ms para as 4 consultas (teste `BuscaRapidaComCincoMilOrcamentos`); no Windows 7, usar o botão **Ajuda → Diagnóstico → Testar velocidade do histórico** (a partir da Fase 10), que faz a mesma medição num banco descartável — **aguardando teste do Lucca** no Windows 7
 
 ## Pronto quando
 

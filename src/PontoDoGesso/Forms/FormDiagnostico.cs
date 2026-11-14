@@ -37,6 +37,7 @@ namespace PontoDoGesso.Forms
             _botoes = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, Padding = new Padding(6) };
             _botoes.Controls.Add(CriarBotao("Testar banco", (s, e) => Executar("Testar banco", () => TesteCompatibilidade.TestarBanco(Caminhos.PastaDados))));
             _botoes.Controls.Add(CriarBotao("Testar PDF/PNG", (s, e) => Executar("Testar PDF/PNG", () => TesteCompatibilidade.TestarPdfPng(Caminhos.PastaTesteExportacao))));
+            _botoes.Controls.Add(CriarBotao("Testar velocidade do histórico", (s, e) => Executar("Testar velocidade do histórico (5.000 orçamentos de teste; o banco real não é usado)", () => TesteCompatibilidade.TestarVelocidadeHistorico(Caminhos.PastaDados, DateTime.Today))));
             _botoes.Controls.Add(CriarBotao("Testar conexão com GitHub", (s, e) => Executar("Testar conexão com GitHub", TesteCompatibilidade.TestarConexaoGitHub)));
             _botoes.Controls.Add(CriarBotao("Copiar informações", CopiarInformacoes));
 

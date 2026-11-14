@@ -35,6 +35,7 @@ Rodar no PC da loja e anotar o resultado em `C:\dev\orcamentos-ponto-do-gesso\do
 - [ ] Botão **Testar banco** cria, grava e lê um registro
 - [ ] Botão **Testar PDF/PNG** gera os dois arquivos de teste e eles abrem
 - [ ] Botão **Testar conexão com GitHub** retorna OK
+- [ ] Botão **Testar velocidade do histórico** (versão com a Fase 10) responde em menos de 1.000 ms: anotar o tempo em `C:devorcamentos-ponto-do-gessodocsasesFASE-08-historico.md`
 
 ### Se o teste de conexão com o GitHub falhar
 

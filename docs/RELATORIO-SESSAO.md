@@ -54,7 +54,7 @@ Detalhes de cada item nas Observações de `C:\dev\orcamentos-ponto-do-gesso\doc
 - **Rodada de testes no Windows 7 da loja e publicação da v1.0.0**: aguardando o teste do Lucca (roteiro abaixo).
 - **Badges e GIF não foram vistos no navegador** (regra da sessão). Conferir na página do GitHub.
 - **Prints:** a barra de título aparece com o visual de janela inativa (limitação de fotografar a janela fora da tela). O GIF não mostra o cursor piscando nem a caixa "Imagem copiada"; o passo **Copiar imagem** aparece como um quadro final com a imagem do orçamento e uma legenda.
-- **Teste de 5.000 orçamentos no Windows 7** (pendência da Fase 8): a demonstração tem só 12 orçamentos, então a medição formal continua em aberto. Na visita, observar se o histórico responde rápido.
+- **Teste de 5.000 orçamentos no Windows 7** (pendência da Fase 8): resolvido na continuação da sessão. O **Diagnóstico** ganhou o botão **Testar velocidade do histórico**, que cria 5.000 orçamentos falsos num banco descartável dentro da pasta de dados, mede as mesmas 4 consultas da tela, mostra o tempo (meta: menos de 1.000 ms) e apaga tudo. O banco real não é aberto. No PC de desenvolvimento, o teste inteiro leva cerca de 1 s (quase tudo é a criação dos orçamentos); as consultas, ~65 ms. Fica faltando rodar no Windows 7 e anotar o tempo em `C:\dev\orcamentos-ponto-do-gesso\docs\fases\FASE-08-historico.md`.
 
 ## O que o Lucca precisa conferir
 
@@ -91,6 +91,7 @@ A v0.9.0 publicada **não tem** a Fase 10. Para testar a Fase 10 na loja antes d
    - `F1` abre o manual no navegador da loja;
    - o modo de demonstração entra e sai sem mexer nos dados de verdade;
    - o ícone aparece no atalho e na barra de tarefas;
+   - **Ajuda → Diagnóstico → Testar velocidade do histórico** responde em menos de 1.000 ms (anote o tempo na Fase 8);
    - uma mensagem de erro de propósito sai em português. Exemplo: com um PDF do orçamento aberto no leitor, salvar o PDF de novo deve mostrar "O arquivo está aberto em outro programa…".
 4. Se tudo der certo, publique a v1.0.0:
    - em `C:\dev\orcamentos-ponto-do-gesso\CHANGELOG.md`, troque `## [Não lançado]` por `## [1.0.0] - AAAA-MM-DD`;

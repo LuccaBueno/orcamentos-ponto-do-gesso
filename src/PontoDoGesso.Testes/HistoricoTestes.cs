@@ -195,27 +195,7 @@ namespace PontoDoGesso.Testes
         [Fact]
         public void BuscaRapidaComCincoMilOrcamentos()
         {
-            using (var conexao = _temporario.Banco.Abrir())
-            using (var transacao = conexao.BeginTransaction())
-            {
-                for (var i = 1; i <= 5000; i++)
-                {
-                    conexao.Execute(
-                        @"INSERT INTO orcamentos (numero, data, cli_nome, cli_telefone, tipo_entrega, subtotal_centavos, desconto_centavos, frete_centavos, total_centavos, criado_em, atualizado_em)
-                          VALUES (@i, @data, @nome, @telefone, 'ENTREGA', 10000, @desconto, @frete, 10000, '2026-01-01T00:00:00', '2026-01-01T00:00:00')",
-                        new
-                        {
-                            i,
-                            data = Hoje.AddDays(-(i % 700)).ToString("yyyy-MM-dd"),
-                            nome = "Cliente Fictício " + i,
-                            telefone = "1299" + (1000000 + i),
-                            desconto = i % 4 == 0 ? 500 : 0,
-                            frete = i % 3 == 0 ? 2000 : 0
-                        }, transacao);
-                }
-
-                transacao.Commit();
-            }
+            Servicos.TesteCompatibilidade.GerarOrcamentosFalsos(_temporario.Banco, 5000, Hoje);
 
             var relogio = Stopwatch.StartNew();
             var todos = _orcamentos.Buscar(new FiltroHistorico(), Hoje);

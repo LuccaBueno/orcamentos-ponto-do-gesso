@@ -17,6 +17,25 @@ namespace PontoDoGesso.Testes
         }
 
         [Fact]
+        public void TesteDeVelocidadeDoHistoricoMedeEApagaOBancoDeTeste()
+        {
+            var pasta = PastaTestes.Nova("PontoDoGesso-velocidade-");
+            try
+            {
+                var resultado = TesteCompatibilidade.TestarVelocidadeHistorico(pasta, new System.DateTime(2026, 11, 14));
+
+                // No PC de desenvolvimento fica muito abaixo de 1 s; o CI pode ser mais lento, então aqui só se confere a mensagem
+                Assert.Contains("histórico com 5.000 orçamentos respondeu em ", resultado.Mensagem);
+                Assert.Empty(System.IO.Directory.GetFileSystemEntries(pasta));
+            }
+            finally
+            {
+                if (System.IO.Directory.Exists(pasta))
+                    System.IO.Directory.Delete(pasta, true);
+            }
+        }
+
+        [Fact]
         public void ResumoTrazOsDadosPedidosNoDiagnostico()
         {
             var resumo = Diagnostico.Resumo();

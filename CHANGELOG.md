@@ -9,6 +9,7 @@ Fase 10 (polimento para a v1.0.0). Falta o teste no Windows 7 da loja antes de p
 ### Adicionado
 - **Atalhos:** `Ctrl+N` novo orçamento, `Ctrl+S` salvar, `Ctrl+Shift+C` copiar imagem, `Ctrl+P` imprimir, `Ctrl+E` PDF, `Ctrl+F` buscar e `F1` ajuda. Os botões mostram o atalho.
 - **Ajuda → Manual do usuário** (`F1` em qualquer janela) abre o manual (`docs\MANUAL.md`) no navegador.
+- **Ajuda → Diagnóstico → Testar velocidade do histórico:** mede o histórico com 5.000 orçamentos falsos num banco descartável (meta: menos de 1 s no Windows 7), sem tocar no banco real.
 - **Ajuda → Sobre:** versão, link do repositório, pasta de dados e botão **Abrir pasta de dados**.
 - **Ajuda → Dados de demonstração:** banco separado (`demo.db`) com clientes, produtos e orçamentos fictícios e a faixa **MODO DEMONSTRAÇÃO**; **Sair da demonstração** volta aos dados reais sem tocar neles.
 - Ícone definitivo do app (`assets\icone.ico`, gerado por `scripts\gerar-icone.ps1`).
