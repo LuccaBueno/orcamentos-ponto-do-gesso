@@ -23,7 +23,7 @@
 - [x] Teste unitário de comparação de versões (`v0.10.0` > `v0.9.3`)
 - [x] Teste unitário da validação SHA-256
 - [x] Teste real no PC do Lucca: publicar **v0.9.0** (era v0.2.0), instalar, publicar **v0.9.1** (era v0.2.1; só muda a versão no rodapé) e atualizar pelo botão. Feito em 07/11/2026 dentro de `C:\dev\orcamentos-ponto-do-gesso\.tmp\` (ver Observações)
-- [ ] Teste real no PC da loja: instalar a v0.9.0 e ir para a v0.9.1 pelo botão — **aguardando teste do Lucca**
+- [ ] Teste real no PC da loja: com a v0.9.2 instalada, ir para a v1.0.0 pelo botão quando ela for publicada (parte C do roteiro em `RELATORIO-SESSAO.md`; antes era v0.9.0 → v0.9.1, trocado em 14/11/2026 porque a loja vai receber a v0.9.2) — **aguardando teste do Lucca**
 - [x] Teste de falha: zip corrompido → hash não bate → nada é alterado
 - [x] Teste de rollback: versão nova que não abre → o Atualizador volta a anterior sozinho (teste extra, ver Observações)
 - [ ] **Teste com o antivírus do PC da loja**: baixar a release, abrir o app e atualizar com o antivírus ligado; se houver bloqueio, aplicar `C:\dev\orcamentos-ponto-do-gesso\docs\INSTALACAO-WINDOWS7.md` seção 5 e registrar aqui — **aguardando teste do Lucca**

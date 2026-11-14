@@ -2,6 +2,8 @@
 
 Sessão sem acompanhamento. A Fase 10 ficou **pronta no código**, menos os dois itens que dependem da loja: a rodada de testes no Windows 7 e a publicação da **v1.0.0** (os dois ficaram desmarcados com "aguardando teste do Lucca na loja"). Nenhuma tag nem release foi criada, nada foi instalado e nenhum navegador foi aberto.
 
+**Depois da sessão (14/11/2026, a pedido do Lucca):** publicada a **v0.9.2** (https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/releases/tag/v0.9.2), com tudo desde a v0.9.1, inclusive a Fase 10. A release tem `PontoDoGesso-v0.9.2.zip`, o `.sha256` e `PontoDoGesso.zip`. O link do README (`releases/latest/download/PontoDoGesso.zip`) entrega exatamente esse zip: o arquivo foi baixado e o SHA-256 bate com o publicado, `19326367263bd28e90722f657f28b08ea6c2f3aa68b4787b64f21cb8a9d089cb`. O roteiro da visita foi refeito para instalar a v0.9.2; o teste da atualização pelo botão passa a ser v0.9.2 → v1.0.0. A v1.0.0 **não** foi publicada.
+
 Ao final: **415 testes passando** (eram 371). Build Debug, Release e `scripts\empacotar.ps1` funcionando. O CI ficou vermelho em 6 commits seguidos por causa de um teste novo e voltou a ficar verde (ver "Correções feitas no caminho").
 
 Antes da Fase 10: na tabela "PC da loja" de `C:\dev\orcamentos-ponto-do-gesso\docs\fases\README.md` ficou registrado **32/64 bits: 64 bits (conferido pelo Lucca em 14/11/2026)**.
@@ -76,32 +78,19 @@ Detalhes de cada item nas Observações de `C:\dev\orcamentos-ponto-do-gesso\doc
 
 ### Na loja (Windows 7)
 
-A v0.9.0 publicada **não tem** a Fase 10. Para testar a Fase 10 na loja antes de publicar a v1.0.0:
+**Atualizado em 14/11/2026:** a Fase 10 foi publicada na **v0.9.2** (https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/releases/tag/v0.9.2), e o botão **⬇️ Baixar** do README já entrega essa versão. Não é mais preciso gerar o zip à mão.
 
-1. Gere o zip no seu PC:
-   ```
-   powershell -ExecutionPolicy Bypass -File C:\dev\orcamentos-ponto-do-gesso\scripts\empacotar.ps1
-   ```
-   Ele cria `C:\dev\orcamentos-ponto-do-gesso\publicacao\PontoDoGesso.zip`, que hoje sai com o número 0.9.1, mas já tem a Fase 10. Leve no pendrive.
-2. Primeiro faça o roteiro da visita (seção "Roteiro da visita à loja", mais abaixo neste arquivo). Depois troque a pasta do app pela deste zip.
-   - A Fase 10 não mudou o banco: nenhuma migração nova, e os dados continuam os mesmos.
-3. Conferir na loja:
-   - todas as janelas cabem no monitor, inclusive **Imprimir** e **Histórico**;
-   - os atalhos funcionam;
-   - `F1` abre o manual no navegador da loja;
-   - o modo de demonstração entra e sai sem mexer nos dados de verdade;
-   - o ícone aparece no atalho e na barra de tarefas;
-   - **Ajuda → Diagnóstico → Testar velocidade do histórico** responde em menos de 1.000 ms (anote o tempo na Fase 8);
-   - uma mensagem de erro de propósito sai em português. Exemplo: com um PDF do orçamento aberto no leitor, salvar o PDF de novo deve mostrar "O arquivo está aberto em outro programa…".
-4. Se tudo der certo, publique a v1.0.0:
-   - em `C:\dev\orcamentos-ponto-do-gesso\CHANGELOG.md`, troque `## [Não lançado]` por `## [1.0.0] - AAAA-MM-DD`;
+1. Siga o "Roteiro da visita à loja", mais abaixo neste arquivo. Ele instala a v0.9.2 pelo link do README e já inclui os testes da Fase 10 (etapa 8) e a medição de velocidade (etapa 4.4).
+2. Se tudo der certo, publique a v1.0.0:
+   - em `C:\dev\orcamentos-ponto-do-gesso\CHANGELOG.md`, coloque as novidades em `## [1.0.0] - AAAA-MM-DD`. Se não houver mudança depois da v0.9.2, uma linha como "Primeira versão estável, igual à 0.9.2 testada na loja" basta, porque o workflow recusa seção vazia;
    - em `C:\dev\orcamentos-ponto-do-gesso\src\Directory.Build.props`, mude `<Version>` para `1.0.0`;
    - faça o commit e crie a tag:
      ```
      git tag v1.0.0
      git push origin v1.0.0
      ```
-   - o workflow gera a release sozinho. Depois, marque os dois itens em `C:\dev\orcamentos-ponto-do-gesso\docs\fases\FASE-10-polimento-v1.md`.
+   - o workflow gera a release sozinho;
+   - depois faça a parte C do roteiro (atualização pelo botão na loja, v0.9.2 → v1.0.0) e marque os itens em `C:\dev\orcamentos-ponto-do-gesso\docs\fases\FASE-10-polimento-v1.md` e `FASE-02-atualizacao.md`.
 
 ---
 
@@ -159,94 +148,175 @@ Ao final: **370 testes passando** (eram 317), CI verde em todos os commits e as 
 
 ## Roteiro da visita à loja
 
-Roteiro único, na ordem de fazer, com todos os itens "aguardando teste do Lucca" das Fases 1 a 9. Primeiro tudo com **dados de teste** (parte A); depois os dados de teste são guardados num canto e começa o uso de verdade (parte B).
+*Atualizado em 14/11/2026 para a **v0.9.2**.*
+
+Roteiro único, na ordem de fazer, com todos os itens "aguardando teste do Lucca" das Fases 1 a 10. Na loja se instala a **v0.9.2** pelo link do README; ela tem tudo, inclusive a Fase 10.
+
+Primeiro vem a parte A, com **dados de teste**. Depois os dados de teste são guardados num canto e começa o uso de verdade (parte B).
+
+O **teste da atualização pelo botão** fica para quando a v1.0.0 for publicada (parte C). A v0.9.2 já é a última versão, então hoje o botão não teria para onde atualizar.
 
 ### Antes de sair de casa (num PC com internet)
 
 1. Num pendrive, salvar:
    - o **instalador offline do .NET Framework 4.8**, `ndp48-x86-x64-allos-enu.exe` (site da Microsoft, "Download .NET Framework 4.8 offline installer");
-   - `PontoDoGesso-v0.9.0.zip` e `PontoDoGesso-v0.9.0.zip.sha256`, de https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/releases/tag/v0.9.0 ;
-   - `PontoDoGesso-v0.9.1.zip`, de https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/releases/tag/v0.9.1 (só para o caso de a atualização pelo botão não funcionar).
-2. Levar: um 2º pendrive ou HD externo para a pasta extra de backup; algumas folhas do talão de papel para comparar; a lista de produtos e preços; o celular com WhatsApp; um cronômetro (o do celular serve).
+   - o `PontoDoGesso.zip` pelo botão **⬇️ Baixar** do README (https://github.com/LuccaBueno/orcamentos-ponto-do-gesso). Ele é a v0.9.2: é a cópia, caso o navegador da loja não consiga baixar;
+   - o `PontoDoGesso-v0.9.2.zip.sha256`, de https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/releases/tag/v0.9.2 , para conferir o arquivo. O SHA-256 da v0.9.2 é `19326367263bd28e90722f657f28b08ea6c2f3aa68b4787b64f21cb8a9d089cb`;
+   - **plano B:** o `PontoDoGesso-v0.9.1.zip`, de https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/releases/tag/v0.9.1 . Só serve para instalar à mão se a v0.9.2 não funcionar no Windows 7 (etapa 3.5).
+2. Levar:
+   - um 2º pendrive ou HD externo para a pasta extra de backup;
+   - algumas folhas do talão de papel para comparar;
+   - a lista de produtos e preços;
+   - o celular com WhatsApp;
+   - um cronômetro (o do celular serve).
 
 ### Parte A — testes com dados de teste
 
 **1. Windows** (`C:\dev\orcamentos-ponto-do-gesso\docs\INSTALACAO-WINDOWS7.md`, seção 1)
-1. Iniciar → botão direito em **Computador** → **Propriedades**. Anotar a edição (precisa ter **Service Pack 1**) e se é 32 ou 64 bits.
-2. Anotar o nome do **antivírus** instalado (ícone perto do relógio). **Não** criar exclusões ainda: o teste da etapa 5 é com o antivírus ligado e sem exceções.
+1. Iniciar → botão direito em **Computador** → **Propriedades**. Anotar a edição (precisa ter **Service Pack 1**). Os 64 bits já foram conferidos.
+2. Anotar o nome do **antivírus** instalado (ícone perto do relógio). **Não** criar exclusões ainda: os testes são com o antivírus ligado e sem exceções.
    → Resultado vai para a tabela "PC da loja" em `C:\dev\orcamentos-ponto-do-gesso\docs\fases\README.md`.
 
 **2. .NET Framework 4.8** (seção 2 do mesmo arquivo)
 1. Painel de Controle → Programas e Recursos: se já aparece "Microsoft .NET Framework 4.8", pular.
 2. Senão, executar `ndp48-x86-x64-allos-enu.exe` do pendrive como administrador e reiniciar o PC.
 
-**3. Instalar a v0.9.0** (seção 3)
-1. Copiar `PontoDoGesso-v0.9.0.zip` e o `.sha256` para `C:\` e conferir o arquivo: no Prompt de Comando, `certutil -hashfile C:\PontoDoGesso-v0.9.0.zip SHA256`. O resultado tem de ser igual ao texto do `.sha256` (aberto no Bloco de Notas).
-2. Botão direito no zip → **Extrair tudo…** → `C:\`. O resultado tem de ser `C:\PontoDoGesso\PontoDoGesso.exe`, e **não** `C:\Arquivos de Programas\`.
-3. Botão direito em `C:\PontoDoGesso\PontoDoGesso.exe` → Enviar para → Área de trabalho (criar atalho). Abrir pelo atalho.
-4. Se aparecer **Nova versão 0.9.1!** no rodapé, ótimo: a internet e o GitHub funcionam. **Ainda não clicar.**
+**3. Instalar a v0.9.2 pelo link do README** (seção 3)
+1. No navegador da loja, abrir https://github.com/LuccaBueno/orcamentos-ponto-do-gesso e clicar em **⬇️ Baixar o Ponto do Gesso**. Baixa o `PontoDoGesso.zip`.
+   - Se o navegador não abrir o GitHub ou não baixar, use o `PontoDoGesso.zip` do pendrive. Anote o que aconteceu: é um teste da Fase 1.
+2. Conferir o arquivo: copiar o zip para `C:\` e, no Prompt de Comando, rodar:
+   ```
+   certutil -hashfile C:\PontoDoGesso.zip SHA256
+   ```
+   O resultado tem de ser `19326367263bd28e90722f657f28b08ea6c2f3aa68b4787b64f21cb8a9d089cb`, o mesmo do `.sha256`.
+3. Botão direito no zip → **Extrair tudo…** → `C:\`. O resultado tem de ser `C:\PontoDoGesso\PontoDoGesso.exe`, e **não** `C:\Arquivos de Programas\`.
+   - Se aparecer "O Windows protegeu o computador": **Mais informações → Executar assim mesmo**.
+4. Botão direito em `C:\PontoDoGesso\PontoDoGesso.exe` → **Enviar para** → **Área de trabalho (criar atalho)**. Abrir pelo atalho:
+   - o rodapé tem de mostrar **Versão 0.9.2**;
+   - o atalho e a barra de tarefas mostram o ícone laranja "PG".
+5. **Plano B:** se a v0.9.2 não abrir ou der erro logo no começo:
+   - fotografe a mensagem;
+   - apague `C:\PontoDoGesso\`, extraia o `PontoDoGesso-v0.9.1.zip` do pendrive em `C:\` e siga o roteiro com ela (os passos da Fase 10, etapa 8, ficam de fora);
+   - traga a pasta `%APPDATA%\PontoDoGesso\logs\`.
 
-**4. Diagnóstico** (Fases 1 e 3)
+**4. Diagnóstico** (Fases 1, 3 e 8)
 1. **Ajuda → Diagnóstico** → **Copiar informações** e colar num Bloco de Notas salvo no pendrive (`diagnostico-loja.txt`). Vai para a tabela de `C:\dev\orcamentos-ponto-do-gesso\docs\fases\FASE-01-esqueleto-win7.md`.
 2. Conferir na tela: .NET **4.8**, processo **32 bits**, "Versão do banco" com **diário: wal** (Fase 3).
-3. **Testar banco**, **Testar PDF/PNG** (os dois arquivos abrem? o PDF abre no leitor de PDF da loja?) e **Testar conexão com GitHub** (OK 200?).
-4. Conferir se as janelas ficam legíveis, sem texto cortado (escala do Windows 7).
+3. Testes do Diagnóstico:
+   - **Testar banco**;
+   - **Testar PDF/PNG**: os dois arquivos abrem? O PDF abre no leitor de PDF da loja?
+   - **Testar conexão com GitHub**: responde OK 200?
+4. **Testar velocidade do histórico** (Fase 8): anotar o tempo. A meta é menos de 1.000 ms.
+5. Conferir se as janelas ficam legíveis, sem texto cortado (escala do Windows 7).
 
-**5. Atualização pelo botão, com o antivírus ligado** (Fase 2)
-1. Criar dados de teste: **Clientes** → cadastrar "João Teste" (com acento), telefone `12 99999-0000`. **Novo orçamento** para ele com 2 itens e **salvar**. Em **Clientes**, buscar `joao` (sem acento): tem de achar (funções do SQLite no Windows 7, Fase 3).
-2. Clicar em **Nova versão 0.9.1!** (ou **Verificar atualizações**) → conferir a tela com "Versão nova: 0.9.1" → **Atualizar agora**.
-3. O app tem de fechar e abrir sozinho em poucos segundos com **Versão 0.9.1** no rodapé. Conferir que o João Teste e o orçamento continuam lá.
-4. Conferir que existem `C:\PontoDoGesso.anterior\` e, em `%APPDATA%\PontoDoGesso\backups\` (colar esse caminho na barra do Explorer), um `dados_..._antes-de-atualizar.db`.
-5. **Se o antivírus reclamou ou bloqueou:** anotar a mensagem exata (foto com o celular), aplicar a seção 5 de `C:\dev\orcamentos-ponto-do-gesso\docs\INSTALACAO-WINDOWS7.md` (exclusões de `C:\PontoDoGesso\`, `%APPDATA%\PontoDoGesso\atualizacao\` e `%TEMP%\PontoDoGesso-atualizador\`) e repetir. Se nada funcionar: fechar o app, extrair `PontoDoGesso-v0.9.1.zip` do pendrive por cima de `C:\` e abrir de novo (atualização manual; os dados não são afetados).
-6. **Se o GitHub não respondeu** (etapa 4.3 falhou): rodar o Windows Update até não haver atualizações importantes e testar de novo; se continuar, usar a atualização manual do item anterior.
-7. Copiar `%APPDATA%\PontoDoGesso\logs\` inteiro para o pendrive.
-   → Resultados em `C:\dev\orcamentos-ponto-do-gesso\docs\fases\FASE-02-atualizacao.md` (itens "Teste real no PC da loja" e "Teste com o antivírus").
+**5. Dados de teste e antivírus** (Fases 2 e 3)
+1. Criar dados de teste:
+   - **Clientes** → cadastrar "João Teste" (com acento), telefone `12 99999-0000`;
+   - **Novo orçamento** para ele com 2 itens e **salvar**;
+   - em **Clientes**, buscar `joao` (sem acento): tem de achar (funções do SQLite no Windows 7, Fase 3).
+2. **Verificar atualizações** no rodapé: tem de dizer **"Você já está com a versão mais nova."** Isso confirma internet, TLS 1.2 e GitHub pelo próprio app.
+   - Se der "Não foi possível falar com o GitHub", anote a mensagem. Rode o Windows Update até não haver atualizações importantes e teste de novo.
+3. **Se o antivírus reclamou ou bloqueou** algo até aqui (ao extrair, abrir ou verificar):
+   - anote a mensagem exata (foto com o celular);
+   - aplique a seção 5 de `C:\dev\orcamentos-ponto-do-gesso\docs\INSTALACAO-WINDOWS7.md`: exclusões de `C:\PontoDoGesso\`, `%APPDATA%\PontoDoGesso\atualizacao\` e `%TEMP%\PontoDoGesso-atualizador\`.
+   → Resultado no item "Teste com o antivírus" de `C:\dev\orcamentos-ponto-do-gesso\docs\fases\FASE-02-atualizacao.md`. A atualização com o antivírus ligado é testada na parte C.
 
 **6. Exportação, impressão e WhatsApp** (Fases 1 e 7)
-1. Abrir o orçamento do João Teste → **PNG** e **PDF**: o PDF abre no leitor da loja? As letras estão certas (sem Calibri o app usa Arial)? Comparar com a folha de papel.
-2. **Imprimir** na impressora da loja: margens certas, nada cortado. Levar a folha impressa para casa.
+1. Abrir o orçamento do João Teste → **PNG** e **PDF**:
+   - o PDF abre no leitor da loja?
+   - as letras estão certas? Sem Calibri, o app usa Arial;
+   - comparar com a folha de papel.
+2. **Imprimir** (`Ctrl+P`) na impressora da loja: margens certas, nada cortado. A janela de impressão cabe na tela. Levar a folha impressa para casa.
 3. Abrir o WhatsApp Web no navegador da loja (Fase 1): funciona? Anotar o navegador e a versão.
-4. **WhatsApp** no orçamento: abre a conversa certa no navegador? (Usar o próprio celular como cliente, trocando o telefone do João Teste.)
-5. **Copiar imagem** → Ctrl+V na conversa do WhatsApp Web: a imagem vai?
+4. **WhatsApp** no orçamento: abre a conversa certa no navegador? Use o próprio celular como cliente, trocando o telefone do João Teste.
+5. **Copiar imagem** (`Ctrl+Shift+C`) → `Ctrl+V` na conversa do WhatsApp Web: a imagem vai?
 6. **Abrir pasta de orçamentos** → arrastar o PNG para a conversa: vai?
 7. No celular, abrir a imagem recebida e dar zoom no canto de baixo: o "Nº 0001" fica legível, mas discreto?
    → Resultados em `C:\dev\orcamentos-ponto-do-gesso\docs\fases\FASE-07-exportacao-pdf-png.md` e na última linha da tabela de `FASE-01-esqueleto-win7.md`.
 
 **7. Histórico e backup** (Fases 8 e 9)
-1. Fazer mais 2 orçamentos de teste (1 avulso com frete, 1 com desconto). **Histórico**: testar os filtros e clicar nos cabeçalhos; a busca é rápida?
+1. Fazer mais 2 orçamentos de teste (1 avulso com frete, 1 com desconto). No **Histórico** (`Ctrl+F` na tela principal):
+   - testar os filtros e clicar nos cabeçalhos;
+   - a busca é rápida?
+   - a janela cabe na tela?
 2. **Configurações → Backup** → **Fazer backup agora** → **Copiar backup para…** o pendrive.
 3. Excluir 1 orçamento de teste no Histórico e depois **Restaurar backup** com o backup recém-feito: o app reinicia e o orçamento excluído volta.
-4. Tentar restaurar um arquivo qualquer (ex.: o `diagnostico-loja.txt` renomeado para `.db`): tem de recusar.
+4. Tentar restaurar um arquivo qualquer (ex.: o `diagnostico-loja.txt` renomeado para `.db`): tem de recusar, com a mensagem em português.
 
-**8. Guardar os dados de teste**
+**8. Fase 10 — acabamento**
+1. Atalhos na tela de orçamento: `Ctrl+N` (orçamento em branco; pergunta se há alterações), `Ctrl+S`, `Ctrl+E` (PDF), `Ctrl+F` (vai para a busca de cliente).
+2. Atalhos na tela principal: `Ctrl+N` abre um orçamento e `Ctrl+F` abre o histórico.
+3. `F1` em qualquer janela abre o manual no navegador da loja.
+4. Tab: na tela de orçamento e em Clientes, o cursor passa pelos campos na ordem da tela.
+5. **Ajuda → Sobre** mostra **Versão 0.9.2**. **Abrir pasta de dados** abre `%APPDATA%\PontoDoGesso`.
+6. **Ajuda → Dados de demonstração**:
+   - aparece a faixa amarela **MODO DEMONSTRAÇÃO** e os clientes e orçamentos inventados;
+   - **Ajuda → Sair da demonstração** volta, e o João Teste continua lá.
+7. Mensagem em português: deixe um PDF de orçamento aberto no leitor e salve o PDF de novo. Tem de aparecer "O arquivo está aberto em outro programa…".
+   → Resultados no item "Rodada de testes completa no Windows 7" de `C:\dev\orcamentos-ponto-do-gesso\docs\fases\FASE-10-polimento-v1.md`.
+
+**9. Guardar os dados de teste**
 1. Fechar o app.
 2. No Explorer, colar `%APPDATA%` na barra de endereço e renomear a pasta `PontoDoGesso` para `PontoDoGesso-teste-visita`.
 3. Abrir o app de novo: ele começa com banco limpo (orçamento nº 0001 de verdade).
 
 ### Parte B — começar o uso de verdade
 
-**9. Configurações** (Fase 9)
+**10. Configurações** (Fase 9)
 1. **Configurações → Loja:** conferir nome, telefone, endereço e rodapé na pré-visualização.
 2. **Orçamento:** validade sugerida, cidade e DDD padrão.
 3. **Exportação:** pasta dos orçamentos (padrão `Documentos\Orçamentos Ponto do Gesso`) e impressora.
 4. **Backup:** escolher o pendrive ou HD que vai ficar na loja como **pasta extra**.
 
-**10. Produtos e clientes** (Fases 4 e 5)
-1. **Produtos:** cadastrar a lista real com **Salvar e cadastrar outro**; mudar um preço direto na lista (digitar e Enter); selecionar 2 produtos com Ctrl+clique e reajustar 5% (R$ 12,50 → R$ 13,13 na prévia).
-2. **Clientes:** cadastrar 3 clientes reais, um deles com DDD 11; tentar DDD `00` (tem de recusar); repetir um telefone (tem de avisar que pode ser duplicado); na lista, duplo clique edita, Enter na busca abre o 1º e Esc fecha.
+**11. Produtos e clientes** (Fases 4 e 5)
+1. **Produtos:**
+   - cadastrar a lista real com **Salvar e cadastrar outro**;
+   - mudar um preço direto na lista (digitar e Enter);
+   - selecionar 2 produtos com Ctrl+clique e reajustar 5% (R$ 12,50 → R$ 13,13 na prévia).
+2. **Clientes:**
+   - cadastrar 3 clientes reais, um deles com DDD 11;
+   - tentar DDD `00` (tem de recusar);
+   - repetir um telefone (tem de avisar que pode ser duplicado);
+   - a janela abre com o cursor na busca; Enter na busca abre o 1º, duplo clique edita e Esc fecha.
 
-**11. Orçamentos reais** (Fase 6)
+**12. Orçamentos reais** (Fase 6)
 1. **Cronometrar** um orçamento de 5 itens do catálogo: meta **menos de 1 minuto**.
-2. Fazer 3 orçamentos reais em paralelo com o talão: cadastrado, avulso e retirada; com desconto em R$ e em %; com validade.
+2. Fazer 3 orçamentos reais em paralelo com o talão:
+   - um de cliente cadastrado, um avulso e um com retirada;
+   - com desconto em R$ e em %;
+   - com validade.
 3. Cliente com observações: aparece a faixa amarela?
 4. Fechar com alterações não salvas: tem de perguntar. **Duplicar** um orçamento salvo: ganha o próximo número ao salvar.
 5. A tela de orçamento abre rápido no PC da loja?
 6. **Clientes → Orçamentos deste cliente** mostra os dele.
 
-**12. Antes de ir embora**
+**13. Antes de ir embora**
 1. **Configurações → Backup → Fazer backup agora** (vai também para a pasta extra).
-2. Trazer no pendrive: `diagnostico-loja.txt`, a pasta `logs`, fotos das mensagens de erro (se houver) e a folha impressa.
-3. Passar os resultados para a próxima sessão, que marca os itens nos arquivos das fases (`C:\dev\orcamentos-ponto-do-gesso\docs\fases\FASE-01-esqueleto-win7.md` a `FASE-09-configuracoes-backup.md`) e preenche a tabela "PC da loja" de `C:\dev\orcamentos-ponto-do-gesso\docs\fases\README.md`.
+2. Trazer no pendrive:
+   - o `diagnostico-loja.txt`;
+   - a pasta `logs`;
+   - fotos das mensagens de erro (se houver);
+   - a folha impressa;
+   - o tempo do teste de velocidade.
+3. Passar os resultados para a próxima sessão, que:
+   - marca os itens nos arquivos das fases (`C:\dev\orcamentos-ponto-do-gesso\docs\fases\FASE-01-esqueleto-win7.md` a `FASE-10-polimento-v1.md`);
+   - preenche a tabela "PC da loja" de `C:\dev\orcamentos-ponto-do-gesso\docs\fases\README.md`.
+
+### Parte C — teste da atualização pelo botão (quando a v1.0.0 for publicada)
+
+Fica para depois da visita: com a v0.9.2 instalada na loja e a **v1.0.0** publicada, o botão testa a atualização de verdade (v0.9.2 → v1.0.0), com o antivírus ligado e os dados reais.
+
+1. Antes: **Configurações → Backup → Fazer backup agora** e **Copiar backup para…** um pendrive.
+2. Abrir o app. Em até um dia aparece **Nova versão 1.0.0!** no rodapé (ou clicar em **Verificar atualizações**). Conferir a tela com "Versão nova: 1.0.0" → **Atualizar agora**.
+3. O app tem de fechar e abrir sozinho em poucos segundos com **Versão 1.0.0** no rodapé. Clientes, produtos e orçamentos continuam lá.
+4. Conferir que existem:
+   - `C:\PontoDoGesso.anterior\`;
+   - em `%APPDATA%\PontoDoGesso\backups\`, um `dados_..._antes-de-atualizar.db`.
+5. **Se o antivírus reclamou ou bloqueou:** anote a mensagem exata (foto), aplique as exclusões da seção 5 de `C:\dev\orcamentos-ponto-do-gesso\docs\INSTALACAO-WINDOWS7.md` e repita.
+6. **Atualização manual**, se nada funcionar: fechar o app, baixar o `PontoDoGesso.zip` pelo link do README (que então será a v1.0.0), extrair por cima de `C:\` e abrir de novo. Os dados não são afetados.
+   - **Plano B** se a v1.0.0 não abrir: extrair a v0.9.2 (ou a v0.9.1, do pendrive) do mesmo jeito.
+7. Copiar `%APPDATA%\PontoDoGesso\logs\` (inclui `atualizacao_AAAA-MM.log`) para o pendrive.
+   → Resultados em `C:\dev\orcamentos-ponto-do-gesso\docs\fases\FASE-02-atualizacao.md`, nos itens "Teste real no PC da loja" e "Teste com o antivírus".
 
 ---
 
