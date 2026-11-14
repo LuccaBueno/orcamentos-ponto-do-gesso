@@ -6,7 +6,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>PontoDoGesso.Atualizador</RootNamespace>
     <AssemblyName>PontoDoGesso.Atualizador</AssemblyName>
-    <ApplicationIcon>..\..\assets\icone-app.ico</ApplicationIcon>
+    <ApplicationIcon>..\..\assets\icone.ico</ApplicationIcon>
     <AssemblyTitle>Atualizador do Ponto do Gesso</AssemblyTitle>
     <Description>Atualizador do Ponto do Gesso</Description>
   </PropertyGroup>

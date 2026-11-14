@@ -7,7 +7,7 @@
     <RootNamespace>PontoDoGesso</RootNamespace>
     <AssemblyName>PontoDoGesso</AssemblyName>
     <AssemblyTitle>Ponto do Gesso - orçamentos</AssemblyTitle>
-    <ApplicationIcon>..\..\assets\icone-app.ico</ApplicationIcon>
+    <ApplicationIcon>..\..\assets\icone.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 

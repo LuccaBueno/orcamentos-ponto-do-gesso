@@ -5,7 +5,7 @@
 ## Tarefas
 
 - [x] Atalhos: `Ctrl+N` novo orçamento, `Ctrl+S` salvar, `Ctrl+Shift+C` copiar imagem, `Ctrl+P` imprimir, `Ctrl+E` PDF, `Ctrl+F` buscar, `F1` ajuda
-- [ ] Ícone definitivo do app (`assets\icone.ico`) e título das janelas
+- [x] Ícone definitivo do app (`assets\icone.ico`) e título das janelas
 - [ ] Revisar tamanhos de fonte e telas em 1366×768 e 1024×768 (monitores comuns em PCs antigos)
 - [ ] Revisar ordem do Tab em todas as telas
 - [ ] Mensagens de erro em português claro, sem termos técnicos (detalhe técnico só no log)
@@ -46,3 +46,4 @@ v1.0.0 publicada e a loja usando o app no lugar do talão de papel por uma seman
 
 
 - **Atalhos (14/11/2026):** na tela de orçamento, `Ctrl+N` transforma a mesma janela num orçamento em branco (pergunta antes se há alterações), `Ctrl+F` vai para a busca de cliente (num avulso, volta para Cadastrado sem apagar nome e telefone) e `Ctrl+Shift+C`/`Ctrl+P`/`Ctrl+E` salvam antes, se preciso, como os botões (que mostram o atalho na dica). Na tela principal, `Ctrl+N` abre um orçamento novo e `Ctrl+F` abre o Histórico (os dois botões mostram o atalho). Em Clientes, Produtos e Histórico, `Ctrl+F` vai para o campo de busca. `F1` em qualquer janela (e **Ajuda → Manual do usuário**) abre o manual no GitHub pelo navegador, como o botão WhatsApp já faz: o app em si continua sem chamar a internet, quem abre é o navegador.
+- **Ícone (14/11/2026):** não havia arte pronta, então o ícone definitivo é desenhado em código por `C:\dev\orcamentos-ponto-do-gesso\scripts\gerar-icone.ps1`: quadrado arredondado no laranja da loja, moldura branca fina (como a do orçamento) e "PG" em Times New Roman, a fonte do título da loja. Tamanhos 16, 24, 32 e 48 em bitmap e 256 em PNG. Saiu o provisório `assets\icone-app.ico`; os dois exes usam `C:\dev\orcamentos-ponto-do-gesso\assets\icone.ico`. Se o Lucca tiver uma arte, basta trocar o arquivo (mesmo nome). Títulos: a janela principal passou a "Ponto do Gesso – Orçamentos"; as outras já tinham títulos claros ("Clientes", "Histórico de orçamentos", "Orçamento Nº 0001"…) e ficaram como estavam.

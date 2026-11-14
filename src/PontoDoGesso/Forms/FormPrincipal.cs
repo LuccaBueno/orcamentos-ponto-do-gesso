@@ -12,6 +12,8 @@ namespace PontoDoGesso.Forms
     {
         private static readonly Color Laranja = Color.FromArgb(0xC5, 0x5A, 0x11);
 
+        public const string TituloJanela = "Ponto do Gesso – Orçamentos";
+
         private readonly Banco _banco;
         private LinkLabel _avisoAtualizacao;
         private VersaoPublicada _versaoDisponivel;
@@ -24,7 +26,7 @@ namespace PontoDoGesso.Forms
         {
             _banco = banco;
 
-            Text = "Ponto do Gesso";
+            Text = TituloJanela;
             Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
             AutoScaleMode = AutoScaleMode.Dpi;
             AutoScaleDimensions = new SizeF(96F, 96F);

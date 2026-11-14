@@ -6,7 +6,9 @@ namespace PontoDoGesso.Testes
     /// <summary>Tudo que os testes gravam fica em .tmp, na raiz do repositório (ignorada pelo git).</summary>
     public static class PastaTestes
     {
-        public static readonly string Raiz = Path.Combine(AcharRepositorio(), ".tmp", "testes");
+        public static readonly string RaizRepositorio = AcharRepositorio();
+
+        public static readonly string Raiz = Path.Combine(RaizRepositorio, ".tmp", "testes");
 
         public static string Nova(string prefixo)
         {

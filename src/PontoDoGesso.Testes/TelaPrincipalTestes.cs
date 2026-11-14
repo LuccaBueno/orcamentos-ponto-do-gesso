@@ -41,6 +41,35 @@ namespace PontoDoGesso.Testes
         }
 
         [Fact]
+        public void JanelaPrincipalTemTituloEIconeDoApp()
+        {
+            Tela.EmSta(() =>
+            {
+                using (var form = new PrincipalSemDialogos(_temporario.Banco))
+                {
+                    Tela.Exibir(form);
+                    Assert.Equal("Ponto do Gesso – Orçamentos", form.Text);
+                    Assert.NotNull(form.Icon);
+                }
+            });
+        }
+
+        [Fact]
+        public void IconeDoAppTemOsTamanhosDoWindows()
+        {
+            var arquivo = System.IO.Path.Combine(PastaTestes.RaizRepositorio, "assets", "icone.ico");
+            var bytes = System.IO.File.ReadAllBytes(arquivo);
+            var quantidade = BitConverter.ToUInt16(bytes, 4);
+            var lados = new List<int>();
+            for (var i = 0; i < quantidade; i++)
+                lados.Add(bytes[6 + 16 * i] == 0 ? 256 : bytes[6 + 16 * i]);
+
+            Assert.Equal(new[] { 16, 24, 32, 48, 256 }, lados);
+            using (var icone = new System.Drawing.Icon(arquivo, 32, 32))
+                Assert.Equal(32, icone.Width);
+        }
+
+        [Fact]
         public void AbrirPastaDeOrcamentosUsaAPastaDasConfiguracoes()
         {
             var pasta = System.IO.Path.Combine(_temporario.Pasta, "exportados");
