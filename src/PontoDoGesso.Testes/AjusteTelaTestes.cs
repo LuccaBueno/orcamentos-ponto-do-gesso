@@ -50,11 +50,13 @@ namespace PontoDoGesso.Testes
         {
             Tela.EmSta(() =>
             {
-                using (var form = new Form { MinimumSize = new Size(1100, 800), Size = new Size(1200, 900) })
+                // Área menor que qualquer monitor: o Windows não deixa a janela passar do tamanho da tela de verdade (o CI tem tela pequena)
+                var area = new Rectangle(0, 0, 500, 400);
+                using (var form = new Form { MinimumSize = new Size(600, 450), Size = new Size(700, 500) })
                 {
-                    AjusteTela.Aplicar(form, Area1024);
-                    Assert.Equal(new Size(1024, 728), form.MinimumSize);
-                    Assert.Equal(new Size(1024, 728), form.Size);
+                    AjusteTela.Aplicar(form, area);
+                    Assert.Equal(new Size(500, 400), form.MinimumSize);
+                    Assert.Equal(new Size(500, 400), form.Size);
                 }
             });
         }
