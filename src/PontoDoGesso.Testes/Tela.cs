@@ -104,6 +104,22 @@ namespace PontoDoGesso.Testes
             aoClicar.Invoke(link, new object[] { new LinkLabelLinkClickedEventArgs(link.Links[0]) });
         }
 
+        /// <summary>Controles na ordem em que o Tab passa por eles (só os que podem receber o cursor agora), pelo nome ou pelo texto.</summary>
+        public static string[] OrdemTab(Form form)
+        {
+            var ordem = new System.Collections.Generic.List<string>();
+            Control atual = null;
+            while (true)
+            {
+                atual = form.GetNextControl(atual, true);
+                if (atual == null)
+                    break;
+                if (atual.CanSelect && atual.TabStop && !(atual is Panel) && !(atual is Label && !(atual is LinkLabel)))
+                    ordem.Add(string.IsNullOrEmpty(atual.Name) ? "[" + atual.Text + "]" : atual.Name);
+            }
+            return ordem.ToArray();
+        }
+
         /// <summary>Tecla vista pela janela com KeyPreview (dispara o KeyDown da janela, como o teclado faria).</summary>
         public static bool Teclar(Form form, Keys tecla)
         {

@@ -149,6 +149,9 @@ namespace PontoDoGesso.Forms
                 _suspensos[i].ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
+
+            // A data vem primeiro no Tab, mas quase nunca muda: a janela abre com o cursor no cliente
+            ActiveControl = _buscaCliente.Enabled ? (Control)_buscaCliente : _nome;
         }
 
         public Orcamento Orcamento => _orcamento;

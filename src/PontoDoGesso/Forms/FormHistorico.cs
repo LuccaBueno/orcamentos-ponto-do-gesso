@@ -89,10 +89,16 @@ namespace PontoDoGesso.Forms
             rodape.Controls.Add(_resumo, 0, 0);
             rodape.Controls.Add(_carregarMais, 1, 0);
 
+            var filtros = CriarFiltros();
+            var botoes = CriarBotoes();
             Controls.Add(_lista);
-            Controls.Add(CriarFiltros());
+            Controls.Add(filtros);
             Controls.Add(rodape);
-            Controls.Add(CriarBotoes());
+            Controls.Add(botoes);
+
+            // Tab na ordem da tela (filtros, lista, botões), mas a janela abre com o cursor na lista: setas e Enter abrem o orçamento
+            Estilo.OrdemTab(filtros, _lista, rodape, botoes);
+            ActiveControl = _lista;
 
             _sugestoesClientes = new ListaSugestoes(this, texto => _clientes.Buscar(texto, true).Take(10), valor => Descrever((Cliente)valor));
             _sugestoesClientes.Ligar(_clienteEspecifico);

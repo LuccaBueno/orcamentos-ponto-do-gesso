@@ -93,6 +93,7 @@ namespace PontoDoGesso.Forms
             Controls.Add(_lista);
             Controls.Add(topo);
             Controls.Add(botoes);
+            Estilo.OrdemTab(topo, _lista, botoes);
 
             Carregar();
         }

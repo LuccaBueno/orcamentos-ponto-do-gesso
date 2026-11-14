@@ -40,6 +40,13 @@ namespace PontoDoGesso.Forms
             }
         }
 
+        /// <summary>Tab passa pelos controles nesta ordem (a ordem de inclusão segue o Dock, não a posição na tela).</summary>
+        public static void OrdemTab(params Control[] controles)
+        {
+            for (var i = 0; i < controles.Length; i++)
+                controles[i].TabIndex = i;
+        }
+
         /// <summary>Ctrl+F leva o cursor para o campo de busca da janela.</summary>
         public static void LigarBusca(Form form, TextBox busca)
         {

@@ -55,6 +55,7 @@ namespace PontoDoGesso.Forms
             botoes.Controls.Add(cancelar);
             botoes.Controls.Add(salvar);
             botoes.Controls.Add(salvarOutro);
+            Estilo.OrdemTab(salvarOutro, salvar, cancelar);
 
             Controls.Add(campos);
             Controls.Add(botoes);

@@ -69,6 +69,7 @@ namespace PontoDoGesso.Forms
             var botoes = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(6) };
             botoes.Controls.Add(cancelar);
             botoes.Controls.Add(salvar);
+            Estilo.OrdemTab(salvar, cancelar);
 
             Controls.Add(campos);
             Controls.Add(botoes);

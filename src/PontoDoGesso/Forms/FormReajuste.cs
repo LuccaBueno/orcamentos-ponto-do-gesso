@@ -68,6 +68,8 @@ namespace PontoDoGesso.Forms
             Controls.Add(_previa);
             Controls.Add(topo);
             Controls.Add(botoes);
+            Estilo.OrdemTab(topo, _previa, botoes);
+            Estilo.OrdemTab(_aplicar, cancelar);
             CancelButton = cancelar;
 
             foreach (var controle in new Control[] { _aumentar, _diminuir, _percentual, _valor })
