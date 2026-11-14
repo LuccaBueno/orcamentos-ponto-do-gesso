@@ -11,6 +11,10 @@ namespace PontoDoGesso.Servicos
         public static string VersaoApp =>
             typeof(Diagnostico).Assembly.GetName().Version.ToString(3);
 
+        /// <summary>O mesmo texto que aparece nas propriedades do exe (vem do Directory.Build.props).</summary>
+        public static string Copyright =>
+            ((System.Reflection.AssemblyCopyrightAttribute)Attribute.GetCustomAttribute(typeof(Diagnostico).Assembly, typeof(System.Reflection.AssemblyCopyrightAttribute)))?.Copyright ?? "";
+
         public static string Resumo()
         {
             var texto = new StringBuilder();

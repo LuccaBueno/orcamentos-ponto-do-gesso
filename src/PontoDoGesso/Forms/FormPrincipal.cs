@@ -252,9 +252,14 @@ namespace PontoDoGesso.Forms
             var diagnostico = new ToolStripMenuItem("Diagnóstico");
             diagnostico.Click += AbrirDiagnostico;
 
+            var sobre = new ToolStripMenuItem("Sobre") { Name = "sobre" };
+            sobre.Click += (s, e) => AbrirTela(() => new FormSobre(Caminhos.PastaDados));
+
             var ajuda = new ToolStripMenuItem("Ajuda");
             ajuda.DropDownItems.Add(manual);
             ajuda.DropDownItems.Add(diagnostico);
+            ajuda.DropDownItems.Add(new ToolStripSeparator());
+            ajuda.DropDownItems.Add(sobre);
 
             var menu = new MenuStrip();
             menu.Items.Add(ajuda);

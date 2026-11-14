@@ -51,6 +51,9 @@ namespace PontoDoGesso.Testes
 
                     manual.PerformClick();
                     Assert.Equal(1, form.Manuais);
+
+                    ((ToolStripMenuItem)manual.OwnerItem).DropDownItems["sobre"].PerformClick();
+                    Assert.IsType<FormSobre>(Assert.Single(form.Abertas));
                 }
             });
         }
