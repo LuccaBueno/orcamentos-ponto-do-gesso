@@ -1,3 +1,109 @@
+# Relatório da sessão — 14/11/2026 (Fase 10: polimento para a v1.0.0)
+
+Sessão sem acompanhamento. A Fase 10 ficou **pronta no código**, menos os dois itens que dependem da loja: a rodada de testes no Windows 7 e a publicação da **v1.0.0** (os dois ficaram desmarcados com "aguardando teste do Lucca na loja"). Nenhuma tag nem release foi criada, nada foi instalado e nenhum navegador foi aberto.
+
+Ao final: **415 testes passando** (eram 371). Build Debug, Release e `scripts\empacotar.ps1` funcionando. O CI ficou vermelho em 6 commits seguidos por causa de um teste novo e voltou a ficar verde (ver "Correções feitas no caminho").
+
+Antes da Fase 10: na tabela "PC da loja" de `C:\dev\orcamentos-ponto-do-gesso\docs\fases\README.md` ficou registrado **32/64 bits: 64 bits (conferido pelo Lucca em 14/11/2026)**.
+
+## O que foi feito
+
+| Item | Resultado | Onde |
+|---|---|---|
+| Atalhos | `Ctrl+N`, `Ctrl+S`, `Ctrl+Shift+C`, `Ctrl+P`, `Ctrl+E`, `Ctrl+F` e `F1`. Os botões mostram o atalho (no texto ou na dica). | `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\Forms\FormOrcamento.cs`, `FormPrincipal.cs`, `Estilo.cs` |
+| Ícone e títulos | Ícone novo (laranja da loja, moldura branca, "PG" em Times New Roman), desenhado por script. Janela principal: "Ponto do Gesso – Orçamentos". | `C:\dev\orcamentos-ponto-do-gesso\assets\icone.ico`, `C:\dev\orcamentos-ponto-do-gesso\scripts\gerar-icone.ps1` |
+| Telas em 1024×768 e 1366×768 | Imprimir (860 px de altura) e Histórico (1040 px de largura) não cabiam. Agora toda janela diminui para caber na área de trabalho ao abrir. | `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\Forms\AjusteTela.cs` |
+| Ordem do Tab | Corrigida em Clientes, Produtos, Histórico, Reajuste e nos botões alinhados à direita. Cada janela abre com o cursor no lugar certo. | `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso.Testes\OrdemTabTestes.cs` |
+| Mensagens de erro | 9 lugares mostravam o texto técnico do .NET (em inglês). Agora mostram o motivo em português; o detalhe vai para o log. | `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\Servicos\MensagemErro.cs` |
+| Tela Sobre | **Ajuda → Sobre**: versão, link do repositório, pasta de dados e **Abrir pasta de dados**. | `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\Forms\FormSobre.cs` |
+| Modo de demonstração | **Ajuda → Dados de demonstração** recria `%APPDATA%\PontoDoGesso\demo.db` com 8 clientes, 16 produtos e 12 orçamentos inventados e mostra a faixa **MODO DEMONSTRAÇÃO**. **Sair da demonstração** volta ao banco real. | `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\Servicos\Demonstracao.cs` |
+| Prints e GIF | 7 prints e o `demo.gif` (28 s), todos do modo de demonstração. | `C:\dev\orcamentos-ponto-do-gesso\docs\imagens\`, gerados por `C:\dev\orcamentos-ponto-do-gesso\scripts\gerar-prints.ps1` |
+| Manual | Manual curto com prints. Abre por **Ajuda → Manual do usuário** ou `F1`. | `C:\dev\orcamentos-ponto-do-gesso\docs\MANUAL.md` |
+| CHANGELOG | Seções publicadas conferidas; a Fase 10 entrou em **[Não lançado]**. | `C:\dev\orcamentos-ponto-do-gesso\CHANGELOG.md` |
+| README | Reorganizado para portfólio, com **Desafios técnicos** e badges. O bloco **⬇️ Baixar** ficou igual, no topo. | `C:\dev\orcamentos-ponto-do-gesso\README.md` |
+| Dados reais | Conferidos todos os PNG, PDF e GIF e uma busca por telefones, CPFs e e-mails: só há dados fictícios e os dados públicos da loja. | — |
+
+Detalhes de cada item nas Observações de `C:\dev\orcamentos-ponto-do-gesso\docs\fases\FASE-10-polimento-v1.md`.
+
+## Decisões tomadas sozinho
+
+- **Ordem dos itens:** o modo de demonstração foi feito antes do manual, porque os prints do manual saem dele.
+- **`Ctrl+N` dentro do orçamento** transforma a mesma janela num orçamento em branco (pergunta antes se há alterações), em vez de abrir outra janela por cima. **`Ctrl+F` na tela principal** abre o Histórico (ali não há campo de busca).
+- **`Ctrl+F` num orçamento avulso** volta para Cadastrado, sem apagar nome e telefone, porque a busca é de cliente cadastrado.
+- **Manual no GitHub:** `F1` abre `https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/blob/main/docs/MANUAL.md` no navegador, como o botão WhatsApp já faz. Não vai cópia do manual no zip. Quem acessa a internet é o navegador, não o app. Sem internet, o app mostra o endereço.
+- **Ícone desenhado em código**, porque não havia arte. Se houver uma, basta trocar `C:\dev\orcamentos-ponto-do-gesso\assets\icone.ico` (mesmo nome).
+- **Tamanho das janelas:** em vez de mexer em cada tela, toda janela é reduzida à área de trabalho ao abrir. Num monitor grande nada muda.
+- **Demonstração:**
+  - o app sempre abre no banco real;
+  - a demonstração é recriada do zero a cada entrada, com datas a partir do dia;
+  - backups e exportações dela vão para `demo-backups\` e `demo-exportados\`;
+  - a verificação e a instalação de atualizações sempre usam o banco real, então o backup antes de atualizar é dos dados de verdade;
+  - há uma trava que impede a demonstração de usar o `dados.db`;
+  - os telefones fictícios ficam na faixa (12) 90000-00xx.
+- **GIF sem instalar nada:** o .NET não grava GIF animado, então o projeto de testes ganhou um gravador simples (`C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso.Testes\GifAnimado.cs`). As telas são fotografadas fora da área visível, sem abrir nada na frente de ninguém.
+- **Tela Diagnóstico continua técnica** de propósito: ela serve para investigar problemas.
+- **Erros previstos pelo app** (backup inválido, pacote que não confere, release sem o zip, Atualizador bloqueado) passaram a ser `ErroConhecidoException` e mostram a mensagem escrita para o usuário.
+
+## Correções feitas no caminho
+
+- **CI vermelho em 6 commits** (de "janelas cabem em monitores 1024×768" até "garante threads no pool"). O teste `AjusteTelaTestes.TamanhoMinimoMaiorQueATelaTambemDiminui` pedia uma janela de 1024×728, mas a tela do servidor do GitHub é menor e o Windows não deixa a janela passar dela. O teste passou a usar uma área de 500×400. Só demorei a ver porque conferi o CI no meio da sessão, não a cada commit. O app não tinha problema.
+- **Teste instável:** `TelaAtualizacaoTestes.HashErradoNaoFazBackupNemChamaOAtualizador` às vezes ficava parado em "Baixando…". Com mais classes de teste rodando em paralelo, o pool de threads demorava a atender o download. Agora a classe `Tela` dos testes garante no mínimo 64 threads. Depois disso: 8 execuções seguidas sem falha. **Atenção:** o commit "docs: prints e GIF do README…" foi enviado com esse teste falhando (falha intermitente). A correção veio no commit seguinte.
+
+## Pendências
+
+- **Rodada de testes no Windows 7 da loja e publicação da v1.0.0**: aguardando o teste do Lucca (roteiro abaixo).
+- **Badges e GIF não foram vistos no navegador** (regra da sessão). Conferir na página do GitHub.
+- **Prints:** a barra de título aparece com o visual de janela inativa (limitação de fotografar a janela fora da tela). O GIF não mostra o cursor piscando nem a caixa "Imagem copiada"; o passo **Copiar imagem** aparece como um quadro final com a imagem do orçamento e uma legenda.
+- **Teste de 5.000 orçamentos no Windows 7** (pendência da Fase 8): a demonstração tem só 12 orçamentos, então a medição formal continua em aberto. Na visita, observar se o histórico responde rápido.
+
+## O que o Lucca precisa conferir
+
+### No seu PC
+
+1. Página do repositório no GitHub (`C:\dev\orcamentos-ponto-do-gesso\README.md`):
+   - o GIF anda e os prints aparecem;
+   - os 5 badges carregam;
+   - o texto de **"O problema"** descreve bem a loja. Foi escrito a partir dos documentos (talão de papel, envio pelo WhatsApp); ajuste se precisar.
+2. O ícone: `C:\dev\orcamentos-ponto-do-gesso\assets\icone.ico` (prévias em `C:\dev\orcamentos-ponto-do-gesso\.tmp\icone\icone-256.png` e `icone-16.png`). Se quiser outro, troque o arquivo ou mude as cores e o texto em `C:\dev\orcamentos-ponto-do-gesso\scripts\gerar-icone.ps1` e rode o script.
+3. Abrir `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\bin\x86\Debug\net48\PontoDoGesso.exe` e testar:
+   - **Ajuda → Dados de demonstração**: aparece a faixa amarela e os clientes e orçamentos inventados;
+   - **Ajuda → Sair da demonstração**: os seus dados continuam iguais;
+   - atalhos no orçamento: `Ctrl+N`, `Ctrl+F`, `Ctrl+E` (PDF), `Ctrl+P`, `Ctrl+Shift+C` e colar no WhatsApp Web;
+   - `F1` em qualquer janela abre o manual no navegador;
+   - **Ajuda → Sobre** e **Abrir pasta de dados**;
+   - o Tab passa pelos campos na ordem da tela.
+4. O manual `C:\dev\orcamentos-ponto-do-gesso\docs\MANUAL.md`: está claro para quem vai usar no balcão?
+
+### Na loja (Windows 7)
+
+A v0.9.0 publicada **não tem** a Fase 10. Para testar a Fase 10 na loja antes de publicar a v1.0.0:
+
+1. Gere o zip no seu PC:
+   ```
+   powershell -ExecutionPolicy Bypass -File C:\dev\orcamentos-ponto-do-gesso\scripts\empacotar.ps1
+   ```
+   Ele cria `C:\dev\orcamentos-ponto-do-gesso\publicacao\PontoDoGesso.zip`, que hoje sai com o número 0.9.1, mas já tem a Fase 10. Leve no pendrive.
+2. Primeiro faça o roteiro da visita (seção "Roteiro da visita à loja", mais abaixo neste arquivo). Depois troque a pasta do app pela deste zip.
+   - A Fase 10 não mudou o banco: nenhuma migração nova, e os dados continuam os mesmos.
+3. Conferir na loja:
+   - todas as janelas cabem no monitor, inclusive **Imprimir** e **Histórico**;
+   - os atalhos funcionam;
+   - `F1` abre o manual no navegador da loja;
+   - o modo de demonstração entra e sai sem mexer nos dados de verdade;
+   - o ícone aparece no atalho e na barra de tarefas;
+   - uma mensagem de erro de propósito sai em português. Exemplo: com um PDF do orçamento aberto no leitor, salvar o PDF de novo deve mostrar "O arquivo está aberto em outro programa…".
+4. Se tudo der certo, publique a v1.0.0:
+   - em `C:\dev\orcamentos-ponto-do-gesso\CHANGELOG.md`, troque `## [Não lançado]` por `## [1.0.0] - AAAA-MM-DD`;
+   - em `C:\dev\orcamentos-ponto-do-gesso\src\Directory.Build.props`, mude `<Version>` para `1.0.0`;
+   - faça o commit e crie a tag:
+     ```
+     git tag v1.0.0
+     git push origin v1.0.0
+     ```
+   - o workflow gera a release sozinho. Depois, marque os dois itens em `C:\dev\orcamentos-ponto-do-gesso\docs\fases\FASE-10-polimento-v1.md`.
+
+---
+
 # Relatório da sessão — 07/11/2026 (Fase 2 e releases v0.9.0 / v0.9.1)
 
 Sessão sem acompanhamento: Fase 2 (atualização pelo app e releases automáticas). **Releases publicadas:** v0.9.0 (versão completa, para instalar na loja) e v0.9.1 (só para testar a atualização).
