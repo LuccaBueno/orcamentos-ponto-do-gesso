@@ -14,8 +14,11 @@ namespace PontoDoGesso.Forms
 
         public const string TituloJanela = "Ponto do Gesso – Orçamentos";
 
-        private readonly Banco _banco;
+        private readonly Banco _bancoReal;
+        private Banco _banco;
         private LinkLabel _avisoAtualizacao;
+        private Label _avisoDemonstracao;
+        private ToolStripMenuItem _demonstracao;
         private VersaoPublicada _versaoDisponivel;
 
         public FormPrincipal() : this(new Banco())
@@ -24,6 +27,7 @@ namespace PontoDoGesso.Forms
 
         public FormPrincipal(Banco banco)
         {
+            _bancoReal = banco;
             _banco = banco;
 
             Text = TituloJanela;
@@ -48,6 +52,7 @@ namespace PontoDoGesso.Forms
             layout.Controls.Add(CriarRodape(), 0, 2);
 
             Controls.Add(layout);
+            Controls.Add(CriarAvisoDemonstracao());
             var menu = CriarMenu();
             Controls.Add(menu);
             MainMenuStrip = menu;
@@ -90,11 +95,11 @@ namespace PontoDoGesso.Forms
 
             // Aviso da verificação automática: só aparece quando há versão nova
             _avisoAtualizacao = new LinkLabel { Name = "avisoAtualizacao", AutoSize = true, Visible = false, Anchor = AnchorStyles.Right, LinkColor = Laranja, Font = new Font("Segoe UI", 10F, FontStyle.Bold) };
-            _avisoAtualizacao.LinkClicked += (s, e) => AbrirTela(() => new FormAtualizacao(_banco, new Atualizacao(), _versaoDisponivel));
+            _avisoAtualizacao.LinkClicked += (s, e) => AbrirTela(() => new FormAtualizacao(_bancoReal, new Atualizacao(), _versaoDisponivel));
             rodape.Controls.Add(_avisoAtualizacao, 1, 0);
 
             var verificar = new LinkLabel { Name = "verificarAtualizacoes", Text = "Verificar atualizações", AutoSize = true, Anchor = AnchorStyles.Right, Margin = new Padding(12, 3, 6, 3) };
-            verificar.LinkClicked += (s, e) => AbrirTela(() => new FormAtualizacao(_banco));
+            verificar.LinkClicked += (s, e) => AbrirTela(() => new FormAtualizacao(_bancoReal));
             rodape.Controls.Add(verificar, 2, 0);
 
             rodape.Controls.Add(new Label
@@ -120,7 +125,7 @@ namespace PontoDoGesso.Forms
 
         private void VerificarAtualizacaoEmSegundoPlano()
         {
-            var verificacao = new VerificacaoAutomatica(_banco);
+            var verificacao = new VerificacaoAutomatica(_bancoReal);
             var atualizacao = new Atualizacao();
 
             Task.Run(() => verificacao.VerificarSePrecisa(atualizacao.ConsultarUltima, Atualizacao.VersaoAtual, DateTime.Now)).ContinueWith(tarefa =>
@@ -255,9 +260,13 @@ namespace PontoDoGesso.Forms
             var sobre = new ToolStripMenuItem("Sobre") { Name = "sobre" };
             sobre.Click += (s, e) => AbrirTela(() => new FormSobre(Caminhos.PastaDados));
 
+            _demonstracao = new ToolStripMenuItem("Dados de demonstração") { Name = "demonstracao" };
+            _demonstracao.Click += (s, e) => AlternarDemonstracao();
+
             var ajuda = new ToolStripMenuItem("Ajuda");
             ajuda.DropDownItems.Add(manual);
             ajuda.DropDownItems.Add(diagnostico);
+            ajuda.DropDownItems.Add(_demonstracao);
             ajuda.DropDownItems.Add(new ToolStripSeparator());
             ajuda.DropDownItems.Add(sobre);
 
@@ -265,6 +274,59 @@ namespace PontoDoGesso.Forms
             menu.Items.Add(ajuda);
             return menu;
         }
+
+        // ---------- modo de demonstração ----------
+
+        private Control CriarAvisoDemonstracao()
+        {
+            _avisoDemonstracao = new Label
+            {
+                Name = "avisoDemonstracao",
+                Text = "MODO DEMONSTRAÇÃO – dados fictícios  (Ajuda → Sair da demonstração)",
+                Dock = DockStyle.Top,
+                AutoSize = false,
+                Height = 30,
+                TextAlign = ContentAlignment.MiddleCenter,
+                Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+                BackColor = Color.FromArgb(0xFF, 0xE0, 0x82),
+                ForeColor = Color.FromArgb(0x5C, 0x45, 0x00),
+                Visible = false
+            };
+            return _avisoDemonstracao;
+        }
+
+        /// <summary>Banco usado pelas telas agora: o real ou o de demonstração.</summary>
+        public Banco BancoAtual => _banco;
+
+        public bool EmDemonstracao => _banco != _bancoReal;
+
+        public void AlternarDemonstracao()
+        {
+            if (EmDemonstracao)
+            {
+                _banco = _bancoReal;
+            }
+            else
+            {
+                try
+                {
+                    _banco = CriarBancoDemonstracao();
+                }
+                catch (Exception erro) when (erro is System.IO.IOException || erro is UnauthorizedAccessException || erro is System.Data.SQLite.SQLiteException)
+                {
+                    Log.RegistrarErro(erro);
+                    MessageBox.Show(this, "Não foi possível criar os dados de demonstração. " + MensagemErro.Explicar(erro), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+            }
+
+            _avisoDemonstracao.Visible = EmDemonstracao;
+            _demonstracao.Text = EmDemonstracao ? "Sair da demonstração" : "Dados de demonstração";
+            Text = EmDemonstracao ? TituloJanela + " – DEMONSTRAÇÃO" : TituloJanela;
+        }
+
+        /// <summary>Recriado a cada entrada, com datas a partir de hoje; nunca toca no banco real.</summary>
+        protected virtual Banco CriarBancoDemonstracao() => Demonstracao.Criar(DateTime.Today);
 
         private void AbrirDiagnostico(object sender, EventArgs e)
         {
