@@ -50,12 +50,12 @@ namespace PontoDoGesso.Testes
         private Atualizacao Servico(string urlConsulta = "file:///nao-usado") =>
             new Atualizacao(urlConsulta, Path.Combine(_temporario.Pasta, "atualizacao"));
 
-        private static void Esperar(Func<bool> condicao)
+        private static void Esperar(Func<bool> condicao, Func<string> situacao = null)
         {
             var relogio = Stopwatch.StartNew();
             while (!condicao())
             {
-                Assert.True(relogio.Elapsed < TimeSpan.FromSeconds(10), "A tela não terminou a tempo.");
+                Assert.True(relogio.Elapsed < TimeSpan.FromSeconds(10), "A tela não terminou a tempo." + (situacao == null ? "" : " Situação: " + situacao()));
                 Application.DoEvents();
                 System.Threading.Thread.Sleep(10);
             }
@@ -167,7 +167,7 @@ namespace PontoDoGesso.Testes
                 {
                     Tela.Exibir(form);
                     Tela.Achar<Button>(form, "atualizar").PerformClick();
-                    Esperar(() => Tela.Achar<Label>(form, "situacao").Text.Contains("SHA-256"));
+                    Esperar(() => Tela.Achar<Label>(form, "situacao").Text.Contains("SHA-256"), () => Tela.Achar<Label>(form, "situacao").Text);
 
                     Assert.Empty(form.Zips);
                     Assert.False(form.Encerrou);

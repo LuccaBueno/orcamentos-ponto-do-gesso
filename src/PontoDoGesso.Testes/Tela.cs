@@ -12,6 +12,14 @@ namespace PontoDoGesso.Testes
     /// <summary>Ajuda a testar janelas: roda em STA, com a janela fora da área visível.</summary>
     public static class Tela
     {
+        static Tela()
+        {
+            // Cada teste de tela prende uma thread do pool esperando a sua thread STA; com muitas classes em paralelo
+            // o pool demorava a criar threads novas e o download da tela de atualização (Task.Run) passava de 10 s
+            ThreadPool.GetMinThreads(out var trabalho, out var entradaSaida);
+            ThreadPool.SetMinThreads(Math.Max(trabalho, 64), Math.Max(entradaSaida, 64));
+        }
+
         /// <summary>
         /// Roda o teste numa thread STA própria. Exceção dentro de evento de janela faz o teste falhar,
         /// em vez de abrir a caixa "Unhandled exception" do .NET (que trava o processo até alguém clicar).
