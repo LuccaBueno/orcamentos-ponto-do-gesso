@@ -93,6 +93,26 @@ dotnet test  PontoDoGesso.sln
 - Para não mexer nos seus dados, defina `PONTODOGESSO_DADOS` com outra pasta antes de abrir o app (os testes gravam tudo em `.tmp\`).
 - `scripts\empacotar.ps1` gera o zip da release; `scripts\gerar-prints.ps1` refaz os prints e o GIF deste README com o modo de demonstração.
 
+## Desafios técnicos
+
+### Rodar no Windows 7
+O PC da loja tem Windows 7. Flutter, Electron, Tauri (WebView2) e .NET 5+ não rodam nele, então a escolha foi **WinForms sobre .NET Framework 4.8**, o último .NET que suporta o Windows 7 SP1. O exe é **x86** e roda nos Windows de 32 e de 64 bits. Cada dependência foi escolhida e travada pensando nisso: o `SQLite.Interop.dll` foi conferido por inspeção (só importa funções que existem no Windows 7 e não precisa do VC++ Redistributable) e o **PDFsharp ficou na 6.2.4**, porque a 6.5.0 mudou para AGPL-3.0 e passou a exigir licença em tempo de execução.
+
+### TLS 1.2 para falar com o GitHub
+O GitHub só aceita TLS 1.2 ou mais novo, mas o .NET Framework no Windows 7 não liga o TLS 1.2 por padrão: a verificação de versão nova falharia na loja. Antes de qualquer chamada de rede o app define `ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12`, e a tela **Ajuda → Diagnóstico** tem um botão para testar a conexão no próprio PC.
+
+### Dinheiro em centavos
+Valores são `long` em **centavos** no banco e nas contas (nunca `double`, que erra em somas como 0,1 + 0,2), e quantidades são `decimal` (`2,5 m²`). O total de cada item é `quantidade × unitário` arredondado para o centavo com **arredondamento comercial** (meio para cima, `MidpointRounding.AwayFromZero`), e o desconto percentual segue a mesma regra. Toda regra de cálculo tem teste, e a formatação é sempre pt-BR (`R$ 1.234,56`), qualquer que seja a configuração regional do Windows.
+
+### Snapshot do cliente e do produto
+Um orçamento é um documento: se o preço do produto ou o endereço do cliente mudar amanhã, o orçamento de ontem não pode mudar. Por isso cada orçamento guarda uma **cópia** do nome, telefone e endereço de entrega, e cada item guarda descrição, unidade e preço. O id do cliente e do produto fica só como referência, para filtros e para o histórico do cliente.
+
+### Atualização automática com SHA-256 e rollback
+O botão **Verificar atualizações** consulta a última Release, baixa o zip e confere o **SHA-256** com o `.sha256` publicado pelo CI (se não bater, nada muda). Antes de instalar, faz backup do banco. Um segundo exe, o `PontoDoGesso.Atualizador`, é copiado para a pasta temporária (assim ele pode trocar a pasta do app), espera o app fechar, guarda a versão atual em `<pasta>.anterior` e põe a nova no lugar, tentando de novo se o antivírus prender algum arquivo. Se a troca falhar **ou a versão nova não abrir**, ele volta a anterior sozinho. Os dados ficam em `%APPDATA%`, longe da pasta trocada.
+
+### Um único código de desenho para PDF, PNG e impressão
+O layout do orçamento (cópia fiel da folha em papel, em milímetros) está numa única classe, `DesenhoOrcamento`, que desenha num `XGraphics` do PDFsharp. O PDF usa `XGraphics.FromPdfPage`; o PNG e a impressão usam `XGraphics.FromGraphics` sobre um `Bitmap` e sobre o `Graphics` da impressora. Mudar o layout muda as três saídas de uma vez, e a pré-visualização da impressão é exatamente o que sai no PNG.
+
 ## Documentação
 
 | Documento | Conteúdo |

@@ -18,7 +18,7 @@
 - [x] Prints em `C:\dev\orcamentos-ponto-do-gesso\docs\imagens\`: tela principal, orçamento preenchido, histórico com filtros, produtos, PNG final
 - [x] GIF curto (≤ 30 s) fazendo um orçamento do zero até **Copiar imagem**, em `C:\dev\orcamentos-ponto-do-gesso\docs\imagens\demo.gif`
 - [x] README reorganizado para portfólio: o problema (talão de papel), a solução, GIF no topo, funcionalidades, stack, como instalar, como rodar o código
-- [ ] Seção **Desafios técnicos** no README:
+- [x] Seção **Desafios técnicos** no README:
   - compatibilidade com Windows 7 (escolha de .NET Framework 4.8 em vez de Flutter/Electron/.NET 8)
   - TLS 1.2 no Windows 7 para falar com a API do GitHub
   - dinheiro em centavos (`long`) e arredondamento comercial
