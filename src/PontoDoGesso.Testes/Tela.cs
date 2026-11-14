@@ -104,6 +104,22 @@ namespace PontoDoGesso.Testes
             aoClicar.Invoke(link, new object[] { new LinkLabelLinkClickedEventArgs(link.Links[0]) });
         }
 
+        /// <summary>Tecla vista pela janela com KeyPreview (dispara o KeyDown da janela, como o teclado faria).</summary>
+        public static bool Teclar(Form form, Keys tecla)
+        {
+            var argumentos = new KeyEventArgs(tecla);
+            var aoTeclar = typeof(Control).GetMethod("OnKeyDown", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            aoTeclar.Invoke(form, new object[] { argumentos });
+            return argumentos.Handled;
+        }
+
+        /// <summary>F1 com o cursor no controle: o pedido de ajuda sobe até a janela.</summary>
+        public static void PedirAjuda(Control controle)
+        {
+            var aoPedir = typeof(Control).GetMethod("OnHelpRequested", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            aoPedir.Invoke(controle, new object[] { new HelpEventArgs(Point.Empty) });
+        }
+
         /// <summary>Foto da janela em .tmp\telas, só quando PONTODOGESSO_CAPTURA estiver definida.</summary>
         public static void Capturar(Form form, string nome)
         {

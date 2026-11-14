@@ -173,6 +173,17 @@ namespace PontoDoGesso.Testes
         }
 
         [Fact]
+        public void CtrlFVaiParaABusca()
+        {
+            Rodar(form =>
+            {
+                Assert.True(form.KeyPreview);
+                Assert.True(Tela.Teclar(form, Keys.Control | Keys.F));
+                Assert.Same(Tela.Achar<TextBox>(form, "texto"), form.ActiveControl);
+            }, new FiltroHistorico());
+        }
+
+        [Fact]
         public void FiltrosSaoLembradosAoAbrirDeNovo()
         {
             Novo("Ana", Hoje);

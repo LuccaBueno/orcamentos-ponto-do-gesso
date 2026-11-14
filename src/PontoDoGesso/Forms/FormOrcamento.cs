@@ -416,19 +416,21 @@ namespace PontoDoGesso.Forms
             botoes.Controls.Add(salvar);
 
             // Exportar exige o orçamento salvo: se houver alterações, salva antes e avisa
-            var exportacoes = new (string Nome, string Texto, Action<string> Exportar)[]
+            var exportacoes = new (string Nome, string Texto, string Atalho, Action<string> Exportar)[]
             {
-                ("copiarImagem", "Copiar imagem", aviso => _acoes.CopiarImagem(_orcamento, aviso)),
-                ("png", "PNG", aviso => _acoes.Png(_orcamento, aviso)),
-                ("pdf", "PDF", aviso => _acoes.Pdf(_orcamento, aviso)),
-                ("imprimir", "Imprimir", aviso => _acoes.Imprimir(_orcamento)),
-                ("whatsapp", "WhatsApp", aviso => _acoes.WhatsApp(_orcamento, aviso))
+                ("copiarImagem", "Copiar imagem", "Ctrl+Shift+C", aviso => _acoes.CopiarImagem(_orcamento, aviso)),
+                ("png", "PNG", null, aviso => _acoes.Png(_orcamento, aviso)),
+                ("pdf", "PDF", "Ctrl+E", aviso => _acoes.Pdf(_orcamento, aviso)),
+                ("imprimir", "Imprimir", "Ctrl+P", aviso => _acoes.Imprimir(_orcamento)),
+                ("whatsapp", "WhatsApp", null, aviso => _acoes.WhatsApp(_orcamento, aviso))
             };
 
             foreach (var exportacao in exportacoes)
             {
                 var botao = Estilo.CriarBotao(exportacao.Texto, (s, e) => Exportar(exportacao.Exportar));
                 botao.Name = exportacao.Nome;
+                if (exportacao.Atalho != null)
+                    _dicas.SetToolTip(botao, "Atalho: " + exportacao.Atalho);
                 botoes.Controls.Add(botao);
             }
 
@@ -845,13 +847,39 @@ namespace PontoDoGesso.Forms
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            if (keyData == (Keys.Control | Keys.S))
+            switch (keyData)
             {
-                Salvar();
-                return true;
+                case Keys.Control | Keys.S:
+                    Salvar();
+                    return true;
+                case Keys.Control | Keys.N:
+                    NovoOrcamento();
+                    return true;
+                case Keys.Control | Keys.Shift | Keys.C:
+                    CopiarImagem();
+                    return true;
+                case Keys.Control | Keys.P:
+                    Imprimir();
+                    return true;
+                case Keys.Control | Keys.E:
+                    ExportarPdf();
+                    return true;
+                case Keys.Control | Keys.F:
+                    FocarBuscaCliente();
+                    return true;
             }
 
             return base.ProcessCmdKey(ref msg, keyData);
+        }
+
+        /// <summary>Ctrl+F: a busca é de cliente cadastrado; num avulso, volta para Cadastrado (nome e telefone ficam).</summary>
+        private void FocarBuscaCliente()
+        {
+            if (!_cadastrado.Checked)
+                _cadastrado.Checked = true;
+
+            _buscaCliente.Focus();
+            _buscaCliente.SelectAll();
         }
 
         /// <summary>Confere tudo, grava (o número sai no primeiro salvamento) e devolve falso se algo impediu.</summary>
@@ -995,7 +1023,27 @@ namespace PontoDoGesso.Forms
 
         public void ExportarPdf() => Exportar(aviso => _acoes.Pdf(_orcamento, aviso));
 
-        // ---------- duplicar e fechar ----------
+        public void CopiarImagem() => Exportar(aviso => _acoes.CopiarImagem(_orcamento, aviso));
+
+        public void Imprimir() => Exportar(aviso => _acoes.Imprimir(_orcamento));
+
+        // ---------- novo, duplicar e fechar ----------
+
+        /// <summary>Ctrl+N: esta janela passa a ser um orçamento em branco (pergunta antes se há alterações).</summary>
+        public bool NovoOrcamento()
+        {
+            if (_alterado)
+            {
+                var resposta = PerguntarSalvar("Este orçamento tem alterações não salvas. Salvar antes de começar outro?");
+                if (resposta == DialogResult.Cancel || (resposta == DialogResult.Yes && !Salvar()))
+                    return false;
+            }
+
+            _perguntouCadastro = false;
+            Exibir(new Orcamento { Data = DateTime.Today });
+            _buscaCliente.Focus();
+            return true;
+        }
 
         /// <summary>Esta mesma janela passa a ser um orçamento novo (sem número), com os mesmos dados e a data de hoje.</summary>
         public bool Duplicar()

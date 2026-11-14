@@ -155,6 +155,7 @@ namespace PontoDoGesso.Forms
             _frete.SelectedIndexChanged += (s, e) => AoMudarFiltro();
             _desconto.SelectedIndexChanged += (s, e) => AoMudarFiltro();
             _texto.TextChanged += (s, e) => AoMudarFiltro();
+            Estilo.LigarBusca(this, _texto);
             _clienteEspecifico.TextChanged += (s, e) =>
             {
                 // Apagar o texto tira o filtro do cliente

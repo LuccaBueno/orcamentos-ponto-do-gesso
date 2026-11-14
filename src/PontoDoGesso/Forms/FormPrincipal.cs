@@ -178,8 +178,8 @@ namespace PontoDoGesso.Forms
             // Botão sem ação = tela de uma fase que ainda não chegou: fica visível, mas desabilitado
             var botoes = new[]
             {
-                CriarBotao("novoOrcamento", "Novo orçamento", () => new FormOrcamento(_banco)),
-                CriarBotao("historico", "Histórico", () => new FormHistorico(_banco)),
+                CriarBotao("novoOrcamento", "Novo orçamento  (Ctrl+N)", () => new FormOrcamento(_banco)),
+                CriarBotao("historico", "Histórico  (Ctrl+F)", () => new FormHistorico(_banco)),
                 CriarBotao("clientes", "Clientes", () => new FormClientes(_banco)),
                 CriarBotao("produtos", "Produtos", () => new FormProdutos(_banco)),
                 CriarBotao("configuracoes", "Configurações", () => new FormConfiguracoes(_banco))
@@ -224,12 +224,33 @@ namespace PontoDoGesso.Forms
                 form.ShowDialog(this);
         }
 
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            switch (keyData)
+            {
+                case Keys.Control | Keys.N:
+                    AbrirTela(() => new FormOrcamento(_banco));
+                    return true;
+                case Keys.Control | Keys.F:
+                    AbrirTela(() => new FormHistorico(_banco));
+                    return true;
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+
+        protected virtual void AbrirManual() => Estilo.AbrirManual(this);
+
         private MenuStrip CriarMenu()
         {
+            var manual = new ToolStripMenuItem("Manual do usuário") { Name = "manual", ShortcutKeys = Keys.F1 };
+            manual.Click += (s, e) => AbrirManual();
+
             var diagnostico = new ToolStripMenuItem("Diagnóstico");
             diagnostico.Click += AbrirDiagnostico;
 
             var ajuda = new ToolStripMenuItem("Ajuda");
+            ajuda.DropDownItems.Add(manual);
             ajuda.DropDownItems.Add(diagnostico);
 
             var menu = new MenuStrip();

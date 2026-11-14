@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using PontoDoGesso.Servicos;
 
 namespace PontoDoGesso.Forms
 {
@@ -17,6 +18,41 @@ namespace PontoDoGesso.Forms
             form.ShowInTaskbar = false;
             form.MinimizeBox = false;
             form.ShowIcon = false;
+            form.HelpRequested += (s, e) =>
+            {
+                AbrirManual(form);
+                e.Handled = true;
+            };
+        }
+
+        /// <summary>F1 e Ajuda → Manual do usuário: abre o manual no navegador.</summary>
+        public static void AbrirManual(IWin32Window dono)
+        {
+            try
+            {
+                Ajuda.AbrirLink(Ajuda.Manual);
+            }
+            catch (Exception erro) when (erro is System.ComponentModel.Win32Exception || erro is InvalidOperationException)
+            {
+                Log.RegistrarErro(erro);
+                MessageBox.Show(dono, "Não foi possível abrir o navegador. O manual está em:\n\n" + Ajuda.Manual, "Ponto do Gesso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
+        /// <summary>Ctrl+F leva o cursor para o campo de busca da janela.</summary>
+        public static void LigarBusca(Form form, TextBox busca)
+        {
+            form.KeyPreview = true;
+            form.KeyDown += (s, e) =>
+            {
+                if (e.KeyData != (Keys.Control | Keys.F))
+                    return;
+
+                busca.Focus();
+                busca.SelectAll();
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+            };
         }
 
         public static Button CriarBotao(string texto, EventHandler aoClicar)

@@ -30,6 +30,7 @@ namespace PontoDoGesso.Forms
 
             _busca = new TextBox { Name = "busca", Dock = DockStyle.Fill };
             _busca.TextChanged += (s, e) => Carregar();
+            Estilo.LigarBusca(this, _busca);
 
             _mostrarInativos = new CheckBox { Name = "mostrarInativos", Text = "Mostrar inativos", AutoSize = true, Anchor = AnchorStyles.Left };
             _mostrarInativos.CheckedChanged += (s, e) => Carregar();

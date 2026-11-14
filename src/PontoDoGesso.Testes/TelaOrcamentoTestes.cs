@@ -756,6 +756,79 @@ namespace PontoDoGesso.Testes
         }
 
         [Fact]
+        public void AtalhosDeExportacaoSalvamEExportam()
+        {
+            PastaExportacao();
+            Rodar(_temporario.Banco, form =>
+            {
+                Avulso(form, "Maria");
+                AdicionarItem(form, "2", "m²", "Placa", "12,50");
+                form.Resposta = false;
+
+                Assert.True(form.Teclar(Keys.Control | Keys.E));
+                Assert.Equal("Orçamento Nº 0001", form.Text);
+                Assert.EndsWith(".pdf", Assert.Single(form.Acoes.Salvos));
+
+                Assert.True(form.Teclar(Keys.Control | Keys.P));
+                Assert.Equal("Orçamento Nº 0001", Assert.Single(form.Acoes.Impressoes));
+
+                Assert.True(form.Teclar(Keys.Control | Keys.Shift | Keys.C));
+                Assert.Single(form.Acoes.Copias);
+                Assert.Equal("Atalho: Ctrl+E", form.DicaDe(Tela.Achar<Button>(form, "pdf")));
+            });
+        }
+
+        [Fact]
+        public void CtrlNComecaOutroOrcamentoNaMesmaJanela()
+        {
+            Rodar(_temporario.Banco, form =>
+            {
+                Avulso(form, "Maria");
+                AdicionarItem(form, "2", "m²", "Placa", "12,50");
+                form.Resposta = false;
+                form.RespostaSalvar = DialogResult.Yes;
+
+                Assert.True(form.Teclar(Keys.Control | Keys.N));
+                Assert.Contains(form.Perguntas, pergunta => pergunta.Contains("alterações não salvas"));
+                Assert.Equal("Orçamento Nº — (novo)", form.Text);
+                Assert.Equal("", Texto(form, "nome"));
+                Assert.Equal(1, Grade(form).Rows.Count);
+                Assert.True(Tela.Achar<RadioButton>(form, "cadastrado").Checked);
+                Assert.False(form.Alterado);
+            });
+
+            Assert.Equal("Maria", _orcamentos.ObterPorId(1).CliNome);
+        }
+
+        [Fact]
+        public void CtrlNCanceladoMantemOOrcamento()
+        {
+            Rodar(_temporario.Banco, form =>
+            {
+                Avulso(form, "Maria");
+                form.RespostaSalvar = DialogResult.Cancel;
+
+                Assert.True(form.Teclar(Keys.Control | Keys.N));
+                Assert.Equal("Maria", Texto(form, "nome"));
+                Assert.True(form.Alterado);
+            });
+        }
+
+        [Fact]
+        public void CtrlFVoltaParaABuscaDeClienteCadastrado()
+        {
+            Rodar(_temporario.Banco, form =>
+            {
+                Avulso(form, "Maria");
+                Assert.True(form.Teclar(Keys.Control | Keys.F));
+
+                Assert.True(Tela.Achar<RadioButton>(form, "cadastrado").Checked);
+                Assert.True(Tela.Achar<TextBox>(form, "buscaCliente").Enabled);
+                Assert.Equal("Maria", Texto(form, "nome"));
+            });
+        }
+
+        [Fact]
         public void ExportarOrcamentoNovoSalvaAntesEAvisa()
         {
             var pasta = PastaExportacao();
