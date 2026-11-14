@@ -13,6 +13,8 @@ Fase 10 (polimento para a v1.0.0). Falta o teste no Windows 7 da loja antes de p
 - **Ajuda → Dados de demonstração:** banco separado (`demo.db`) com clientes, produtos e orçamentos fictícios e a faixa **MODO DEMONSTRAÇÃO**; **Sair da demonstração** volta aos dados reais sem tocar neles.
 - Ícone definitivo do app (`assets\icone.ico`, gerado por `scripts\gerar-icone.ps1`).
 - Prints e GIF de demonstração em `docs\imagens\`, gerados com dados fictícios por `scripts\gerar-prints.ps1`.
+- Manual do usuário (`docs\MANUAL.md`) com prints.
+- README de portfólio: o problema, a solução, GIF, funcionalidades, stack, como instalar e rodar o código, **Desafios técnicos** e badges de CI, última versão e licença.
 - Scripts dos testes reais da atualização (instalação com dados de teste, hash errado, rollback e atualização pela interface) em `scripts\teste-atualizacao\`.
 - Seção **⬇️ Baixar o app** no topo do README, com link fixo para `releases/latest/download/PontoDoGesso.zip`.
 - Cada release publica também `PontoDoGesso.zip`, cópia idêntica do `PontoDoGesso-vX.Y.Z.zip` (o atualizador continua usando só o zip com a versão e o `.sha256`), e o texto da release começa com "Para instalar, baixe PontoDoGesso.zip abaixo em Assets.". Adicionado também às releases v0.9.0 e v0.9.1 já publicadas.

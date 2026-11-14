@@ -27,8 +27,8 @@
   - um único código de desenho gerando PDF, PNG e impressão
 - [x] Badges: CI, última versão, licença
 - [x] Conferir que nenhum print, GIF ou arquivo do repositório tem dado real de cliente
-- [ ] Rodada de testes completa no Windows 7 da loja e no Windows 10/11
-- [ ] Publicar **v1.0.0**
+- [ ] Rodada de testes completa no Windows 7 da loja e no Windows 10/11 — *aguardando teste do Lucca na loja*
+- [ ] Publicar **v1.0.0** — *aguardando teste do Lucca na loja*
 
 ## Ideias para depois da v1.0 (não fazer agora)
 
