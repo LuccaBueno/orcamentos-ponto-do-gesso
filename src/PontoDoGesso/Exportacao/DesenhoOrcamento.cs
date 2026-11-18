@@ -431,10 +431,13 @@ namespace PontoDoGesso.Exportacao
             var x = PosicoesColunas();
             var topo = y;
 
+            // "DESC. 12,5%:" em Arial (sem Calibri) pode não caber na coluna: aí todos os rótulos diminuem juntos
+            var fonteRotulo = FonteQueCabe(grafico, FonteTotalRotulo, Pt(x[3] - x[2] - 2 * Folga), _totais.Select(t => t.Item1).Concat(new[] { "TOTAL:" }).ToArray());
+
             // Linhas de SUBTOTAL, DESC. e FRETE; à esquerda, só a divisória entre QUANT e DISCRIMINAÇÃO, como na linha do FRETE da folha
             foreach (var (rotulo, valor) in _totais)
             {
-                Texto(grafico, rotulo, FonteTotalRotulo, PincelLaranja, x[2] + Folga, y, x[3] - x[2] - Folga, AlturaLinha, XStringFormats.CenterLeft);
+                Texto(grafico, rotulo, fonteRotulo, PincelLaranja, x[2] + Folga, y, x[3] - x[2] - Folga, AlturaLinha, XStringFormats.CenterLeft);
                 Texto(grafico, valor, FonteItem, XBrushes.Black, x[3] + Folga, y, x[4] - x[3] - 2 * Folga, AlturaLinha, XStringFormats.CenterRight);
                 y += AlturaLinha;
                 grafico.DrawLine(Linha, Pt(x[2]), Pt(y), Pt(Direita), Pt(y));
@@ -449,7 +452,7 @@ namespace PontoDoGesso.Exportacao
             var celulaTotal = Retangulo(x[2], y, Direita - x[2], alturaTotal);
             grafico.DrawRectangle(PincelFundo, celulaTotal);
             grafico.DrawRectangle(Linha, celulaTotal);
-            Texto(grafico, "TOTAL:", FonteTotalRotulo, PincelLaranja, x[2] + Folga, y, x[3] - x[2], AlturaRotuloTotal, XStringFormats.CenterLeft);
+            Texto(grafico, "TOTAL:", fonteRotulo, PincelLaranja, x[2] + Folga, y, x[3] - x[2], AlturaRotuloTotal, XStringFormats.CenterLeft);
             Texto(grafico, Formatacao.Moeda(_orcamento.TotalCentavos), FonteTotalValor, XBrushes.Black, x[2] + Folga, y, Direita - x[2] - 2 * Folga, AlturaRotuloTotal, XStringFormats.CenterRight);
 
             // Textos à esquerda do TOTAL, centralizados na altura da linha
