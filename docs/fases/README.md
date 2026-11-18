@@ -18,7 +18,7 @@ Cada fase termina com o app compilando, testes passando e algo testável. A atua
 
 Legenda: ⬜ Pendente · 🟨 Em andamento · ✅ Concluída
 
-**Fase atual: 10, só falta o que depende da loja.** A **v0.9.2** (14/11/2026) é a versão para instalar na loja: tem as Fases 2 a 10. A v0.9.0 foi a primeira versão completa e a v0.9.1 serviu para testar a atualização pelo botão. As Fases 1, 2 e 10 esperam o teste no PC da loja com Windows 7: roteiro em `C:\dev\orcamentos-ponto-do-gesso\docs\RELATORIO-SESSAO.md` (seção "Roteiro da visita à loja"). Depois do teste: publicar a v1.0.0, que também serve para testar a atualização pelo botão na loja (v0.9.2 → v1.0.0).
+**Fase atual: 10, só falta o que depende da loja.** A **v0.9.2** (14/11/2026) é a versão para instalar na loja: tem as Fases 2 a 10. A v0.9.0 foi a primeira versão completa e a v0.9.1 serviu para testar a atualização pelo botão. As Fases 1, 2 e 10 esperam o teste no PC da loja com Windows 7: roteiro em `C:\dev\orcamentos-ponto-do-gesso\docs\RELATORIO-SESSAO.md` (seção "Roteiro da visita à loja"). Depois do primeiro teste na loja (18/11/2026) foi publicada a **v0.9.3** (instalador, DLLs em `lib\`, Voltar ao menu e orçamento mais parecido com a folha): a loja está com a v0.9.2, e o próximo teste é a atualização pelo botão v0.9.2 → v0.9.3 (parte C do roteiro). A v1.0.0 sai depois desse teste.
 
 ## PC da loja
 

@@ -2,7 +2,9 @@
 
 Sessão sem acompanhamento, a partir do primeiro teste real no PC da loja (Windows 7 SP1, 64 bits): o app só abriu depois do .NET Framework 4.8, cuja instalação foi difícil; a pasta do app tinha dezenas de DLLs; e não ficou óbvio como sair da tela de orçamento. Isso ficou registrado na tabela "PC da loja" de `C:\dev\orcamentos-ponto-do-gesso\docs\fases\README.md`.
 
-**Nenhuma tag nem release foi criada.** A versão continua **0.9.2** em `C:\dev\orcamentos-ponto-do-gesso\src\Directory.Build.props`; tudo está em **[Não lançado]** no `C:\dev\orcamentos-ponto-do-gesso\CHANGELOG.md` (junto com a revisão visual do orçamento feita mais cedo no mesmo dia). Ao final: **442 testes passando** (eram 417), CI verde gerando o pacote e o instalador a cada push.
+Durante a sessão nenhuma tag nem release foi criada.
+
+**Depois da sessão (18/11/2026, a pedido do Lucca):** publicada a **v0.9.3** (https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/releases/tag/v0.9.3), com tudo desta sessão e a revisão visual do orçamento (seção [0.9.3] do `C:\dev\orcamentos-ponto-do-gesso\CHANGELOG.md`). A release tem `PontoDoGesso-v0.9.3.zip`, o `.sha256`, `PontoDoGesso.zip`, `PontoDoGesso-Instalador-v0.9.3.exe` e `PontoDoGesso-Instalador.exe`, e o texto começa com "Instalação nova: baixe PontoDoGesso-Instalador.exe. Quem já tem o app: use o botão Verificar atualizações." Conferido baixando pelos links do README: `releases/latest/download/PontoDoGesso-Instalador.exe` e `releases/latest/download/PontoDoGesso.zip` entregam exatamente os arquivos da v0.9.3 (instalador versão 0.9.3, SHA-256 `cdd38695dbb92bd90662cce4acc3dc167228ca5675ad75b332d3f1396e01cc1f`; zip com o exe 0.9.3.0, a raiz organizada com `lib\` e SHA-256 `eb1063ac65712e2e7d6688957f72efb32404c82d3dea17842e964c989220bf65`, igual ao `.sha256`). O código da v0.9.2, consultando o GitHub de verdade, enxerga a v0.9.3 como versão nova. A v1.0.0 **não** foi publicada. O roteiro da loja (parte C, mais abaixo) passou a ser o teste v0.9.2 → v0.9.3. Ao final: **442 testes passando** (eram 417), CI verde gerando o pacote e o instalador a cada push.
 
 ## O que mudou
 
@@ -33,8 +35,6 @@ Sessão sem acompanhamento, a partir do primeiro teste real no PC da loja (Windo
 
 ## Pendências e limites
 
-- **O botão do README só funciona depois da próxima release:** `releases/latest/download/PontoDoGesso-Instalador.exe` dá erro 404 até existir uma release com o instalador (a v0.9.2 não tem). Até lá, o zip da opção avançada continua funcionando.
-- Antes de publicar, subir a versão em `C:\dev\orcamentos-ponto-do-gesso\src\Directory.Build.props` (o workflow confere a tag com essa versão) e mover o [Não lançado] do CHANGELOG para a versão nova.
 - As telas do instalador (textos em português, botão Instalar, "Abrir o Ponto do Gesso", mensagem do .NET) só foram testadas em modo silencioso, não vistas na tela.
 - Atualizar pelo botão uma instalação feita pelo instalador e conferir que o desinstalador continua funcionando: coberto por teste automático do Atualizador, não por teste real.
 - Depois de atualizar pelo botão, Programas e Recursos continua mostrando a versão que o instalador instalou (só o instalador atualiza esse número).
@@ -47,11 +47,10 @@ Sessão sem acompanhamento, a partir do primeiro teste real no PC da loja (Windo
 1. Abrir o app e conferir o **← Voltar ao menu** no orçamento, histórico, clientes, produtos e configurações: clicar, apertar `Esc` e fechar pelo X; o menu deve voltar para a frente. Num orçamento com alterações, conferir a pergunta **Salvar / Não salvar / Cancelar**. Na descrição de um item, com a lista de sugestões aberta, o `Esc` deve só fechar a lista.
 2. Ver as telas do instalador: `C:\dev\orcamentos-ponto-do-gesso\publicacao\PontoDoGesso-Instalador.exe` (gere antes com `powershell -ExecutionPolicy Bypass -File C:\dev\orcamentos-ponto-do-gesso\scripts\empacotar.ps1` e `powershell -ExecutionPolicy Bypass -File C:\dev\orcamentos-ponto-do-gesso\scripts\gerar-instalador.ps1`). **Atenção:** ele instala de verdade em `C:\PontoDoGesso\` e cria os atalhos; os seus dados em `%APPDATA%\PontoDoGesso\` não são tocados.
 3. Recriar o atalho "Ponto do Gesso" que o teste apagou (ver "Problemas no caminho"), se ainda precisar dele.
-4. Quando decidir publicar: conferir na release os arquivos `PontoDoGesso-Instalador-vX.Y.Z.exe` e `PontoDoGesso-Instalador.exe` e o botão do README.
 
-### Na loja (Windows 7), depois da release
+### Na loja (Windows 7), com a v0.9.3 publicada
 
-1. **Atualização pelo botão** a partir da v0.9.2 já instalada: Verificar atualizações → Atualizar agora. Conferir que o app reabre na versão nova, que `C:\PontoDoGesso\` ficou só com o exe, os `.config`, o Atualizador, `lib\` e `assets\`, e que os orçamentos continuam lá.
+1. **Atualização pelo botão** a partir da v0.9.2 já instalada: Verificar atualizações → v0.9.3 → Atualizar agora. Passo a passo completo na **Parte C — teste da atualização pelo botão: v0.9.2 → v0.9.3**, mais abaixo neste arquivo. Conferir que `C:\PontoDoGesso\` ficou organizada (só o exe, os `.config`, o Atualizador, `lib\` e `assets\`) e que os dados continuam.
 2. **Instalador por cima:** baixar `PontoDoGesso-Instalador.exe` pelo botão do README e instalar. Conferir: não pediu senha de administrador; aviso do SmartScreen ("Mais informações › Executar assim mesmo"); atalhos na Área de Trabalho e no Menu Iniciar com o ícone laranja; "Abrir o Ponto do Gesso" no fim; dados mantidos.
 3. Ajuda → Diagnóstico → Testar banco e Testar PDF/PNG (confirmam o `lib\` no Windows 7).
 4. Se possível, num outro PC com Windows 7 sem o .NET 4.8: abrir o instalador e conferir a mensagem em português com o link.
@@ -213,7 +212,7 @@ Roteiro único, na ordem de fazer, com todos os itens "aguardando teste do Lucca
 
 Primeiro vem a parte A, com **dados de teste**. Depois os dados de teste são guardados num canto e começa o uso de verdade (parte B).
 
-O **teste da atualização pelo botão** fica para quando a v1.0.0 for publicada (parte C). A v0.9.2 já é a última versão, então hoje o botão não teria para onde atualizar.
+O **teste da atualização pelo botão** é a parte C: a loja já está com a v0.9.2 e a **v0.9.3** foi publicada em 18/11/2026, então o botão tem para onde atualizar (v0.9.2 → v0.9.3).
 
 ### Antes de sair de casa (num PC com internet)
 
@@ -361,21 +360,27 @@ O **teste da atualização pelo botão** fica para quando a v1.0.0 for publicada
    - marca os itens nos arquivos das fases (`C:\dev\orcamentos-ponto-do-gesso\docs\fases\FASE-01-esqueleto-win7.md` a `FASE-10-polimento-v1.md`);
    - preenche a tabela "PC da loja" de `C:\dev\orcamentos-ponto-do-gesso\docs\fases\README.md`.
 
-### Parte C — teste da atualização pelo botão (quando a v1.0.0 for publicada)
+### Parte C — teste da atualização pelo botão: v0.9.2 → v0.9.3
 
-Fica para depois da visita: com a v0.9.2 instalada na loja e a **v1.0.0** publicada, o botão testa a atualização de verdade (v0.9.2 → v1.0.0), com o antivírus ligado e os dados reais.
+*Atualizado em 18/11/2026: a **v0.9.3** foi publicada (https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/releases/tag/v0.9.3).* A loja está com a **v0.9.2** (descompactada do zip, com as DLLs soltas na raiz de `C:\PontoDoGesso\`). O botão testa de verdade a atualização para a v0.9.3, que muda a pasta do app para a organização nova com `lib\`, com o antivírus ligado e os dados reais. O código da v0.9.2 já foi conferido contra o GitHub: ele enxerga a v0.9.3 como versão nova.
 
-1. Antes: **Configurações → Backup → Fazer backup agora** e **Copiar backup para…** um pendrive.
-2. Abrir o app. Em até um dia aparece **Nova versão 1.0.0!** no rodapé (ou clicar em **Verificar atualizações**). Conferir a tela com "Versão nova: 1.0.0" → **Atualizar agora**.
-3. O app tem de fechar e abrir sozinho em poucos segundos com **Versão 1.0.0** no rodapé. Clientes, produtos e orçamentos continuam lá.
-4. Conferir que existem:
-   - `C:\PontoDoGesso.anterior\`;
+1. **Antes:** **Configurações → Backup → Fazer backup agora** e **Copiar backup para…** um pendrive. Tirar uma foto da pasta `C:\PontoDoGesso\` (dezenas de DLLs na raiz e a pasta `x86\`) e anotar quantos orçamentos aparecem no **Histórico**.
+2. Abrir o app. Em até um dia aparece **Nova versão 0.9.3!** no rodapé (ou clicar em **Verificar atualizações**). Conferir a tela com "Versão nova: 0.9.3" → **Atualizar agora**.
+3. O app tem de fechar e abrir sozinho em poucos segundos com **Versão 0.9.3** no rodapé.
+4. **Os dados continuam:** o Histórico mostra os mesmos orçamentos de antes; abrir um orçamento antigo, um cliente e um produto.
+5. **A pasta `C:\PontoDoGesso\` ficou organizada:** na raiz só `PontoDoGesso.exe`, `PontoDoGesso.exe.config`, `PontoDoGesso.Atualizador.exe`, `PontoDoGesso.Atualizador.exe.config` e as pastas `lib\` e `assets\`. **Nenhuma DLL solta na raiz e nenhuma pasta `x86\`**; as DLLs estão em `C:\PontoDoGesso\lib\` e o `SQLite.Interop.dll` em `C:\PontoDoGesso\lib\x86\`. Tirar foto.
+6. Conferir que existem:
+   - `C:\PontoDoGesso.anterior\` (a v0.9.2 guardada, com as DLLs na raiz);
    - em `%APPDATA%\PontoDoGesso\backups\`, um `dados_..._antes-de-atualizar.db`.
-5. **Se o antivírus reclamou ou bloqueou:** anote a mensagem exata (foto), aplique as exclusões da seção 5 de `C:\dev\orcamentos-ponto-do-gesso\docs\INSTALACAO-WINDOWS7.md` e repita.
-6. **Atualização manual**, se nada funcionar: fechar o app, baixar o `PontoDoGesso.zip` pelo link do README (que então será a v1.0.0), extrair por cima de `C:\` e abrir de novo. Os dados não são afetados.
-   - **Plano B** se a v1.0.0 não abrir: extrair a v0.9.2 (ou a v0.9.1, do pendrive) do mesmo jeito.
-7. Copiar `%APPDATA%\PontoDoGesso\logs\` (inclui `atualizacao_AAAA-MM.log`) para o pendrive.
-   → Resultados em `C:\dev\orcamentos-ponto-do-gesso\docs\fases\FASE-02-atualizacao.md`, nos itens "Teste real no PC da loja" e "Teste com o antivírus".
+7. Na versão nova: **Ajuda → Diagnóstico → Testar banco** e **Testar PDF/PNG** (confirmam que o app acha as DLLs em `lib\` no Windows 7); fazer um orçamento de teste e **Copiar imagem**; abrir o orçamento e sair pelo **← Voltar ao menu** e pelo `Esc`.
+8. **Se o antivírus reclamou ou bloqueou:** anote a mensagem exata (foto), aplique as exclusões da seção 5 de `C:\dev\orcamentos-ponto-do-gesso\docs\INSTALACAO-WINDOWS7.md` e repita.
+9. **Se o botão não funcionar:** fechar o app, baixar o `PontoDoGesso-Instalador.exe` pelo botão do README (é a v0.9.3) e instalar por cima. Os dados não são afetados. O instalador também cria os atalhos na Área de Trabalho e no Menu Iniciar e apaga as DLLs antigas da raiz.
+   - **Plano B** se a v0.9.3 não abrir: `C:\PontoDoGesso.anterior\` tem a v0.9.2; ou extrair o zip da v0.9.2 (pendrive) em `C:\`.
+10. Opcional, depois que o botão funcionou: rodar também o `PontoDoGesso-Instalador.exe` por cima, para ganhar os atalhos e a entrada em Programas e Recursos. Conferir que não pediu senha de administrador e que os dados continuam.
+11. Copiar `%APPDATA%\PontoDoGesso\logs\` (inclui `atualizacao_AAAA-MM.log`) para o pendrive.
+   → Resultados em `C:\dev\orcamentos-ponto-do-gesso\docs\fases\FASE-02-atualizacao.md`, nos itens "Teste real no PC da loja" e "Teste com o antivírus", e na tabela "PC da loja" de `C:\dev\orcamentos-ponto-do-gesso\docs\fases\README.md`.
+
+A **v1.0.0** só sai depois desse teste.
 
 ---
 
