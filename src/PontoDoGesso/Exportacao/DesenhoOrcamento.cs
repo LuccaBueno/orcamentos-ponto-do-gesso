@@ -176,15 +176,15 @@ namespace PontoDoGesso.Exportacao
 
                 if (indice == _alturas.Count)
                 {
-                    // O fecho (totais e rodapé) precisa ficar com pelo menos um item na última página
-                    while (y + AlturaFinal > LimiteConteudo && indice > inicio + 1)
-                        y -= _alturas[--indice];
-
                     if (y + AlturaFinal <= LimiteConteudo)
                     {
                         paginas.Add(Tuple.Create(inicio, indice - inicio));
                         break;
                     }
+
+                    // O fecho (totais e rodapé) não coube: o último item vai junto com ele para a próxima página
+                    if (indice > inicio + 1)
+                        indice--;
                 }
 
                 paginas.Add(Tuple.Create(inicio, indice - inicio));

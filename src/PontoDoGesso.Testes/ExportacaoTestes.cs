@@ -143,6 +143,19 @@ namespace PontoDoGesso.Testes
         }
 
         [Fact]
+        public void NenhumItemSomeNaPaginacao()
+        {
+            foreach (var (desconto, validade, observacoes) in new[] { (false, false, (string)null), (true, true, "Entregar pela manhã. Cliente vai conferir as medidas.") })
+                for (var itens = 1; itens <= 90; itens++)
+                {
+                    var desenho = new DesenhoOrcamento(Exemplo(itens, desconto, validade, observacoes: observacoes), DadosLoja.Padrao);
+
+                    Assert.Equal(itens, desenho.Paginas.Sum(p => p.Item2));
+                    Assert.All(desenho.Paginas, p => Assert.True(p.Item2 > 0));
+                }
+        }
+
+        [Fact]
         public void PngNaLarguraDoA4A150Dpi()
         {
             using (var imagem = ExportadorPng.CriarImagem(Exemplo(3), DadosLoja.Padrao))
