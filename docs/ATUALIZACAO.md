@@ -73,9 +73,15 @@ Versionamento: `MAJOR.MINOR.PATCH` — PATCH para correções, MINOR para funç�
 PontoDoGesso-v1.4.0.zip
 └─ PontoDoGesso\
    ├─ PontoDoGesso.exe
-   ├─ PontoDoGesso.exe.config
+   ├─ PontoDoGesso.exe.config     (tem <probing privatePath="lib"/>)
    ├─ PontoDoGesso.Atualizador.exe
-   ├─ *.dll                       (Dapper, PDFsharp, System.Data.SQLite...)
-   ├─ x86\SQLite.Interop.dll
+   ├─ PontoDoGesso.Atualizador.exe.config
+   ├─ lib\
+   │  ├─ *.dll                    (Dapper, PDFsharp, System.Data.SQLite...)
+   │  └─ x86\SQLite.Interop.dll
    └─ assets\
 ```
+
+Até a v0.9.2 as DLLs ficavam na raiz e o `SQLite.Interop.dll` em `x86\`. A atualização da v0.9.2 para uma versão com `lib\` funciona sem nada especial: o Atualizador troca a **pasta inteira** (a antiga vai para `PontoDoGesso.anterior`), então as DLLs antigas da raiz somem junto e os dados, que ficam em `%APPDATA%\PontoDoGesso\`, não são tocados.
+
+O `scripts\empacotar.ps1` roda `PontoDoGesso.exe --autoteste` na pasta montada (com dados numa pasta descartável) e falha se o app não carregar o SQLite e o PDFsharp de `lib\`, não criar o banco ou não gerar PDF e PNG.

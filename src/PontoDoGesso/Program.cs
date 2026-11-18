@@ -11,7 +11,7 @@ namespace PontoDoGesso
     internal static class Program
     {
         [STAThread]
-        private static void Main()
+        private static int Main(string[] args)
         {
             // useUserOverride = false: ignora o formato regional personalizado no Windows
             var cultura = new CultureInfo("pt-BR", false);
@@ -19,6 +19,10 @@ namespace PontoDoGesso
             CultureInfo.DefaultThreadCurrentUICulture = cultura;
             Thread.CurrentThread.CurrentCulture = cultura;
             Thread.CurrentThread.CurrentUICulture = cultura;
+
+            // Sem janelas: usado pelo empacotamento para conferir a pasta do app montada (lib\, SQLite, PDF)
+            if (args.Length > 0 && args[0] == Autoteste.Argumento)
+                return Autoteste.Executar(args.Length > 1 ? args[1] : null);
 
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
             Application.ThreadException += (s, e) => TratarErro(e.Exception);
@@ -30,6 +34,7 @@ namespace PontoDoGesso
             Caminhos.CriarPastas();
             PrepararBanco();
             Application.Run(new FormPrincipal { VerificarAtualizacaoAoAbrir = true });
+            return 0;
         }
 
         private static void PrepararBanco()
