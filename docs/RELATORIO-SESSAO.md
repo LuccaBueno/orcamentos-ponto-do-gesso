@@ -1,3 +1,62 @@
+# Relatório da sessão — 18/11/2026 (depois do primeiro teste na loja: instalador, pasta lib\ e Voltar ao menu)
+
+Sessão sem acompanhamento, a partir do primeiro teste real no PC da loja (Windows 7 SP1, 64 bits): o app só abriu depois do .NET Framework 4.8, cuja instalação foi difícil; a pasta do app tinha dezenas de DLLs; e não ficou óbvio como sair da tela de orçamento. Isso ficou registrado na tabela "PC da loja" de `C:\dev\orcamentos-ponto-do-gesso\docs\fases\README.md`.
+
+**Nenhuma tag nem release foi criada.** A versão continua **0.9.2** em `C:\dev\orcamentos-ponto-do-gesso\src\Directory.Build.props`; tudo está em **[Não lançado]** no `C:\dev\orcamentos-ponto-do-gesso\CHANGELOG.md` (junto com a revisão visual do orçamento feita mais cedo no mesmo dia). Ao final: **442 testes passando** (eram 417), CI verde gerando o pacote e o instalador a cada push.
+
+## O que mudou
+
+| Item | O que foi feito | Onde |
+|---|---|---|
+| Voltar ao menu | Botão laranja **← Voltar ao menu (Esc)** no alto do orçamento, histórico, clientes, produtos e configurações (no lugar dos botões Fechar/Cancelar). `Esc` faz o mesmo, menos quando a lista de sugestões está aberta (aí só fecha a lista). Com alterações não salvas, o orçamento e as configurações perguntam **Salvar / Não salvar / Cancelar** (janela própria, porque o MessageBox só tem Sim/Não). Ao fechar qualquer janela, inclusive pelo X, o menu volta para a frente (e sai do minimizado). | `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\Forms\Estilo.cs`, `PerguntaSalvar.cs`, `FormPrincipal.cs`, `FormConfiguracoes.cs` e as outras quatro janelas |
+| Pasta `lib\` | A raiz do app fica só com `PontoDoGesso.exe`, `PontoDoGesso.exe.config`, `PontoDoGesso.Atualizador.exe` (+ `.config`) e `assets\`; as 21 DLLs vão para `lib\` e o `SQLite.Interop.dll` para `lib\x86\` (`<probing privatePath="lib"/>` no App.config). | `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\App.config`, `C:\dev\orcamentos-ponto-do-gesso\scripts\empacotar.ps1` |
+| Autoteste do pacote | `PontoDoGesso.exe --autoteste [arquivo]` confere, sem janelas, SQLite, criação do banco com as migrações e PDF/PNG, e diz de onde as DLLs foram carregadas. O `empacotar.ps1` roda isso na pasta montada e falha se algo não vier de `lib\`. Contraprova: sem o `lib\x86\SQLite.Interop.dll` o autoteste falha com `DllNotFoundException`. | `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\Servicos\Autoteste.cs` |
+| Instalador | Inno Setup 6.7.4 (o 7.x pode não servir para o Windows 7). Instala em `C:\PontoDoGesso\` sem perguntar pasta e **sem pedir administrador** (a atualização pelo botão precisa trocar essa pasta com o usuário comum); atalhos na Área de Trabalho e no Menu Iniciar com o ícone do app; "Abrir o Ponto do Gesso" no fim; por cima de instalação antiga apaga as DLLs da raiz e a pasta `x86\`; os dados em `%APPDATA%` não são tocados. Sem .NET 4.8 mostra "Instale primeiro o .NET Framework 4.8 (versão Runtime, NÃO a 4.8.1 nem o Developer Pack)" com o link direto, oferece abrir o link e **não instala**. | `C:\dev\orcamentos-ponto-do-gesso\instalador\PontoDoGesso.iss`, `C:\dev\orcamentos-ponto-do-gesso\scripts\gerar-instalador.ps1` |
+| Workflows | `release.yml` instala o Inno 6.7.4 (baixado do GitHub oficial, SHA-256 fixo e assinatura conferida) e publica também `PontoDoGesso-Instalador-vX.Y.Z.exe` e `PontoDoGesso-Instalador.exe`. `build.yml` agora empacota (com autoteste) e gera o instalador a cada push, sem publicar nada. As notas da release passam a mandar baixar o instalador. | `C:\dev\orcamentos-ponto-do-gesso\.github\workflows\`, `C:\dev\orcamentos-ponto-do-gesso\scripts\instalar-inno-ci.ps1`, `notas-versao.ps1` |
+| Desinstalador e atualização | A atualização pelo botão troca a pasta inteira, o que apagaria o `unins000.exe` do instalador. O Atualizador novo leva os `unins000.*` para a pasta nova. Desinstalar remove `C:\PontoDoGesso\` e `C:\PontoDoGesso.anterior\`, nunca os dados. | `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso.Atualizador\Instalacao.cs` |
+| Documentação | README com o botão para `releases/latest/download/PontoDoGesso-Instalador.exe` e os passos (.NET 4.8 só no Windows 7, baixar, abrir, Instalar, "O Windows protegeu o computador"); zip como opção avançada. `INSTALACAO-WINDOWS7.md` com o link direto (confirmado: leva ao `NDP48-x86-x64-AllOS-ENU.exe`, instalador offline de ~116 MB) e o aviso sobre 4.8.1/Developer Pack. Manual com o Voltar ao menu e o `Esc`. `ATUALIZACAO.md` com a pasta `lib\` e o instalador. | `C:\dev\orcamentos-ponto-do-gesso\README.md`, `C:\dev\orcamentos-ponto-do-gesso\docs\` |
+
+## Testes de verdade (no seu PC, tudo dentro de `C:\dev\orcamentos-ponto-do-gesso\.tmp\`)
+
+- **Instalador** — `C:\dev\orcamentos-ponto-do-gesso\scripts\teste-atualizacao\teste-instalador.ps1` (modo de teste: sem atalhos e sem registro em Programas e Recursos):
+  1. sem .NET 4.8 (simulado): termina com código 1, não copia nada e registra o motivo no log;
+  2. instalação limpa: raiz só com exe, `.config` e Atualizador, desinstalador presente, autoteste do app instalado OK;
+  3. por cima da **v0.9.2 publicada** (zip baixado do GitHub, SHA-256 conferido), com dados criados por ela: nenhuma DLL na raiz, `x86\` removida, clientes e orçamentos iguais, autoteste OK.
+- **Atualização pelo botão v0.9.2 → versão com `lib\`** — `C:\dev\orcamentos-ponto-do-gesso\scripts\teste-atualizacao\teste-v092-para-lib.ps1`: como a v0.9.2 só consulta o GitHub, o teste carrega **o código da própria v0.9.2** do exe publicado e faz o caminho do botão (consulta uma release num JSON local, baixa, confere o SHA-256 e chama o Atualizador da v0.9.2 com o app aberto). Resultado: o app v0.9.2 fecha, o Atualizador troca a pasta e reabre o app novo; DLLs da raiz e `x86\` somem, a v0.9.2 fica em `PontoDoGesso.anterior`, dados iguais, autoteste OK.
+- **CI:** o `build.yml` instalou o Inno 6.7.4 no runner, rodou o autoteste (DLLs carregadas de `lib\`) e gerou o instalador.
+
+## Problemas no caminho
+
+- ⚠️ **Seu atalho "Ponto do Gesso" foi sobrescrito e depois removido.** Na primeira rodada do teste do instalador, o parâmetro de teste foi passado como `/TESTE`, mas o Inno só entende `/TESTE=1`; o instalador rodou em modo normal e **sobrescreveu os atalhos `Ponto do Gesso` que já existiam** na sua Área de Trabalho e no Menu Iniciar (`C:\Users\Lucca-PC\Desktop\Ponto do Gesso.lnk` e `...\Start Menu\Programs\Ponto do Gesso.lnk`, criados em 05/10/2026), apontando para a pasta de teste em `.tmp`, e criou um registro em Programas e Recursos. Não dá para saber para onde os atalhos originais apontavam. Para ninguém abrir uma versão de teste com os dados reais, **removi os dois atalhos** e o registro de teste. **Recrie o atalho** se ele ainda for útil. Correção: o instalador passa a aceitar `/TESTE` e `/TESTE=1`, e o roteiro de teste para tudo se o primeiro cenário (que não deveria instalar nada) instalar, ou se o log mostrar atalho criado.
+- Na primeira rodada da atualização v0.9.2 → nova, o meu roteiro esperou o Atualizador (que herdou a saída do PowerShell) enquanto o Atualizador esperava o app fechar. Depois de 30 s o Atualizador da v0.9.2 desistiu sem mexer em nada, como deveria, e mostrou o aviso "não fechou a tempo". Encerrei os processos de teste e corrigi o roteiro.
+- O primeiro desenho do botão usava "◄", que a Segoe UI desenha errado; trocado por "←".
+
+## Pendências e limites
+
+- **O botão do README só funciona depois da próxima release:** `releases/latest/download/PontoDoGesso-Instalador.exe` dá erro 404 até existir uma release com o instalador (a v0.9.2 não tem). Até lá, o zip da opção avançada continua funcionando.
+- Antes de publicar, subir a versão em `C:\dev\orcamentos-ponto-do-gesso\src\Directory.Build.props` (o workflow confere a tag com essa versão) e mover o [Não lançado] do CHANGELOG para a versão nova.
+- As telas do instalador (textos em português, botão Instalar, "Abrir o Ponto do Gesso", mensagem do .NET) só foram testadas em modo silencioso, não vistas na tela.
+- Atualizar pelo botão uma instalação feita pelo instalador e conferir que o desinstalador continua funcionando: coberto por teste automático do Atualizador, não por teste real.
+- Depois de atualizar pelo botão, Programas e Recursos continua mostrando a versão que o instalador instalou (só o instalador atualiza esse número).
+- Nada disso foi testado num Windows 7 de verdade; o Inno 6.7.4 declara Windows 7 SP1 como mínimo.
+
+## O que o Lucca precisa testar
+
+### No seu PC
+
+1. Abrir o app e conferir o **← Voltar ao menu** no orçamento, histórico, clientes, produtos e configurações: clicar, apertar `Esc` e fechar pelo X; o menu deve voltar para a frente. Num orçamento com alterações, conferir a pergunta **Salvar / Não salvar / Cancelar**. Na descrição de um item, com a lista de sugestões aberta, o `Esc` deve só fechar a lista.
+2. Ver as telas do instalador: `C:\dev\orcamentos-ponto-do-gesso\publicacao\PontoDoGesso-Instalador.exe` (gere antes com `powershell -ExecutionPolicy Bypass -File C:\dev\orcamentos-ponto-do-gesso\scripts\empacotar.ps1` e `powershell -ExecutionPolicy Bypass -File C:\dev\orcamentos-ponto-do-gesso\scripts\gerar-instalador.ps1`). **Atenção:** ele instala de verdade em `C:\PontoDoGesso\` e cria os atalhos; os seus dados em `%APPDATA%\PontoDoGesso\` não são tocados.
+3. Recriar o atalho "Ponto do Gesso" que o teste apagou (ver "Problemas no caminho"), se ainda precisar dele.
+4. Quando decidir publicar: conferir na release os arquivos `PontoDoGesso-Instalador-vX.Y.Z.exe` e `PontoDoGesso-Instalador.exe` e o botão do README.
+
+### Na loja (Windows 7), depois da release
+
+1. **Atualização pelo botão** a partir da v0.9.2 já instalada: Verificar atualizações → Atualizar agora. Conferir que o app reabre na versão nova, que `C:\PontoDoGesso\` ficou só com o exe, os `.config`, o Atualizador, `lib\` e `assets\`, e que os orçamentos continuam lá.
+2. **Instalador por cima:** baixar `PontoDoGesso-Instalador.exe` pelo botão do README e instalar. Conferir: não pediu senha de administrador; aviso do SmartScreen ("Mais informações › Executar assim mesmo"); atalhos na Área de Trabalho e no Menu Iniciar com o ícone laranja; "Abrir o Ponto do Gesso" no fim; dados mantidos.
+3. Ajuda → Diagnóstico → Testar banco e Testar PDF/PNG (confirmam o `lib\` no Windows 7).
+4. Se possível, num outro PC com Windows 7 sem o .NET 4.8: abrir o instalador e conferir a mensagem em português com o link.
+5. Anotar o antivírus e se ele reclamou do instalador na tabela "PC da loja".
+
 # Relatório da sessão — 14/11/2026 (Fase 10: polimento para a v1.0.0)
 
 Sessão sem acompanhamento. A Fase 10 ficou **pronta no código**, menos os dois itens que dependem da loja: a rodada de testes no Windows 7 e a publicação da **v1.0.0** (os dois ficaram desmarcados com "aguardando teste do Lucca na loja"). Nenhuma tag nem release foi criada, nada foi instalado e nenhum navegador foi aberto.

@@ -4,7 +4,16 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/); 
 
 ## [Não lançado]
 
+### Adicionado
+- **Instalador** `PontoDoGesso-Instalador.exe` (Inno Setup): instala em `C:\PontoDoGesso\` sem perguntar pasta nem pedir administrador, cria atalhos na Área de Trabalho e no Menu Iniciar com o ícone do app e oferece **Abrir o Ponto do Gesso** no fim. Confere o .NET Framework 4.8: se faltar, avisa em português ("Instale primeiro o .NET Framework 4.8 (versão Runtime, NÃO a 4.8.1 nem o Developer Pack)") com o link direto https://go.microsoft.com/fwlink/?linkid=2088631 e não instala. Instalar por cima mantém os dados e apaga as DLLs antigas da raiz. A release passa a ter `PontoDoGesso-Instalador-vX.Y.Z.exe` e a cópia com nome fixo `PontoDoGesso-Instalador.exe`.
+- **← Voltar ao menu** (botão laranja no alto, ou `Esc`) no orçamento, histórico, clientes, produtos e configurações. Com alterações não salvas pergunta **Salvar / Não salvar / Cancelar**. Ao fechar qualquer janela, inclusive pelo X, o menu volta para a frente.
+- `PontoDoGesso.exe --autoteste [arquivo]`: confere sem abrir janelas que o app carrega o SQLite, cria o banco e gera PDF e PNG; o empacotamento roda isso na pasta montada.
+
 ### Alterado
+- **Pasta do app organizada:** a raiz de `C:\PontoDoGesso\` fica só com `PontoDoGesso.exe`, os `.config` e o Atualizador; as DLLs vão para `lib\` (e o `SQLite.Interop.dll` para `lib\x86\`). A atualização pelo botão a partir da v0.9.2 (DLLs na raiz) troca a pasta inteira e remove as DLLs antigas, sem tocar nos dados (testado de verdade com o código da v0.9.2 publicada).
+- O Atualizador leva o desinstalador do instalador (`unins000.*`) para a pasta nova a cada atualização.
+- README e `docs\INSTALACAO-WINDOWS7.md`: download pelo instalador, com o link direto do .NET 4.8 Runtime e o aviso sobre o 4.8.1 e o Developer Pack; o zip vira opção avançada.
+- Os botões **Fechar**/**Cancelar** dessas janelas foram substituídos pelo **Voltar ao menu**.
 - **Orçamento (PNG, PDF e impressão) mais parecido com a folha em papel:** cabeçalho maior com a moldura no laranja da folha e o ícone do WhatsApp, telefone e endereço em Calibri, campos na ordem da folha (Nome/Tel, End/Nº, P.Ref/Data), colunas e cabeçalho da tabela com as medidas da folha e o "As entregas…" na última linha, ao lado do TOTAL. Detalhes e o que ficou diferente de propósito em `docs\LAYOUT-ORCAMENTO.md` → "Revisão visual (18/11/2026)"; comparações lado a lado em `docs\referencia\comparacoes\lado-a-lado\`.
 - Com o cabeçalho maior cabem ~21 itens na primeira página do PDF (antes ~28); o PNG continua sendo uma imagem só.
 
