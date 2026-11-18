@@ -3,12 +3,24 @@
 param([string]$App, [string]$Dados, [string]$Acao)
 $ErrorActionPreference = 'Stop'
 
+# A partir da versão com lib\, o PowerShell não lê o <probing> do PontoDoGesso.exe.config: procura as DLLs em lib\ na mão
+$global:pastaLib = Join-Path $App 'lib'
+[AppDomain]::CurrentDomain.add_AssemblyResolve([ResolveEventHandler] {
+    param($origem, $pedido)
+    $dll = Join-Path $global:pastaLib ((New-Object Reflection.AssemblyName($pedido.Name)).Name + '.dll')
+    if (Test-Path $dll) { return [Reflection.Assembly]::LoadFrom($dll) }
+    return $null
+})
+
 [Reflection.Assembly]::LoadFrom((Join-Path $App 'PontoDoGesso.exe')) | Out-Null
 $banco = New-Object PontoDoGesso.Dados.Banco((Join-Path $Dados 'dados.db'), (Join-Path $Dados 'backups'))
 $clientes = New-Object PontoDoGesso.Dados.ClienteRepositorio($banco)
 $orcamentos = New-Object PontoDoGesso.Dados.OrcamentoRepositorio($banco)
 
 if ($Acao -eq 'criar') {
+    # Pasta de dados nova: cria as tabelas como o app faria ao abrir
+    $banco.Preparar() | Out-Null
+
     $cliente = New-Object PontoDoGesso.Dominio.Cliente
     $cliente.Nome = 'Cliente Teste Atualização'
     $cliente.Telefone = '12992445402'

@@ -18,3 +18,12 @@ jobs:
         run: dotnet build PontoDoGesso.sln -c Release
       - name: Testar
         run: dotnet test PontoDoGesso.sln -c Release --no-build
+      # Monta a pasta do app (com o autoteste dela) e o instalador a cada push, sem publicar nada
+      - name: Empacotar
+        shell: powershell
+        run: .\scripts\empacotar.ps1 -SemCompilar
+      - name: Gerar o instalador
+        shell: powershell
+        run: |
+          $iscc = .\scripts\instalar-inno-ci.ps1 | Select-Object -Last 1
+          .\scripts\gerar-instalador.ps1 -Iscc $iscc

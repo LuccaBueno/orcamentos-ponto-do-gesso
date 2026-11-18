@@ -49,6 +49,10 @@ namespace PontoDoGesso.Atualizador
                 throw new InvalidDataException("O pacote não tem o " + NomeApp + ". Nada foi alterado.");
             }
 
+            // O desinstalador do instalador (unins000.exe/.dat/.msg) não vem no zip: vai junto para a pasta nova,
+            // senão "Desinstalar" em Programas e Recursos pararia de funcionar depois da primeira atualização
+            CopiarDesinstalador(Destino, origem);
+
             // 2. Guarda a versão atual (antes disso, nada mudou na pasta do app)
             ApagarPasta(Anterior);
             _log("Guardando a versão atual em " + Anterior);
@@ -97,6 +101,30 @@ namespace PontoDoGesso.Atualizador
         }
 
         protected virtual void Mover(string de, string para) => Directory.Move(de, para);
+
+        /// <summary>Arquivos do desinstalador do Inno Setup: unins000.exe, unins000.dat e unins000.msg (o número pode mudar).</summary>
+        public static bool EhDesinstalador(string arquivo)
+        {
+            var nome = Path.GetFileName(arquivo);
+            var extensao = Path.GetExtension(nome).ToLowerInvariant();
+            return nome.StartsWith("unins", StringComparison.OrdinalIgnoreCase)
+                && Path.GetFileNameWithoutExtension(nome).Length == 8
+                && int.TryParse(Path.GetFileNameWithoutExtension(nome).Substring(5), out _)
+                && (extensao == ".exe" || extensao == ".dat" || extensao == ".msg");
+        }
+
+        private void CopiarDesinstalador(string de, string para)
+        {
+            foreach (var arquivo in Directory.GetFiles(de))
+            {
+                var destino = Path.Combine(para, Path.GetFileName(arquivo));
+                if (!EhDesinstalador(arquivo) || File.Exists(destino))
+                    continue;
+
+                _log("Levando o desinstalador para a versão nova: " + Path.GetFileName(arquivo));
+                File.Copy(arquivo, destino);
+            }
+        }
 
         private void ComTentativas(Action acao)
         {

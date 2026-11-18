@@ -25,6 +25,11 @@ jobs:
       - name: Empacotar
         shell: powershell
         run: .\scripts\empacotar.ps1 -SemCompilar
+      - name: Gerar o instalador
+        shell: powershell
+        run: |
+          $iscc = .\scripts\instalar-inno-ci.ps1 | Select-Object -Last 1
+          .\scripts\gerar-instalador.ps1 -Iscc $iscc
       - name: Notas da versão
         shell: powershell
         run: .\scripts\notas-versao.ps1 -Versao "${{ github.ref_name }}" -Saida notas.md
@@ -34,5 +39,5 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $tag = "${{ github.ref_name }}"
-          gh release create $tag "publicacao\PontoDoGesso-$tag.zip" "publicacao\PontoDoGesso-$tag.zip.sha256" "publicacao\PontoDoGesso.zip" --title "Ponto do Gesso $tag" --notes-file notas.md
+          gh release create $tag "publicacao\PontoDoGesso-$tag.zip" "publicacao\PontoDoGesso-$tag.zip.sha256" "publicacao\PontoDoGesso.zip" "publicacao\PontoDoGesso-Instalador-$tag.exe" "publicacao\PontoDoGesso-Instalador.exe" --title "Ponto do Gesso $tag" --notes-file notas.md
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

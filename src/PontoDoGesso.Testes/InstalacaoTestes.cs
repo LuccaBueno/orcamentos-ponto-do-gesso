@@ -69,6 +69,33 @@ namespace PontoDoGesso.Testes
         }
 
         [Fact]
+        public void DesinstaladorDoInstaladorVaiParaAVersaoNova()
+        {
+            File.WriteAllText(Path.Combine(_destino, "unins000.exe"), "desinstalador");
+            File.WriteAllText(Path.Combine(_destino, "unins000.dat"), "lista de arquivos");
+            File.WriteAllText(Path.Combine(_destino, "unins_de_mentira.txt"), "não é do Inno");
+
+            Nova(CriarZip()).Instalar();
+
+            Assert.Equal("versão 0.9.1", Ler(_destino, "PontoDoGesso.exe"));
+            Assert.Equal("desinstalador", Ler(_destino, "unins000.exe"));
+            Assert.Equal("lista de arquivos", Ler(_destino, "unins000.dat"));
+            Assert.False(File.Exists(Path.Combine(_destino, "unins_de_mentira.txt")));
+        }
+
+        [Theory]
+        [InlineData("unins000.exe", true)]
+        [InlineData("UNINS001.DAT", true)]
+        [InlineData("unins000.msg", true)]
+        [InlineData("unins000.dll", false)]
+        [InlineData("uninstall.exe", false)]
+        [InlineData("PontoDoGesso.exe", false)]
+        public void ReconheceOsArquivosDoDesinstalador(string arquivo, bool esperado)
+        {
+            Assert.Equal(esperado, Instalacao.EhDesinstalador(arquivo));
+        }
+
+        [Fact]
         public void DesfazerVoltaAVersaoAnterior()
         {
             var instalacao = Nova(CriarZip());

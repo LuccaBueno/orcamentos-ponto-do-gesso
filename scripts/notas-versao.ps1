@@ -25,6 +25,6 @@ for ($i = $inicio; $i -lt $linhas.Length; $i++) {
 $notas = ($linhas[$inicio..($fim - 1)] -join "`n").Trim()
 if (-not $notas) { throw "A seção '$cabecalho' do CHANGELOG.md está vazia" }
 
-$aviso = 'Para instalar, baixe PontoDoGesso.zip abaixo em Assets.'
+$aviso = 'Para instalar, baixe PontoDoGesso-Instalador.exe abaixo em Assets (no Windows 7, instale antes o .NET Framework 4.8 Runtime: https://go.microsoft.com/fwlink/?linkid=2088631). Quem já usa o app pode atualizar pelo botão Verificar atualizações. O PontoDoGesso.zip continua disponível para instalação manual.'
 [System.IO.File]::WriteAllText($Saida, $aviso + "`n`n" + $notas + "`n", (New-Object System.Text.UTF8Encoding $false))
 Write-Host "Notas da versão $Versao gravadas em $Saida"

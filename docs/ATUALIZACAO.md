@@ -59,11 +59,27 @@ PontoDoGesso.Atualizador.exe
    git tag v1.4.0
    git push origin main --tags
    ```
-4. O workflow `C:\dev\orcamentos-ponto-do-gesso\.github\workflows\release.yml` compila em Release, roda os testes, executa `scripts\empacotar.ps1` e publica a Release com:
+4. O workflow `C:\dev\orcamentos-ponto-do-gesso\.github\workflows\release.yml` compila em Release, roda os testes, executa `scripts\empacotar.ps1` (com o autoteste da pasta montada), instala o Inno Setup 6.7.4 (`scripts\instalar-inno-ci.ps1`, SHA-256 conferido), executa `scripts\gerar-instalador.ps1` e publica a Release com:
    - `PontoDoGesso-v1.4.0.zip`
    - `PontoDoGesso-v1.4.0.zip.sha256`
-   - `PontoDoGesso.zip` — cópia idêntica com nome fixo, para o link `releases/latest/download/PontoDoGesso.zip` do README. O atualizador **não** usa esse arquivo: só procura `PontoDoGesso-vX.Y.Z.zip` e o `.sha256`.
-   - texto da Release = "Para instalar, baixe PontoDoGesso.zip abaixo em Assets." + seção da versão no CHANGELOG.
+   - `PontoDoGesso.zip` — cópia idêntica com nome fixo, para instalação manual (opção avançada do README). O atualizador **não** usa esse arquivo: só procura `PontoDoGesso-vX.Y.Z.zip` e o `.sha256`.
+   - `PontoDoGesso-Instalador-v1.4.0.exe` — instalador (Inno Setup, `instalador\PontoDoGesso.iss`).
+   - `PontoDoGesso-Instalador.exe` — cópia com nome fixo, para o link `releases/latest/download/PontoDoGesso-Instalador.exe` do README.
+   - texto da Release = aviso de instalação (baixar o `PontoDoGesso-Instalador.exe`; no Windows 7, antes o .NET 4.8) + seção da versão no CHANGELOG.
+
+   O workflow `build.yml` também empacota e gera o instalador a cada push no `main`, sem publicar nada, para pegar erro de empacotamento antes da release.
+
+## Instalador
+
+`instalador\PontoDoGesso.iss` (Inno Setup 6; o 6.x gera instaladores que rodam no Windows 7 SP1):
+
+- instala sempre em `C:\PontoDoGesso\`, sem pedir pasta e **sem pedir administrador** (a atualização pelo botão precisa trocar essa pasta com o usuário comum);
+- confere o .NET Framework 4.8 (registro `Release` ≥ 528040). Se faltar, avisa em português — "Instale primeiro o .NET Framework 4.8 (versão Runtime, NÃO a 4.8.1 nem o Developer Pack)" — com o link direto https://go.microsoft.com/fwlink/?linkid=2088631 (oferece abrir) e **não instala**;
+- cria atalhos na Área de Trabalho e no Menu Iniciar do usuário, com o ícone do app, e no fim oferece "Abrir o Ponto do Gesso";
+- por cima de uma instalação antiga (inclusive a v0.9.2 descompactada do zip, com DLLs na raiz), apaga as DLLs da raiz e a pasta `x86\` antes de copiar; os dados em `%APPDATA%\PontoDoGesso\` não são tocados;
+- o desinstalador (`unins000.exe`) fica em `C:\PontoDoGesso\`; o Atualizador leva esses arquivos para a pasta nova a cada atualização pelo botão. Desinstalar remove `C:\PontoDoGesso\` e `C:\PontoDoGesso.anterior\`, mas não os dados.
+
+Teste real (tudo em `.tmp\`, sem atalhos nem registro, com os parâmetros só de teste `/TESTE` e `/SIMULARSEMDOTNET`): `C:\dev\orcamentos-ponto-do-gesso\scripts\teste-atualizacao\teste-instalador.ps1 -ZipV092 <PontoDoGesso-v0.9.2.zip>`.
 
 Versionamento: `MAJOR.MINOR.PATCH` — PATCH para correções, MINOR para funções novas, MAJOR para mudanças grandes no banco ou na forma de usar.
 
