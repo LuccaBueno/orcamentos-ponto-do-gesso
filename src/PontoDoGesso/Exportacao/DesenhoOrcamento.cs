@@ -35,17 +35,19 @@ namespace PontoDoGesso.Exportacao
         private const double RecuoCampos = 3.5;
         private const double TopoTabelaContinuacao = Margem + 12;
 
-        private const double AlturaCabecalhoTabela = 6.5;
-        private const double AlturaLinha = 6;
-        private const double AlturaLinhaDupla = 9.5;
+        private const double AlturaCabecalhoTabela = 7.5;
+        private const double AlturaLinha = 6.5;
+        private const double AlturaLinhaDupla = 10;
         private const double AlturaTotal = 6.5;
-        private const double AlturaLinhaTexto = 4.3;
+        /// <summary>Altura de uma linha de texto em 11 pt (a caixa menor que a linha faz o GDI+ não desenhar o texto).</summary>
+        private const double AlturaLinhaTexto = 4.8;
         private const double Folga = 1.5;
 
         /// <summary>Abaixo disso só fica o número do orçamento.</summary>
         private const double LimiteConteudo = AlturaMm - Margem - 4;
 
-        private static readonly double[] Colunas = { 0.14, 0.52, 0.17, 0.17 };
+        /// <summary>Larguras medidas na folha em papel.</summary>
+        private static readonly double[] Colunas = { 0.16, 0.52, 0.18, 0.14 };
 
         public static readonly XColor Laranja = XColor.FromArgb(0xC5, 0x5A, 0x11);
         public static readonly XColor FundoClaro = XColor.FromArgb(0xFB, 0xE4, 0xD5);
@@ -72,8 +74,8 @@ namespace PontoDoGesso.Exportacao
         private static readonly XFont FonteEndereco = new XFont(FonteTabela, 17);
         private static readonly XFont FonteRotulo = new XFont(FonteTabela, 12);
         private static readonly XFont FonteValor = new XFont(FonteTabela, 12);
-        private static readonly XFont FonteCabecalhoTabela = new XFont(FonteTabela, 9.5, XFontStyleEx.Bold);
-        private static readonly XFont FonteItem = new XFont(FonteTabela, 10);
+        private static readonly XFont FonteCabecalhoTabela = new XFont(FonteTabela, 13, XFontStyleEx.Bold);
+        private static readonly XFont FonteItem = new XFont(FonteTabela, 11);
         private static readonly XFont FonteTotalRotulo = new XFont(FonteTabela, 10, XFontStyleEx.Bold);
         private static readonly XFont FonteTotalValor = new XFont(FonteTabela, 11, XFontStyleEx.Bold);
         private static readonly XFont FonteRodape = new XFont(FonteTabela, 9.5, XFontStyleEx.Bold);
