@@ -44,10 +44,15 @@ namespace PontoDoGesso.Exportacao
 
         public static readonly XColor Laranja = XColor.FromArgb(0xC5, 0x5A, 0x11);
         public static readonly XColor FundoClaro = XColor.FromArgb(0xFB, 0xE4, 0xD5);
+        /// <summary>Na folha, a moldura do cabeçalho é num laranja mais vivo que o texto.</summary>
+        private static readonly XColor LaranjaMoldura = XColor.FromArgb(0xED, 0x7D, 0x31);
+        /// <summary>Faixa grossa e clara que separa o cabeçalho da tabela das linhas, como na folha.</summary>
+        private static readonly XColor LaranjaClaro = XColor.FromArgb(0xF4, 0xB1, 0x83);
         private static readonly XColor CinzaNumero = XColor.FromArgb(0xA6, 0xA6, 0xA6);
 
-        private static readonly XPen Moldura = new XPen(Laranja, 1);
-        private static readonly XPen Linha = new XPen(Laranja, 0.6);
+        private static readonly XPen Moldura = new XPen(LaranjaMoldura, 1);
+        private static readonly XPen Linha = new XPen(Laranja, 0.5);
+        private static readonly XPen LinhaCabecalhoTabela = new XPen(LaranjaClaro, 1.5);
         private static readonly XBrush PincelLaranja = new XSolidBrush(Laranja);
         private static readonly XBrush PincelFundo = new XSolidBrush(FundoClaro);
         private static readonly XBrush PincelNumero = new XSolidBrush(CinzaNumero);
@@ -344,7 +349,7 @@ namespace PontoDoGesso.Exportacao
 
             var topo = y;
             y += AlturaCabecalhoTabela;
-            grafico.DrawLine(Linha, Pt(Esquerda), Pt(y), Pt(Direita), Pt(y));
+            grafico.DrawLine(LinhaCabecalhoTabela, Pt(Esquerda), Pt(y), Pt(Direita), Pt(y));
 
             for (var i = inicio; i < inicio + quantidade; i++)
             {
