@@ -4,6 +4,14 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/); 
 
 ## [Não lançado]
 
+### Alterado
+- **Orçamento (PNG, PDF e impressão) mais parecido com a folha em papel:** cabeçalho maior com a moldura no laranja da folha e o ícone do WhatsApp, telefone e endereço em Calibri, campos na ordem da folha (Nome/Tel, End/Nº, P.Ref/Data), colunas e cabeçalho da tabela com as medidas da folha e o "As entregas…" na última linha, ao lado do TOTAL. Detalhes e o que ficou diferente de propósito em `docs\LAYOUT-ORCAMENTO.md` → "Revisão visual (18/11/2026)"; comparações lado a lado em `docs\referencia\comparacoes\lado-a-lado\`.
+- Com o cabeçalho maior cabem ~21 itens na primeira página do PDF (antes ~28); o PNG continua sendo uma imagem só.
+
+### Corrigido
+- PDF e impressão perdiam o último item quando os totais não cabiam na mesma página (ex.: 25 itens com desconto e validade saíam com 24).
+- Rótulos de SUBTOTAL/DESC./FRETE/TOTAL diminuem se não couberem na coluna (Arial no lugar da Calibri no Windows 7 sem Office).
+
 ## [0.9.2] - 2026-11-14
 
 Versão para instalar na loja: tudo da v0.9.1 mais a Fase 10 (polimento). A v1.0.0 sai depois do teste no Windows 7 da loja. Os dados não mudam de formato: quem está na v0.9.0 ou v0.9.1 continua com os mesmos clientes, produtos e orçamentos.
