@@ -254,6 +254,46 @@ namespace PontoDoGesso.Testes
                 ExportadorPng.Gerar(orcamento, DadosLoja.Padrao, Path.Combine(pasta, nome + ".png"));
                 ExportadorPdf.Gerar(orcamento, DadosLoja.Padrao, Path.Combine(pasta, nome + ".pdf"));
             }
+
+            // Lado a lado: primeira via da folha em papel (ampliada para A4) | orçamento novo em PNG
+            var pastaLadoALado = Path.Combine(pasta, "lado-a-lado");
+            Directory.CreateDirectory(pastaLadoALado);
+            var ladoALado = new[]
+            {
+                ("03-itens", Exemplo(3)),
+                ("15-itens", Exemplo(15)),
+                ("35-itens", Exemplo(35)),
+                ("com-desconto-e-validade", Exemplo(8, desconto: true, validade: true, observacoes: "Entregar pela manhã. Cliente vai conferir as medidas antes de confirmar o pedido."))
+            };
+
+            using (var folha = new Bitmap(Path.Combine(Path.GetDirectoryName(pasta), "folha-orcamento-atual-via1.png")))
+                foreach (var (nome, orcamento) in ladoALado)
+                    using (var novo = ExportadorPng.CriarImagem(orcamento, DadosLoja.Padrao))
+                    using (var imagem = LadoALado(folha, novo))
+                        imagem.Save(Path.Combine(pastaLadoALado, nome + ".png"), System.Drawing.Imaging.ImageFormat.Png);
+        }
+
+        private static Bitmap LadoALado(Image folha, Image novo)
+        {
+            const int topo = 60, espaco = 40;
+            var largura = folha.Width + espaco + novo.Width;
+            var imagem = new Bitmap(largura, topo + Math.Max(folha.Height, novo.Height));
+
+            using (var g = Graphics.FromImage(imagem))
+            using (var fonte = new Font("Arial", 22, FontStyle.Bold, GraphicsUnit.Pixel))
+            using (var borda = new Pen(Color.FromArgb(0xBF, 0xBF, 0xBF)))
+            {
+                g.Clear(Color.White);
+                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
+                g.DrawString("Folha em papel (1ª via, ampliada para A4)", fonte, Brushes.DimGray, 10, 18);
+                g.DrawString("Orçamento novo (PNG)", fonte, Brushes.DimGray, folha.Width + espaco + 10, 18);
+                g.DrawImage(folha, 0, topo, folha.Width, folha.Height);
+                g.DrawImage(novo, folha.Width + espaco, topo, novo.Width, novo.Height);
+                g.DrawRectangle(borda, 0, topo, folha.Width - 1, folha.Height - 1);
+                g.DrawRectangle(borda, folha.Width + espaco, topo, novo.Width - 1, novo.Height - 1);
+            }
+
+            return imagem;
         }
     }
 }
