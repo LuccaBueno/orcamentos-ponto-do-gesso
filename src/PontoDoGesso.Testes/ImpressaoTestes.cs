@@ -50,9 +50,10 @@ namespace PontoDoGesso.Testes
                         imagem.Save(Path.Combine(pasta, "impressao-previa.png"), ImageFormat.Png);
                     }
 
+                    // A moldura é laranja claro (#ED7D31): o vermelho fica perto do branco, o azul não
                     var primeiraColuna = -1;
                     for (var x = 0; x < 200 && primeiraColuna < 0; x++)
-                        if (imagem.GetPixel(x, 120).R < 240)
+                        if (imagem.GetPixel(x, 120).B < 220)
                             primeiraColuna = x;
 
                     Assert.InRange(primeiraColuna, 40, 54);
