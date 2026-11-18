@@ -10,19 +10,38 @@
 
 ## 2. Instalar o .NET Framework 4.8 (uma vez só)
 
-1. Num PC com internet, baixar o **instalador offline do .NET Framework 4.8** no site da Microsoft (procurar por "Download .NET Framework 4.8 offline installer"; arquivo `ndp48-x86-x64-allos-enu.exe`, serve para 32 e 64 bits).
-2. Levar num pendrive para o PC da loja e executar como administrador.
-3. Reiniciar o PC.
+No primeiro teste na loja (18/11/2026) esta foi a parte difícil: a mensagem do Windows aparece em inglês e o site da Microsoft oferece várias versões parecidas.
+
+> ⚠️ Tem que ser o **.NET Framework 4.8 Runtime**.
+> **Não** baixe o **4.8.1** (não existe para o Windows 7) nem o **Developer Pack** (é para programadores e não faz o app abrir).
+
+1. Baixar pelo **link direto** do instalador offline do 4.8 Runtime (arquivo `ndp48-x86-x64-allos-enu.exe`, serve para 32 e 64 bits):
+   **https://go.microsoft.com/fwlink/?linkid=2088631**
+   Se o PC da loja não tiver internet, baixar em outro PC e levar num pendrive.
+2. Executar o arquivo (botão direito → **Executar como administrador**). As telas são em inglês: aceitar a licença (*I have read and accept the license terms*) → **Install**.
+3. Reiniciar o PC quando ele pedir.
 4. Se o instalador reclamar de atualização faltando, rodar o Windows Update (ou instalar a atualização indicada na mensagem) e tentar de novo.
 
 Conferir se instalou: Painel de Controle → Programas e Recursos → deve aparecer "Microsoft .NET Framework 4.8".
 
+O instalador do Ponto do Gesso confere isso sozinho: sem o .NET 4.8 ele mostra a mensagem "Instale primeiro o .NET Framework 4.8 (versão Runtime, NÃO a 4.8.1 nem o Developer Pack)", com o link acima, e não instala.
+
 ## 3. Instalar o app
 
-1. Baixar `PontoDoGesso.zip` em https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/releases/latest/download/PontoDoGesso.zip (sempre a versão mais nova; é o mesmo arquivo que o `PontoDoGesso-vX.Y.Z.zip` da release).
+1. Baixar o instalador: https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/releases/latest/download/PontoDoGesso-Instalador.exe (sempre a versão mais nova).
+2. Abrir o `PontoDoGesso-Instalador.exe`. Se aparecer **"O Windows protegeu o computador"**, clicar em **Mais informações › Executar assim mesmo** (o app ainda não tem assinatura digital).
+3. Clicar em **Instalar**. Ele não pergunta pasta: instala sempre em `C:\PontoDoGesso\`, cria o atalho **Ponto do Gesso** na Área de Trabalho e no Menu Iniciar e no fim oferece **Abrir o Ponto do Gesso**.
+4. Na primeira vez o app cria `%APPDATA%\PontoDoGesso\dados.db`.
+
+Instalar por cima de uma versão antiga (inclusive a v0.9.2 que foi descompactada do zip) mantém os orçamentos, clientes e produtos: eles ficam em `%APPDATA%\PontoDoGesso\`, fora da pasta do app. O instalador não pede administrador, para o app conseguir se atualizar sozinho depois.
+
+A pasta `C:\PontoDoGesso\` fica com poucos arquivos: `PontoDoGesso.exe`, os `.config`, o `PontoDoGesso.Atualizador.exe`, o desinstalador (`unins000.exe`) e as subpastas `lib\` (as DLLs) e `assets\`.
+
+### Opção avançada: sem instalador (zip)
+
+1. Baixar `PontoDoGesso.zip` em https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/releases/latest/download/PontoDoGesso.zip (é o mesmo arquivo que o `PontoDoGesso-vX.Y.Z.zip` da release).
 2. Extrair em `C:\` (botão direito → Extrair tudo... → `C:\`): o zip já traz a pasta `PontoDoGesso`, e o resultado deve ser `C:\PontoDoGesso\PontoDoGesso.exe`.
 3. Criar atalho na Área de Trabalho: botão direito em `C:\PontoDoGesso\PontoDoGesso.exe` → Enviar para → Área de trabalho (criar atalho).
-4. Abrir. Na primeira vez o app cria `%APPDATA%\PontoDoGesso\dados.db`.
 
 Não instalar em `C:\Arquivos de Programas\`: lá o app não consegue se atualizar sozinho sem permissão de administrador.
 
@@ -41,11 +60,11 @@ Rodar no PC da loja e anotar o resultado em `C:\dev\orcamentos-ponto-do-gesso\do
 
 1. Rodar o Windows Update até não haver mais atualizações importantes.
 2. Testar de novo.
-3. Se ainda falhar, o app continua funcionando normalmente; só a atualização passa a ser manual (baixar o zip novo e extrair por cima de `C:\PontoDoGesso\`, os dados não são afetados).
+3. Se ainda falhar, o app continua funcionando normalmente; só a atualização passa a ser manual (baixar o instalador novo e instalar por cima; os dados não são afetados).
 
 ## 5. Antivírus
 
-O `PontoDoGesso.exe` não tem assinatura digital paga e se atualiza sozinho baixando arquivos da internet. Alguns antivírus desconfiam disso e podem bloquear o app, apagar o `PontoDoGesso.Atualizador.exe` ou impedir a atualização.
+O `PontoDoGesso.exe` não tem assinatura digital paga e se atualiza sozinho baixando arquivos da internet. Alguns antivírus desconfiam disso e podem bloquear o app ou o instalador, apagar o `PontoDoGesso.Atualizador.exe` ou impedir a atualização.
 
 Se acontecer:
 1. Abrir o antivírus instalado no PC da loja → Exceções / Exclusões / Itens permitidos.

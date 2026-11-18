@@ -5,21 +5,32 @@ App desktop que substituiu o talão de papel nos orçamentos da loja **Ponto do 
 <h2>⬇️ Baixar</h2>
 
 <p align="center">
-  <a href="https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/releases/latest/download/PontoDoGesso.zip">
-    <img alt="Baixar o Ponto do Gesso" src="https://img.shields.io/badge/Baixar_o_Ponto_do_Gesso-Windows_7%2C_10_e_11-2ea44f?style=for-the-badge">
+  <a href="https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/releases/latest/download/PontoDoGesso-Instalador.exe">
+    <img alt="Baixar o instalador do Ponto do Gesso" src="https://img.shields.io/badge/Baixar_o_instalador-Windows_7%2C_10_e_11-2ea44f?style=for-the-badge">
   </a>
 </p>
 
 <ol>
-  <li>Clique no botão acima para baixar o <code>PontoDoGesso.zip</code>.</li>
-  <li>Clique com o botão direito no arquivo baixado → <b>Extrair tudo...</b> → digite <code>C:\</code> e clique em <b>Extrair</b>.</li>
-  <li>Abra <code>C:\PontoDoGesso\PontoDoGesso.exe</code>. Se aparecer <b>"O Windows protegeu o computador"</b>, clique em <b>Mais informações › Executar assim mesmo</b> (o app ainda não tem assinatura digital).</li>
+  <li><b>Só no Windows 7, uma vez:</b> instale o <b>.NET Framework 4.8</b> pelo link direto <a href="https://go.microsoft.com/fwlink/?linkid=2088631">https://go.microsoft.com/fwlink/?linkid=2088631</a> e reinicie o computador se ele pedir. Tem que ser a versão <b>Runtime 4.8</b>: <b>não</b> baixe a 4.8.1 nem o <i>Developer Pack</i>, que não funcionam no Windows 7.</li>
+  <li>Clique no botão acima para baixar o <code>PontoDoGesso-Instalador.exe</code>.</li>
+  <li>Abra o arquivo baixado.</li>
+  <li>Clique em <b>Instalar</b>. O app vai para <code>C:\PontoDoGesso\</code>, com atalho na Área de Trabalho e no Menu Iniciar. Se o .NET 4.8 estiver faltando, o instalador avisa e não instala.</li>
+  <li>Se aparecer <b>"O Windows protegeu o computador"</b>, clique em <b>Mais informações › Executar assim mesmo</b> (o app ainda não tem assinatura digital).</li>
 </ol>
 
 <blockquote>
   ⚠️ Não baixe <b>"Source code (zip)"</b> nem <b>"Source code (tar.gz)"</b>: isso é o código-fonte para programadores, não o app.<br>
-  No Windows 7, instale antes o .NET Framework 4.8 — veja <a href="docs/INSTALACAO-WINDOWS7.md">docs/INSTALACAO-WINDOWS7.md</a>.
+  Instalar por cima de uma versão antiga mantém os orçamentos, clientes e produtos. Depois de instalado, o app se atualiza pelo botão <b>Verificar atualizações</b>.
 </blockquote>
+
+<details>
+  <summary>Opção avançada: instalar pelo zip, sem instalador</summary>
+  <ol>
+    <li>Baixe o <a href="https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/releases/latest/download/PontoDoGesso.zip"><code>PontoDoGesso.zip</code></a>.</li>
+    <li>Botão direito no arquivo → <b>Extrair tudo...</b> → digite <code>C:\</code> → <b>Extrair</b> (fica <code>C:\PontoDoGesso\PontoDoGesso.exe</code>).</li>
+    <li>Abra <code>C:\PontoDoGesso\PontoDoGesso.exe</code>; o atalho é por sua conta. Detalhes em <a href="docs/INSTALACAO-WINDOWS7.md">docs/INSTALACAO-WINDOWS7.md</a>.</li>
+  </ol>
+</details>
 
 [![build](https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/actions/workflows/build.yml/badge.svg)](https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/actions/workflows/build.yml)
 [![última versão](https://img.shields.io/github/v/release/LuccaBueno/orcamentos-ponto-do-gesso?label=%C3%BAltima%20vers%C3%A3o)](https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/releases/latest)
@@ -72,15 +83,17 @@ Sem instalador, sem serviço em segundo plano e sem telemetria: a única chamada
 
 ## Como instalar
 
-1. **Windows 7:** instalar uma vez o .NET Framework 4.8 ([passo a passo](docs/INSTALACAO-WINDOWS7.md)). No Windows 10 e 11 ele já vem instalado.
-2. Baixar o [`PontoDoGesso.zip`](https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/releases/latest/download/PontoDoGesso.zip), extrair em `C:\` e abrir `C:\PontoDoGesso\PontoDoGesso.exe`.
-3. Os dados ficam em `%APPDATA%\PontoDoGesso\`, fora da pasta do app: atualizar ou trocar a pasta não apaga nada.
+1. **Windows 7:** instalar uma vez o .NET Framework 4.8 **Runtime** pelo link direto https://go.microsoft.com/fwlink/?linkid=2088631 (não a 4.8.1 nem o Developer Pack; [passo a passo](docs/INSTALACAO-WINDOWS7.md)). No Windows 10 e 11 ele já vem instalado.
+2. Baixar o [`PontoDoGesso-Instalador.exe`](https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/releases/latest/download/PontoDoGesso-Instalador.exe), abrir e clicar em **Instalar**. Ele instala em `C:\PontoDoGesso\`, cria os atalhos e confere se o .NET 4.8 está instalado.
+3. Os dados ficam em `%APPDATA%\PontoDoGesso\`, fora da pasta do app: atualizar, reinstalar ou desinstalar não apaga nada.
+
+Opção avançada: o [`PontoDoGesso.zip`](https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/releases/latest/download/PontoDoGesso.zip) tem a mesma pasta do app, para extrair em `C:\` sem instalador.
 
 | Item | Requisito |
 |---|---|
 | Sistema | Windows 7 SP1, 8.1, 10 e 11 (32 ou 64 bits) |
 | Runtime | .NET Framework 4.8 |
-| Instalação | Portátil: descompactar a pasta e abrir `PontoDoGesso.exe` |
+| Instalação | Instalador (Inno Setup) em `C:\PontoDoGesso\`, sem pedir administrador; ou o zip, descompactado em `C:\` |
 
 ## Como rodar o código
 
