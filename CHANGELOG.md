@@ -4,6 +4,10 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/); 
 
 ## [Não lançado]
 
+## [0.9.3] - 2026-11-18
+
+Depois do primeiro teste no PC da loja: instalador, pasta do app organizada (DLLs em `lib\`), botão **Voltar ao menu** e o orçamento mais parecido com a folha em papel. Os dados não mudam de formato: quem está na v0.9.2 atualiza pelo botão **Verificar atualizações** e continua com os mesmos clientes, produtos e orçamentos.
+
 ### Adicionado
 - **Instalador** `PontoDoGesso-Instalador.exe` (Inno Setup): instala em `C:\PontoDoGesso\` sem perguntar pasta nem pedir administrador, cria atalhos na Área de Trabalho e no Menu Iniciar com o ícone do app e oferece **Abrir o Ponto do Gesso** no fim. Confere o .NET Framework 4.8: se faltar, avisa em português ("Instale primeiro o .NET Framework 4.8 (versão Runtime, NÃO a 4.8.1 nem o Developer Pack)") com o link direto https://go.microsoft.com/fwlink/?linkid=2088631 e não instala. Instalar por cima mantém os dados e apaga as DLLs antigas da raiz. A release passa a ter `PontoDoGesso-Instalador-vX.Y.Z.exe` e a cópia com nome fixo `PontoDoGesso-Instalador.exe`.
 - **← Voltar ao menu** (botão laranja no alto, ou `Esc`) no orçamento, histórico, clientes, produtos e configurações. Com alterações não salvas pergunta **Salvar / Não salvar / Cancelar**. Ao fechar qualquer janela, inclusive pelo X, o menu volta para a frente.
