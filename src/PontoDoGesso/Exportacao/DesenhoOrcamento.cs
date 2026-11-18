@@ -27,9 +27,12 @@ namespace PontoDoGesso.Exportacao
         private const double AlturaMoldura = 60;
         private const double RaioMoldura = 7;
         private const double TamanhoIcone = 6.8;
-        private const double TopoCampos = Margem + AlturaMoldura + 7;
-        private const double EspacoCampos = 7.5;
-        private const double TopoTabela = TopoCampos + 5 * EspacoCampos;
+        /// <summary>Linha de base da primeira linha de campos (Nome/Tel).</summary>
+        private const double BaseCampos = Margem + AlturaMoldura + 9.5;
+        private const double EspacoCampos = 8;
+        private const double TopoTabela = BaseCampos + 4 * EspacoCampos + 3.8;
+        /// <summary>Recuo dos campos em relação à tabela, como na folha.</summary>
+        private const double RecuoCampos = 3.5;
         private const double TopoTabelaContinuacao = Margem + 12;
 
         private const double AlturaCabecalhoTabela = 6.5;
@@ -67,8 +70,8 @@ namespace PontoDoGesso.Exportacao
         private static readonly XFont FonteDdd = new XFont(FonteTabela, 15.5);
         private static readonly XFont FonteTelefone = new XFont(FonteTabela, 25);
         private static readonly XFont FonteEndereco = new XFont(FonteTabela, 17);
-        private static readonly XFont FonteRotulo = new XFont(FonteTabela, 10);
-        private static readonly XFont FonteValor = new XFont(FonteTabela, 10.5);
+        private static readonly XFont FonteRotulo = new XFont(FonteTabela, 12);
+        private static readonly XFont FonteValor = new XFont(FonteTabela, 12);
         private static readonly XFont FonteCabecalhoTabela = new XFont(FonteTabela, 9.5, XFontStyleEx.Bold);
         private static readonly XFont FonteItem = new XFont(FonteTabela, 10);
         private static readonly XFont FonteTotalRotulo = new XFont(FonteTabela, 10, XFontStyleEx.Bold);
@@ -289,52 +292,57 @@ namespace PontoDoGesso.Exportacao
         {
             var o = _orcamento;
             var retirada = o.TipoEntrega == TipoEntrega.Retirada;
-            var y = TopoCampos;
+            var inicio = Esquerda + RecuoCampos;
+            var fim = Direita - RecuoCampos;
+            var y = BaseCampos;
 
-            Campo(grafico, "Nome:", o.CliNome, Esquerda, y, Esquerda + Largura * 0.72);
-            Campo(grafico, "Data:", o.Data.ToString("dd/MM/yyyy"), Esquerda + Largura * 0.75, y, Direita);
+            // Mesma ordem da folha (Nome/Tel, End/Nº, P.Ref/Data); Bairro/Cidade e Entrega/Retirada são campos novos.
+            // A linha de cada campo vai até o rótulo seguinte, como na folha.
+            var xTel = Esquerda + Largura * 0.646;
+            Campo(grafico, "Nome:", o.CliNome, inicio, y, xTel);
+            Campo(grafico, "Tel:", string.IsNullOrEmpty(o.CliTelefone) ? "" : Formatacao.Telefone(o.CliTelefone), xTel, y, fim);
 
             y += EspacoCampos;
-            Campo(grafico, "Tel:", string.IsNullOrEmpty(o.CliTelefone) ? "" : Formatacao.Telefone(o.CliTelefone), Esquerda, y, Esquerda + Largura * 0.45);
-            var xOpcao = Esquerda + Largura * 0.52;
-            xOpcao = Opcao(grafico, "Entrega", !retirada, xOpcao, y);
+            var xNumero = Esquerda + Largura * 0.82;
+            Campo(grafico, "End:", retirada ? "Retirada na loja" : o.EntEndereco, inicio, y, xNumero);
+            Campo(grafico, "Nº", retirada ? "" : o.EntNumero, xNumero, y, fim);
+
+            y += EspacoCampos;
+            var xCidade = Esquerda + Largura * 0.5;
+            Campo(grafico, "Bairro:", retirada ? "" : o.EntBairro, inicio, y, xCidade);
+            Campo(grafico, "Cidade:", retirada ? "" : o.EntCidade, xCidade, y, fim);
+
+            y += EspacoCampos;
+            var xData = Esquerda + Largura * 0.739;
+            Campo(grafico, "P.Ref:", retirada ? "" : o.EntReferencia, inicio, y, xData);
+            Campo(grafico, "Data:", o.Data.ToString("dd/MM/yyyy"), xData, y, fim);
+
+            y += EspacoCampos;
+            var xOpcao = Opcao(grafico, "Entrega", !retirada, inicio, y);
             Opcao(grafico, "Retirada na loja", retirada, xOpcao + 6, y);
-
-            y += EspacoCampos;
-            Campo(grafico, "End:", retirada ? "Retirada na loja" : o.EntEndereco, Esquerda, y, Esquerda + Largura * 0.78);
-            Campo(grafico, "Nº", retirada ? "" : o.EntNumero, Esquerda + Largura * 0.80, y, Direita);
-
-            y += EspacoCampos;
-            Campo(grafico, "Bairro:", retirada ? "" : o.EntBairro, Esquerda, y, Esquerda + Largura * 0.50);
-            Campo(grafico, "Cidade:", retirada ? "" : o.EntCidade, Esquerda + Largura * 0.53, y, Direita);
-
-            y += EspacoCampos;
-            Campo(grafico, "P.Ref:", retirada ? "" : o.EntReferencia, Esquerda, y, Direita);
         }
 
-        /// <summary>Rótulo laranja, valor em preto sobre a linha (como na folha preenchida à mão).</summary>
-        private static void Campo(XGraphics grafico, string rotulo, string valor, double x, double y, double fim)
+        /// <summary>Rótulo laranja, valor em preto sobre a linha (como na folha preenchida à mão); a linha vai até <paramref name="fim"/>.</summary>
+        private static void Campo(XGraphics grafico, string rotulo, string valor, double x, double linhaBase, double fim)
         {
-            var linhaBase = y + 5;
-            grafico.DrawString(rotulo, FonteRotulo, PincelLaranja, Pt(x), Pt(linhaBase - 0.6));
-            var inicioLinha = Pt(x) + grafico.MeasureString(rotulo, FonteRotulo).Width + Pt(0.6);
-            grafico.DrawLine(Linha, inicioLinha, Pt(linhaBase), Pt(fim), Pt(linhaBase));
+            grafico.DrawString(rotulo, FonteRotulo, PincelLaranja, Pt(x), Pt(linhaBase));
+            var inicioLinha = Pt(x) + grafico.MeasureString(rotulo, FonteRotulo).Width;
+            grafico.DrawLine(Linha, inicioLinha, Pt(linhaBase + 0.4), Pt(fim), Pt(linhaBase + 0.4));
 
             if (!string.IsNullOrEmpty(valor))
             {
-                var largura = Pt(fim) - inicioLinha - Pt(2);
-                grafico.DrawString(Cortar(grafico, valor.Replace("\r", " ").Replace("\n", " "), FonteValor, largura), FonteValor, XBrushes.Black, inicioLinha + Pt(1.5), Pt(linhaBase - 0.9));
+                var largura = Pt(fim) - inicioLinha - Pt(3);
+                grafico.DrawString(Cortar(grafico, valor.Replace("\r", " ").Replace("\n", " "), FonteValor, largura), FonteValor, XBrushes.Black, inicioLinha + Pt(1.5), Pt(linhaBase - 0.3));
             }
         }
 
         /// <summary>Quadradinho marcado com X; devolve onde termina.</summary>
-        private static double Opcao(XGraphics grafico, string texto, bool marcado, double x, double y)
+        private static double Opcao(XGraphics grafico, string texto, bool marcado, double x, double linhaBase)
         {
-            var linhaBase = y + 5;
-            grafico.DrawString(texto, FonteRotulo, PincelLaranja, Pt(x), Pt(linhaBase - 0.6));
+            grafico.DrawString(texto, FonteRotulo, PincelLaranja, Pt(x), Pt(linhaBase));
             var caixaX = Pt(x) + grafico.MeasureString(texto, FonteRotulo).Width + Pt(1.5);
-            var lado = Pt(3.4);
-            var caixa = new XRect(caixaX, Pt(linhaBase - 0.6) - lado + Pt(0.4), lado, lado);
+            var lado = Pt(3.6);
+            var caixa = new XRect(caixaX, Pt(linhaBase) - lado + Pt(0.3), lado, lado);
             grafico.DrawRectangle(Linha, caixa);
 
             if (marcado)
