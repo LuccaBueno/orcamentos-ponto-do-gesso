@@ -24,10 +24,11 @@ Legenda: ⬜ Pendente · 🟨 Em andamento · ✅ Concluída
 
 | Item | Valor |
 |---|---|
-| Windows | 7 — *a conferir* |
-| Service Pack 1 | *a conferir* |
+| Windows | 7 (conferido no primeiro teste real, 18/11/2026) |
+| Service Pack 1 | Sim (18/11/2026) |
 | 32/64 bits | 64 bits (conferido pelo Lucca em 14/11/2026) |
-| .NET Framework 4.8 instalado | *a conferir* |
+| .NET Framework 4.8 instalado | Não vinha instalado: o app só abriu depois de instalar o 4.8 (18/11/2026). A instalação foi difícil: a mensagem do Windows aparece em inglês e é fácil baixar o 4.8.1 ou o Developer Pack, que não funcionam no Windows 7. Link direto do Runtime 4.8: https://go.microsoft.com/fwlink/?linkid=2088631 |
+| Primeiro teste real (18/11/2026) | O app abriu e funcionou depois do .NET 4.8. Problemas: a pasta do app tem dezenas de DLLs que confundem; na tela de orçamento não ficou óbvio como voltar ao menu. Resposta: instalador (Inno Setup) que confere o .NET 4.8, DLLs na subpasta `lib\` e botão **Voltar ao menu** em todas as janelas (ainda não publicado) |
 | Conexão HTTPS com GitHub funciona | *a testar na Fase 1* |
 | WhatsApp Web funciona no navegador | *a testar na Fase 1* |
 | Antivírus instalado | *a conferir* |
