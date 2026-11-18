@@ -38,7 +38,9 @@ namespace PontoDoGesso.Exportacao
         private const double AlturaCabecalhoTabela = 7.5;
         private const double AlturaLinha = 6.5;
         private const double AlturaLinhaDupla = 10;
-        private const double AlturaTotal = 6.5;
+        /// <summary>Altura mínima da última linha (TOTAL); o rótulo e o valor ficam no alto dela, como na folha.</summary>
+        private const double AlturaTotal = 9.5;
+        private const double AlturaRotuloTotal = 7;
         /// <summary>Altura de uma linha de texto em 11 pt (a caixa menor que a linha faz o GDI+ não desenhar o texto).</summary>
         private const double AlturaLinhaTexto = 4.8;
         private const double Folga = 1.5;
@@ -76,10 +78,10 @@ namespace PontoDoGesso.Exportacao
         private static readonly XFont FonteValor = new XFont(FonteTabela, 12);
         private static readonly XFont FonteCabecalhoTabela = new XFont(FonteTabela, 13, XFontStyleEx.Bold);
         private static readonly XFont FonteItem = new XFont(FonteTabela, 11);
-        private static readonly XFont FonteTotalRotulo = new XFont(FonteTabela, 10, XFontStyleEx.Bold);
-        private static readonly XFont FonteTotalValor = new XFont(FonteTabela, 11, XFontStyleEx.Bold);
-        private static readonly XFont FonteRodape = new XFont(FonteTabela, 9.5, XFontStyleEx.Bold);
-        private static readonly XFont FonteValidade = new XFont(FonteTabela, 9.5);
+        private static readonly XFont FonteTotalRotulo = new XFont(FonteTabela, 13, XFontStyleEx.Bold);
+        private static readonly XFont FonteTotalValor = new XFont(FonteTabela, 14, XFontStyleEx.Bold);
+        private static readonly XFont FonteRodape = new XFont(FonteTabela, 12.5, XFontStyleEx.Bold);
+        private static readonly XFont FonteValidade = new XFont(FonteTabela, 11);
         private static readonly XFont FonteContinuacaoTitulo = new XFont("Times New Roman", 15);
         private static readonly XFont FonteNumero = new XFont("Arial", 7);
 
@@ -88,8 +90,7 @@ namespace PontoDoGesso.Exportacao
         private readonly string _arquivoIcone;
         private readonly List<string[]> _descricoes = new List<string[]>();
         private readonly List<double> _alturas = new List<double>();
-        private readonly List<string> _observacoes;
-        private readonly List<string> _linhasRodape = new List<string>();
+        private readonly List<Tuple<string, XFont, XBrush>> _linhasFecho = new List<Tuple<string, XFont, XBrush>>();
         private readonly List<Tuple<string, string>> _totais = new List<Tuple<string, string>>();
 
         /// <summary>
@@ -119,18 +120,26 @@ namespace PontoDoGesso.Exportacao
             }
             _totais.Add(Tuple.Create("FRETE:", orcamento.FreteCentavos > 0 ? Formatacao.Valor(orcamento.FreteCentavos) : "—"));
 
+            // Última linha da tabela, à esquerda do TOTAL (como "As entregas..." na folha): observações, rodapé da loja e validade
+            var larguraFecho = Largura * (Colunas[0] + Colunas[1]) - 2 * Folga;
+            void AdicionarFecho(IEnumerable<string> linhas, XFont fonte, XBrush pincel)
+            {
+                foreach (var linha in linhas)
+                    _linhasFecho.Add(Tuple.Create(linha, fonte, pincel));
+            }
+
             var observacoes = (orcamento.Observacoes ?? "").Trim();
-            _observacoes = observacoes.Length == 0 ? new List<string>()
-                : Quebrar(medida, "OBS: " + observacoes, FonteValidade, Largura * (Colunas[0] + Colunas[1]) - 2 * Folga, 12).ToList();
+            if (observacoes.Length > 0)
+                AdicionarFecho(Quebrar(medida, "OBS: " + observacoes, FonteValidade, larguraFecho, 12), FonteValidade, XBrushes.Black);
 
             if (!string.IsNullOrWhiteSpace(loja.Rodape))
-                _linhasRodape.AddRange(Quebrar(medida, loja.Rodape.Trim(), FonteRodape, Largura - 2 * Folga, 3));
+                AdicionarFecho(Quebrar(medida, loja.Rodape.Trim(), FonteRodape, larguraFecho, 3), FonteRodape, PincelLaranja);
 
             var validade = CalculoOrcamento.DataValidade(orcamento.Data, orcamento.ValidadeDias);
             if (validade != null)
             {
                 var dias = orcamento.ValidadeDias.Value;
-                _linhasRodape.Add("Orçamento válido por " + dias + (dias == 1 ? " dia" : " dias") + " (até " + validade.Value.ToString("dd/MM/yyyy") + ").");
+                AdicionarFecho(new[] { "Orçamento válido por " + dias + (dias == 1 ? " dia" : " dias") + " (até " + validade.Value.ToString("dd/MM/yyyy") + ")." }, FonteValidade, XBrushes.Black);
             }
 
             medida.Dispose();
@@ -150,11 +159,15 @@ namespace PontoDoGesso.Exportacao
 
         // ---------- paginação ----------
 
-        private double AlturaTotais => Math.Max(_totais.Count * AlturaLinha + AlturaTotal, _observacoes.Count * AlturaLinhaTexto + 2 * Folga);
+        private double AlturaTotais => _totais.Count * AlturaLinha;
 
-        private double AlturaRodape => _linhasRodape.Count == 0 ? 0 : _linhasRodape.Count * AlturaLinhaTexto + 2.5;
+        /// <summary>Linha do TOTAL: cresce se as observações e o rodapé precisarem.</summary>
+        private double AlturaLinhaTotal => Math.Max(AlturaTotal, _linhasFecho.Sum(l => AlturaTexto(l.Item2)) + 2 * Folga);
 
-        private double AlturaFinal => AlturaTotais + AlturaRodape;
+        private double AlturaFinal => AlturaTotais + AlturaLinhaTotal;
+
+        /// <summary>Altura de uma linha de texto na fonte (a caixa menor que isso faz o GDI+ não desenhar o texto).</summary>
+        private static double AlturaTexto(XFont fonte) => fonte.Size * 1.25 * 25.4 / 72;
 
         private void Paginar(bool paginado)
         {
@@ -409,22 +422,16 @@ namespace PontoDoGesso.Exportacao
             return y;
         }
 
-        /// <summary>Totais com as observações à esquerda, e o rodapé da loja com a validade.</summary>
+        /// <summary>
+        /// Fecho da tabela como na folha: linhas de SUBTOTAL/DESC./FRETE nas duas últimas colunas e, na última linha,
+        /// observações, rodapé da loja e validade à esquerda da célula TOTAL (de fundo claro).
+        /// </summary>
         private void DesenharFecho(XGraphics grafico, double y)
         {
             var x = PosicoesColunas();
-            var alturaTotais = AlturaTotais;
             var topo = y;
 
-            // Observações à esquerda
-            var yTexto = topo + Folga;
-            foreach (var linha in _observacoes)
-            {
-                Texto(grafico, linha, FonteValidade, XBrushes.Black, Esquerda + Folga, yTexto, x[2] - Esquerda - 2 * Folga, AlturaLinhaTexto, XStringFormats.CenterLeft);
-                yTexto += AlturaLinhaTexto;
-            }
-
-            // Linhas de SUBTOTAL, DESC. e FRETE
+            // Linhas de SUBTOTAL, DESC. e FRETE; à esquerda, só a divisória entre QUANT e DISCRIMINAÇÃO, como na linha do FRETE da folha
             foreach (var (rotulo, valor) in _totais)
             {
                 Texto(grafico, rotulo, FonteTotalRotulo, PincelLaranja, x[2] + Folga, y, x[3] - x[2] - Folga, AlturaLinha, XStringFormats.CenterLeft);
@@ -432,38 +439,31 @@ namespace PontoDoGesso.Exportacao
                 y += AlturaLinha;
                 grafico.DrawLine(Linha, Pt(x[2]), Pt(y), Pt(Direita), Pt(y));
             }
-            grafico.DrawLine(Linha, Pt(x[3]), Pt(topo), Pt(x[3]), Pt(y));
+            for (var c = 1; c <= 3; c++)
+                grafico.DrawLine(Linha, Pt(x[c]), Pt(topo), Pt(x[c]), Pt(y));
 
-            // TOTAL ocupa o resto da altura, com fundo claro
-            var alturaTotal = topo + alturaTotais - y;
+            // Última linha na largura toda
+            var alturaTotal = AlturaLinhaTotal;
+            grafico.DrawLine(Linha, Pt(Esquerda), Pt(y), Pt(Direita), Pt(y));
+
             var celulaTotal = Retangulo(x[2], y, Direita - x[2], alturaTotal);
             grafico.DrawRectangle(PincelFundo, celulaTotal);
             grafico.DrawRectangle(Linha, celulaTotal);
-            Texto(grafico, "TOTAL:", FonteTotalRotulo, PincelLaranja, x[2] + Folga, y, x[3] - x[2], AlturaTotal, XStringFormats.CenterLeft);
-            Texto(grafico, Formatacao.Moeda(_orcamento.TotalCentavos), FonteTotalValor, XBrushes.Black, x[2] + Folga, y, Direita - x[2] - 2 * Folga, AlturaTotal, XStringFormats.CenterRight);
+            Texto(grafico, "TOTAL:", FonteTotalRotulo, PincelLaranja, x[2] + Folga, y, x[3] - x[2], AlturaRotuloTotal, XStringFormats.CenterLeft);
+            Texto(grafico, Formatacao.Moeda(_orcamento.TotalCentavos), FonteTotalValor, XBrushes.Black, x[2] + Folga, y, Direita - x[2] - 2 * Folga, AlturaRotuloTotal, XStringFormats.CenterRight);
 
-            var fimTotais = topo + alturaTotais;
-            grafico.DrawLine(Linha, Pt(x[2]), Pt(topo), Pt(x[2]), Pt(fimTotais));
-
-            // Rodapé: "As entregas..." e a validade, numa faixa na largura toda
-            var fim = fimTotais;
-            if (_linhasRodape.Count > 0)
+            // Textos à esquerda do TOTAL, centralizados na altura da linha
+            var alturaTextos = _linhasFecho.Sum(l => AlturaTexto(l.Item2));
+            var yTexto = y + (alturaTotal - alturaTextos) / 2;
+            foreach (var (texto, fonte, pincel) in _linhasFecho)
             {
-                var yRodape = fimTotais + 1.2;
-                var temRodapeLoja = !string.IsNullOrWhiteSpace(_loja.Rodape);
-                for (var l = 0; l < _linhasRodape.Count; l++)
-                {
-                    var daLoja = temRodapeLoja && l < _linhasRodape.Count - (_orcamento.ValidadeDias != null ? 1 : 0);
-                    Texto(grafico, _linhasRodape[l], daLoja ? FonteRodape : FonteValidade, daLoja ? PincelLaranja : XBrushes.Black,
-                        Esquerda + Folga, yRodape, Largura - 2 * Folga, AlturaLinhaTexto, XStringFormats.CenterLeft);
-                    yRodape += AlturaLinhaTexto;
-                }
-                fim += AlturaRodape;
+                var altura = AlturaTexto(fonte);
+                Texto(grafico, texto, fonte, pincel, Esquerda + Folga, yTexto, x[2] - Esquerda - 2 * Folga, altura, XStringFormats.CenterLeft);
+                yTexto += altura;
             }
 
+            var fim = y + alturaTotal;
             grafico.DrawRectangle(Linha, Retangulo(Esquerda, TopoDaTabelaNaPagina(), Largura, fim - TopoDaTabelaNaPagina()));
-            if (_linhasRodape.Count > 0)
-                grafico.DrawLine(Linha, Pt(Esquerda), Pt(fimTotais), Pt(Direita), Pt(fimTotais));
         }
 
         private double TopoDaTabelaNaPagina() => Paginas.Count == 1 ? TopoTabela : TopoTabelaContinuacao;
