@@ -103,7 +103,7 @@ namespace PontoDoGesso.Testes
         [Theory]
         [InlineData(3, 1)]
         [InlineData(15, 1)]
-        [InlineData(20, 1)]
+        [InlineData(20, 2)]
         [InlineData(35, 2)]
         [InlineData(80, 3)]
         public void PaginasDoPdf(int itens, int paginas)

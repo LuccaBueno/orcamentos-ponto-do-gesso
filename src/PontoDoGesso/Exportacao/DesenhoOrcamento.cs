@@ -24,7 +24,9 @@ namespace PontoDoGesso.Exportacao
         private const double Largura = Direita - Esquerda;
 
         // Topo da moldura do cabeçalho, linhas de campos e tabela
-        private const double AlturaMoldura = 40;
+        private const double AlturaMoldura = 60;
+        private const double RaioMoldura = 7;
+        private const double TamanhoIcone = 6.8;
         private const double TopoCampos = Margem + AlturaMoldura + 7;
         private const double EspacoCampos = 7.5;
         private const double TopoTabela = TopoCampos + 5 * EspacoCampos;
@@ -60,11 +62,11 @@ namespace PontoDoGesso.Exportacao
         /// <summary>Calibri não vem no Windows 7 sem o Office: nesse caso usa Arial.</summary>
         public static readonly string FonteTabela = FonteInstalada("Calibri") ? "Calibri" : "Arial";
 
-        private static readonly XFont FonteTitulo = new XFont("Times New Roman", 30);
-        private static readonly XFont FonteSubtitulo = new XFont("Arial", 14);
-        private static readonly XFont FonteDdd = new XFont("Arial", 11);
-        private static readonly XFont FonteTelefone = new XFont("Arial", 15);
-        private static readonly XFont FonteEndereco = new XFont("Arial", 11);
+        private static readonly XFont FonteTitulo = new XFont("Times New Roman", 43);
+        private static readonly XFont FonteSubtitulo = new XFont("Arial", 23);
+        private static readonly XFont FonteDdd = new XFont(FonteTabela, 15.5);
+        private static readonly XFont FonteTelefone = new XFont(FonteTabela, 25);
+        private static readonly XFont FonteEndereco = new XFont(FonteTabela, 17);
         private static readonly XFont FonteRotulo = new XFont(FonteTabela, 10);
         private static readonly XFont FonteValor = new XFont(FonteTabela, 10.5);
         private static readonly XFont FonteCabecalhoTabela = new XFont(FonteTabela, 9.5, XFontStyleEx.Bold);
@@ -223,31 +225,47 @@ namespace PontoDoGesso.Exportacao
             DesenharNumero(grafico, pagina);
         }
 
+        /// <summary>
+        /// Cabeçalho medido na folha em papel: as fontes ficam 1,2× maiores que na folha (a via de papel tem 141 mm de largura,
+        /// aqui são 186 mm) e as distâncias verticais 1,12×, para sobrar espaço para os itens.
+        /// </summary>
         private void DesenharCabecalho(XGraphics grafico)
         {
             var moldura = Retangulo(Esquerda, Margem, Largura, AlturaMoldura);
-            grafico.DrawRoundedRectangle(Moldura, moldura, new XSize(Pt(9), Pt(9)));
+            grafico.DrawRoundedRectangle(Moldura, moldura, new XSize(Pt(2 * RaioMoldura), Pt(2 * RaioMoldura)));
 
-            Texto(grafico, _loja.Nome, FonteTitulo, PincelLaranja, Esquerda, Margem + 2, Largura, 14, XStringFormats.Center);
-            Texto(grafico, _loja.Subtitulo, FonteSubtitulo, PincelLaranja, Esquerda, Margem + 15, Largura, 8, XStringFormats.Center);
+            // A caixa do texto precisa ter a altura da linha inteira, senão o GDI+ não desenha
+            Texto(grafico, _loja.Nome, FonteTitulo, PincelLaranja, Esquerda, Margem + 5.5, Largura, 20, XStringFormats.Center);
+            Texto(grafico, _loja.Subtitulo, FonteSubtitulo, PincelLaranja, Esquerda, Margem + 23.6, Largura, 10, XStringFormats.Center);
 
-            // Telefone como na folha: DDD pequeno e número grande, com o ícone do WhatsApp ao lado
-            var linhaTelefone = Margem + 26.5;
-            var x = Pt(Esquerda + 7);
+            // Telefone como na folha: DDD pequeno e número grande na mesma linha de base, com o ícone do WhatsApp ao lado
+            var linhaBase = Pt(Margem + 43.7);
+            var x = Pt(Esquerda + 8);
             var (ddd, numero) = SepararDdd(_loja.Telefone ?? "");
             if (ddd.Length > 0)
             {
-                grafico.DrawString(ddd + " ", FonteDdd, PincelLaranja, new XRect(x, Pt(linhaTelefone), 400, Pt(8)), XStringFormats.CenterLeft);
-                x += grafico.MeasureString(ddd + " ", FonteDdd).Width;
+                grafico.DrawString(ddd, FonteDdd, PincelLaranja, x, linhaBase);
+                x += grafico.MeasureString(ddd, FonteDdd).Width + Pt(2);
             }
-            grafico.DrawString(numero, FonteTelefone, PincelLaranja, new XRect(x, Pt(linhaTelefone), 400, Pt(8)), XStringFormats.CenterLeft);
-            x += grafico.MeasureString(numero, FonteTelefone).Width + Pt(1.2);
-            DesenharIcone(grafico, x, Pt(linhaTelefone + 4 - 2.6), Pt(5.2));
+            grafico.DrawString(numero, FonteTelefone, PincelLaranja, x, linhaBase);
+            x += grafico.MeasureString(numero, FonteTelefone).Width + Pt(0.8);
+            DesenharIcone(grafico, x, linhaBase - Pt(TamanhoIcone), Pt(TamanhoIcone));
 
-            var xEndereco = Esquerda + Largura * 0.51;
-            var larguraEndereco = Direita - 6 - xEndereco;
-            Texto(grafico, _loja.EnderecoLinha1, FonteEndereco, PincelLaranja, xEndereco, Margem + 24.5, larguraEndereco, 7, XStringFormats.CenterLeft);
-            Texto(grafico, _loja.EnderecoLinha2, FonteEndereco, PincelLaranja, xEndereco, Margem + 31, larguraEndereco, 7, XStringFormats.CenterLeft);
+            // Endereço em duas linhas, começando no meio da moldura; diminui a fonte se não couber (Arial no lugar da Calibri é mais largo)
+            var xEndereco = Pt(Esquerda + Largura * 0.514);
+            var larguraEndereco = Pt(Direita - 4) - xEndereco;
+            var fonteEndereco = FonteQueCabe(grafico, FonteEndereco, larguraEndereco, _loja.EnderecoLinha1, _loja.EnderecoLinha2);
+            if (!string.IsNullOrEmpty(_loja.EnderecoLinha1))
+                grafico.DrawString(_loja.EnderecoLinha1, fonteEndereco, PincelLaranja, xEndereco, linhaBase);
+            if (!string.IsNullOrEmpty(_loja.EnderecoLinha2))
+                grafico.DrawString(_loja.EnderecoLinha2, fonteEndereco, PincelLaranja, xEndereco, Pt(Margem + 54.4));
+        }
+
+        /// <summary>A própria fonte, ou uma menor da mesma família em que todos os textos caibam na largura (em pontos).</summary>
+        private static XFont FonteQueCabe(XGraphics grafico, XFont fonte, double largura, params string[] textos)
+        {
+            var maior = textos.Where(t => !string.IsNullOrEmpty(t)).Select(t => grafico.MeasureString(t, fonte).Width).DefaultIfEmpty(0).Max();
+            return maior <= largura ? fonte : new XFont(fonte.FontFamily.Name, Math.Max(6, fonte.Size * largura / maior), fonte.Style);
         }
 
         private void DesenharIcone(XGraphics grafico, double x, double y, double tamanho)
