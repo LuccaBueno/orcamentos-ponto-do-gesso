@@ -95,6 +95,7 @@ namespace PontoDoGesso.Forms
             Controls.Add(filtros);
             Controls.Add(rodape);
             Controls.Add(botoes);
+            Controls.Add(Estilo.CriarVoltarAoMenu(this));
 
             // Tab na ordem da tela (filtros, lista, botões), mas a janela abre com o cursor na lista: setas e Enter abrem o orçamento
             Estilo.OrdemTab(filtros, _lista, rodape, botoes);
@@ -206,6 +207,9 @@ namespace PontoDoGesso.Forms
         }
 
         /// <summary>Enter na lista abre o orçamento (a grade usaria o Enter para descer de linha).</summary>
+        protected override bool ProcessDialogKey(Keys keyData) =>
+            Estilo.EscVoltaAoMenu(this, keyData) || base.ProcessDialogKey(keyData);
+
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
             if (keyData == Keys.Enter && _lista.Focused && Selecionado != null)
@@ -237,10 +241,6 @@ namespace PontoDoGesso.Forms
             Adicionar("imprimir", "Imprimir", () => Exportar(o => _acoes.Imprimir(o)));
             Adicionar("excluir", "Excluir", Excluir);
 
-            var fechar = Estilo.CriarBotao("Fechar", (s, e) => Close());
-            fechar.Name = "fechar";
-            botoes.Controls.Add(fechar);
-            CancelButton = fechar;
             return botoes;
         }
 

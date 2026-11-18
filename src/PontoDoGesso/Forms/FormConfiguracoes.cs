@@ -55,20 +55,16 @@ namespace PontoDoGesso.Forms
 
             var salvar = Estilo.CriarBotao("Salvar", (s, e) => SalvarEFechar());
             salvar.Name = "salvar";
-            var cancelar = Estilo.CriarBotao("Cancelar", (s, e) => Close());
-            cancelar.Name = "cancelar";
-            cancelar.DialogResult = DialogResult.Cancel;
 
             var botoes = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(6) };
-            botoes.Controls.Add(cancelar);
             botoes.Controls.Add(salvar);
-            Estilo.OrdemTab(salvar, cancelar);
 
             Controls.Add(abas);
             Controls.Add(botoes);
-            CancelButton = cancelar;
+            Controls.Add(Estilo.CriarVoltarAoMenu(this));
 
             Exibir(ConfiguracoesApp.Ler(_configuracoes));
+            _salvas = Chave(Lidas());
 
             _atrasoPrevia.Tick += (s, e) =>
             {
@@ -291,6 +287,7 @@ namespace PontoDoGesso.Forms
             }
 
             configuracoes.Gravar(_configuracoes);
+            _salvas = Chave(configuracoes);
             return true;
         }
 
@@ -299,6 +296,32 @@ namespace PontoDoGesso.Forms
             if (Salvar())
                 DialogResult = DialogResult.OK;
         }
+
+        /// <summary>Configurações como estavam ao abrir a janela (ou no último Salvar), para saber se há alterações.</summary>
+        private string _salvas;
+
+        public bool Alterado => Chave(Lidas()) != _salvas;
+
+        private static string Chave(ConfiguracoesApp c) => string.Join("\u001f",
+            c.Loja.Nome, c.Loja.Subtitulo, c.Loja.Telefone, c.Loja.EnderecoLinha1, c.Loja.EnderecoLinha2, c.Loja.Rodape,
+            c.ValidadeSugeridaDias, c.CidadePadrao, c.DddPadrao, c.PerguntarCadastroAvulso, c.PastaExportacao, c.Impressora);
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            if (DialogResult != DialogResult.OK && e.CloseReason == CloseReason.UserClosing && Alterado)
+            {
+                var resposta = PerguntarSalvar("As configurações têm alterações não salvas. Salvar antes de voltar ao menu?");
+                if (resposta == DialogResult.Cancel || (resposta == DialogResult.Yes && !Salvar()))
+                    e.Cancel = true;
+            }
+
+            base.OnFormClosing(e);
+        }
+
+        protected virtual DialogResult PerguntarSalvar(string pergunta) => PerguntaSalvar.Perguntar(this, pergunta, Text);
+
+        protected override bool ProcessDialogKey(Keys keyData) =>
+            Estilo.EscVoltaAoMenu(this, keyData) || base.ProcessDialogKey(keyData);
 
         /// <summary>Topo de um orçamento de exemplo com os dados digitados (ainda não salvos).</summary>
         public void AtualizarPrevia()

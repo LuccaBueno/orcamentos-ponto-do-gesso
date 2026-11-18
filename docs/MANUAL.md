@@ -42,7 +42,7 @@ Guia curto para quem usa o app no balcão. Os prints são do **modo de demonstra
 4. **Observações** (saem impressas, até 300 letras), **Validade** (opcional, em dias), **Desconto** (opcional, em R$ ou %, só sobre os produtos) e **Frete**.
 5. **Salvar** (`Ctrl+S`). O número do orçamento (`Nº 0001`, `0002`…) sai no primeiro salvamento.
 
-Outros botões: **Duplicar** (mesmo orçamento com a data de hoje, para outro cliente ou outra obra) e **Fechar** (pergunta se quer salvar o que mudou). `Ctrl+N` começa outro orçamento na mesma janela.
+Outros botões: **Duplicar** (mesmo orçamento com a data de hoje, para outro cliente ou outra obra) e, no alto da janela, **← Voltar ao menu** (ou `Esc`): se houver alterações, pergunta **Salvar**, **Não salvar** ou **Cancelar**. Todas as janelas abertas pelo menu têm esse botão. `Ctrl+N` começa outro orçamento na mesma janela.
 
 > Mudar o cadastro do cliente ou o preço de um produto **não** muda orçamentos que já foram feitos: cada orçamento guarda uma cópia dos dados.
 
@@ -124,6 +124,7 @@ Detalhes em [ATUALIZACAO.md](ATUALIZACAO.md).
 | `F1` | Qualquer janela | Abrir este manual |
 | `Enter` | Itens do orçamento | Próxima coluna |
 | `Esc` | Lista de sugestões | Fechar a lista e manter o que foi digitado |
+| `Esc` | Orçamento, histórico, clientes, produtos, configurações | Voltar ao menu (o mesmo que o botão laranja **← Voltar ao menu** no alto da janela) |
 
 ## 10. Modo de demonstração
 

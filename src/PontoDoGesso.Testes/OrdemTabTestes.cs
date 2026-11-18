@@ -46,17 +46,17 @@ namespace PontoDoGesso.Testes
                 "data", "cadastrado", "buscaCliente", "novoCliente", "nome", "telefone",
                 "entrega", "endereco", "numero", "bairro", "cidade", "referencia",
                 "itens", "observacoes", "validade", "desconto", "frete",
-                "salvar", "copiarImagem", "png", "pdf", "imprimir", "duplicar", "fechar");
+                "salvar", "copiarImagem", "png", "pdf", "imprimir", "duplicar");
 
         [Fact]
         public void Historico() =>
             Conferir(() => new FormHistorico(_temporario.Banco, new FiltroHistorico()), "lista",
-                "periodo", "tipoCliente", "clienteEspecifico", "frete", "desconto", "texto", "limpar", "lista", "fechar");
+                "periodo", "tipoCliente", "clienteEspecifico", "frete", "desconto", "texto", "limpar", "lista");
 
         [Fact]
         public void Clientes() =>
             Conferir(() => new FormClientes(_temporario.Banco), "busca",
-                "busca", "mostrarInativos", "lista", "[Novo]", "[Fechar]");
+                "busca", "mostrarInativos", "lista", "[Novo]");
 
         [Fact]
         public void EdicaoDeCliente() =>
@@ -66,7 +66,7 @@ namespace PontoDoGesso.Testes
         [Fact]
         public void Produtos() =>
             Conferir(() => new FormProdutos(_temporario.Banco), "busca",
-                "busca", "mostrarInativos", "lista", "[Novo]", "reajustar", "[Fechar]");
+                "busca", "mostrarInativos", "lista", "[Novo]", "reajustar");
 
         [Fact]
         public void EdicaoDeProduto() =>
@@ -76,7 +76,7 @@ namespace PontoDoGesso.Testes
         [Fact]
         public void Configuracoes() =>
             Conferir(() => new FormConfiguracoes(_temporario.Banco), null,
-                "abas", "lojaNome", "lojaSubtitulo", "lojaTelefone", "lojaEndereco1", "lojaEndereco2", "lojaRodape", "salvar", "cancelar");
+                "abas", "lojaNome", "lojaSubtitulo", "lojaTelefone", "lojaEndereco1", "lojaEndereco2", "lojaRodape", "salvar");
 
         [Fact]
         public void Reajuste()

@@ -124,6 +124,7 @@ namespace PontoDoGesso.Forms
 
             Controls.Add(layout);
             Controls.Add(CriarBotoes());
+            Controls.Add(Estilo.CriarVoltarAoMenu(this));
 
             _sugestoesClientes = new ListaSugestoes(this, texto => _clientes.Buscar(texto).Take(10), DescreverCliente);
             _sugestoesClientes.Ligar(_buscaCliente);
@@ -443,9 +444,6 @@ namespace PontoDoGesso.Forms
             duplicar.Name = "duplicar";
             botoes.Controls.Add(duplicar);
 
-            var fechar = Estilo.CriarBotao("Fechar", (s, e) => Close());
-            fechar.Name = "fechar";
-            botoes.Controls.Add(fechar);
             return botoes;
         }
 
@@ -875,6 +873,9 @@ namespace PontoDoGesso.Forms
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
+        protected override bool ProcessDialogKey(Keys keyData) =>
+            Estilo.EscVoltaAoMenu(this, keyData) || base.ProcessDialogKey(keyData);
+
         /// <summary>Ctrl+F: a busca é de cliente cadastrado; num avulso, volta para Cadastrado (nome e telefone ficam).</summary>
         private void FocarBuscaCliente()
         {
@@ -1070,7 +1071,7 @@ namespace PontoDoGesso.Forms
         {
             if (_alterado && e.CloseReason == CloseReason.UserClosing)
             {
-                var resposta = PerguntarSalvar("Este orçamento tem alterações não salvas. Salvar antes de fechar?");
+                var resposta = PerguntarSalvar("Este orçamento tem alterações não salvas. Salvar antes de voltar ao menu?");
                 if (resposta == DialogResult.Cancel || (resposta == DialogResult.Yes && !Salvar()))
                     e.Cancel = true;
             }
@@ -1084,7 +1085,6 @@ namespace PontoDoGesso.Forms
         protected virtual bool Confirmar(string pergunta) =>
             MessageBox.Show(this, pergunta, Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
 
-        protected virtual DialogResult PerguntarSalvar(string pergunta) =>
-            MessageBox.Show(this, pergunta, Text, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+        protected virtual DialogResult PerguntarSalvar(string pergunta) => PerguntaSalvar.Perguntar(this, pergunta, Text);
     }
 }

@@ -67,8 +67,6 @@ namespace PontoDoGesso.Forms
             _novoOrcamento.Name = "novoOrcamento";
             _orcamentosDoCliente = Estilo.CriarBotao("Orçamentos deste cliente", (s, e) => VerOrcamentos());
             _orcamentosDoCliente.Name = "orcamentosDoCliente";
-            var fechar = Estilo.CriarBotao("Fechar", (s, e) => Close());
-            CancelButton = fechar;
 
             var botoes = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, Padding = new Padding(6) };
             botoes.Controls.Add(Estilo.CriarBotao("Novo", (s, e) => Novo()));
@@ -76,11 +74,11 @@ namespace PontoDoGesso.Forms
             botoes.Controls.Add(_inativar);
             botoes.Controls.Add(_novoOrcamento);
             botoes.Controls.Add(_orcamentosDoCliente);
-            botoes.Controls.Add(fechar);
 
             Controls.Add(_lista);
             Controls.Add(topo);
             Controls.Add(botoes);
+            Controls.Add(Estilo.CriarVoltarAoMenu(this));
             Estilo.OrdemTab(topo, _lista, botoes);
 
             Carregar();
@@ -89,6 +87,9 @@ namespace PontoDoGesso.Forms
         private Cliente Selecionado => _lista.CurrentRow?.Tag as Cliente;
 
         /// <summary>Enter na busca abre o primeiro resultado.</summary>
+        protected override bool ProcessDialogKey(Keys keyData) =>
+            Estilo.EscVoltaAoMenu(this, keyData) || base.ProcessDialogKey(keyData);
+
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
             if (keyData == Keys.Enter && _busca.Focused && _lista.Rows.Count > 0)

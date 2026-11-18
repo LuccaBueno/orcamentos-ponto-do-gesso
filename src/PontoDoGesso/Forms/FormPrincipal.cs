@@ -230,6 +230,23 @@ namespace PontoDoGesso.Forms
         {
             using (var form = abrirTela())
                 form.ShowDialog(this);
+
+            TrazerParaFrente();
+        }
+
+        /// <summary>
+        /// Depois de fechar uma janela (Voltar ao menu, Esc ou X) o menu volta para a frente. No Windows 7 ele às vezes
+        /// ficava atrás de outro programa aberto.
+        /// </summary>
+        public void TrazerParaFrente()
+        {
+            if (IsDisposed)
+                return;
+
+            if (WindowState == FormWindowState.Minimized)
+                WindowState = FormWindowState.Normal;
+            Activate();
+            BringToFront();
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)

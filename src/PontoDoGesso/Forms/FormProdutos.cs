@@ -73,15 +73,12 @@ namespace PontoDoGesso.Forms
             _inativar.Name = "inativar";
             var reajustar = Estilo.CriarBotao("Reajustar preços...", (s, e) => Reajustar());
             reajustar.Name = "reajustar";
-            var fechar = Estilo.CriarBotao("Fechar", (s, e) => Close());
-            CancelButton = fechar;
 
             var botoes = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, Padding = new Padding(6) };
             botoes.Controls.Add(Estilo.CriarBotao("Novo", (s, e) => Novo()));
             botoes.Controls.Add(_editar);
             botoes.Controls.Add(_inativar);
             botoes.Controls.Add(reajustar);
-            botoes.Controls.Add(fechar);
             botoes.Controls.Add(new Label
             {
                 Text = "Preço: digite direto na lista e tecle Enter.",
@@ -93,6 +90,7 @@ namespace PontoDoGesso.Forms
             Controls.Add(_lista);
             Controls.Add(topo);
             Controls.Add(botoes);
+            Controls.Add(Estilo.CriarVoltarAoMenu(this));
             Estilo.OrdemTab(topo, _lista, botoes);
 
             Carregar();
@@ -225,5 +223,8 @@ namespace PontoDoGesso.Forms
             using (var form = new FormReajuste(_banco, produtos))
                 return form.ShowDialog(this) == DialogResult.OK;
         }
+
+        protected override bool ProcessDialogKey(Keys keyData) =>
+            Estilo.EscVoltaAoMenu(this, keyData) || base.ProcessDialogKey(keyData);
     }
 }

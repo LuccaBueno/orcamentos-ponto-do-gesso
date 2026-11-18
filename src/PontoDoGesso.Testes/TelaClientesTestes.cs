@@ -310,7 +310,7 @@ namespace PontoDoGesso.Testes
 
                     Assert.Equal(joao.Id, Assert.Single(form.Abertos).Id);
 
-                    ((Button)form.CancelButton).PerformClick();
+                    Tela.Achar<Button>(form, "voltarMenu").PerformClick();
                     Assert.False(form.Visible);
                 }
             });
