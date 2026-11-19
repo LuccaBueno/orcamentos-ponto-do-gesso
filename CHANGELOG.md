@@ -4,6 +4,8 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/); 
 
 ## [Não lançado]
 
+## [0.9.6] - 2026-11-19
+
 Melhorias pedidas no uso real da v0.9.5. O banco recebe a migração 004 (com backup antes).
 
 ### Adicionado
@@ -13,7 +15,7 @@ Melhorias pedidas no uso real da v0.9.5. O banco recebe a migração 004 (com ba
 - Busca do histórico também encontra pelo endereço ou bairro de entrega.
 
 ### Alterado
-- Ao escolher um cliente cadastrado, o orçamento preenche só nome e telefone; a entrega começa vazia (cidade padrão), porque quase toda entrega vai para uma obra.
+- Ao escolher um cliente cadastrado, o orçamento preenche só nome e telefone; a entrega começa vazia (cidade padrão), porque quase toda entrega vai para uma obra. O que foi digitado à mão na entrega não é apagado ao trocar de cliente nem ao passar por Retirada.
 
 ### Corrigido
 - Menu lateral: "Abrir pasta de orçamentos" saía cortado; agora quebra em duas linhas.

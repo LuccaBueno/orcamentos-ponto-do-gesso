@@ -23,6 +23,10 @@ namespace PontoDoGesso.Forms
         private Orcamento _orcamento;
         private long? _clienteId;
         private bool _carregando;
+
+        // Entrega preenchida pelo app (cadastro ou endereço anterior) e não editada depois: pode ser limpa ao trocar de cliente
+        private bool _entregaDoApp;
+        private bool _preenchendoEntrega;
         private bool _alterado;
         private bool _perguntouCadastro;
         private bool _dataManual;
@@ -543,6 +547,9 @@ namespace PontoDoGesso.Forms
 
             _telefone.Alterado += (s, e) => MarcarAlterado();
             _telefoneLocal.Alterado += (s, e) => MarcarAlterado();
+            foreach (var campo in new[] { _endereco, _numero, _bairro, _cidade, _referencia, _receberCom })
+                campo.TextChanged += (s, e) => AoEditarEntrega();
+            _telefoneLocal.Alterado += (s, e) => AoEditarEntrega();
             _telefone.Alterado += (s, e) => AtualizarWhatsApp();
             _validadeDias.ValueChanged += (s, e) => MarcarAlterado();
             _data.ValueChanged += (s, e) => MarcarAlterado();
@@ -719,19 +726,32 @@ namespace PontoDoGesso.Forms
 
             // Quase toda entrega vai para uma obra, não para o endereço do cadastro: a entrega começa vazia
             if (_entrega.Checked)
-                LimparEntrega(_cidadePadrao);
+                LimparEntregaDoApp();
 
             MostrarAviso(cliente);
             AtualizarAjudasEntrega(cliente);
             MarcarAlterado();
         }
 
+        /// <summary>Limpa a entrega (cidade padrão) só se estiver vazia ou foi preenchida pelo app sem edição depois; o que foi digitado à mão fica.</summary>
+        private void LimparEntregaDoApp()
+        {
+            var vazia = new[] { _endereco, _numero, _bairro, _referencia, _receberCom }.All(campo => campo.Text.Trim().Length == 0)
+                        && string.IsNullOrEmpty(_telefoneLocal.Numero);
+
+            if (vazia || _entregaDoApp)
+                LimparEntrega(_cidadePadrao);
+        }
+
         private void LimparEntrega(string cidade)
         {
+            _preenchendoEntrega = true;
             foreach (var campo in new[] { _endereco, _numero, _bairro, _referencia, _receberCom })
                 campo.Text = "";
             _cidade.Text = cidade;
             _telefoneLocal.Exibir(null);
+            _preenchendoEntrega = false;
+            _entregaDoApp = false;
         }
 
         private void PreencherEntrega(string endereco, string numero, string bairro, string cidade, string referencia)
@@ -743,6 +763,12 @@ namespace PontoDoGesso.Forms
             _referencia.Text = referencia;
             _endereco.Focus();
             _endereco.SelectAll();
+        }
+
+        private void AoEditarEntrega()
+        {
+            if (!_preenchendoEntrega)
+                _entregaDoApp = false;
         }
 
         private void MostrarCamposEntrega()
@@ -767,7 +793,12 @@ namespace PontoDoGesso.Forms
         {
             var cliente = ClienteAtual();
             if (cliente != null)
+            {
+                _preenchendoEntrega = true;
                 PreencherEntrega(cliente.Endereco, cliente.Numero, cliente.Bairro, cliente.Cidade, cliente.PontoReferencia);
+                _preenchendoEntrega = false;
+                _entregaDoApp = true;
+            }
         }
 
         /// <summary>Lista dos endereços de entrega dos orçamentos anteriores deste cliente; ↑/↓ e Enter, ou clique.</summary>
@@ -796,9 +827,12 @@ namespace PontoDoGesso.Forms
 
         private void UsarEnderecoAnterior(EnderecoEntrega endereco)
         {
+            _preenchendoEntrega = true;
             PreencherEntrega(endereco.Endereco, endereco.Numero, endereco.Bairro, endereco.Cidade, endereco.Referencia);
             _receberCom.Text = endereco.ReceberCom;
             _telefoneLocal.Exibir(endereco.TelefoneLocal);
+            _preenchendoEntrega = false;
+            _entregaDoApp = true;
         }
 
         private void MostrarAviso(Cliente cliente)
@@ -854,7 +888,9 @@ namespace PontoDoGesso.Forms
 
             MostrarCamposEntrega();
 
-            LimparEntrega(_retirada.Checked ? "" : _cidadePadrao);
+            // Na retirada os campos só somem (não são gravados); de volta à entrega, o que foi digitado à mão continua
+            if (_entrega.Checked)
+                LimparEntregaDoApp();
         }
 
         // ---------- itens ----------
