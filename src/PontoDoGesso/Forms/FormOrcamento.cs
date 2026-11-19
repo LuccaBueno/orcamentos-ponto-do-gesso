@@ -25,10 +25,23 @@ namespace PontoDoGesso.Forms
         private bool _carregando;
         private bool _alterado;
         private bool _perguntouCadastro;
+        private bool _dataManual;
+        private bool _ajustandoData;
         private readonly string _cidadePadrao;
 
         private readonly Label _titulo = new Label { Name = "titulo", AutoSize = true, Font = new Font("Segoe UI", 14F, FontStyle.Bold), Anchor = AnchorStyles.Left };
         private readonly DateTimePicker _data = new DateTimePicker { Name = "data", Format = DateTimePickerFormat.Custom, CustomFormat = "dd/MM/yyyy", Width = 110, Anchor = AnchorStyles.Right };
+        private readonly Label _avisoData = new Label
+        {
+            Name = "avisoData",
+            Text = "data alterada manualmente",
+            AutoSize = true,
+            Visible = false,
+            BackColor = Color.FromArgb(0xFF, 0xF3, 0xB0),
+            ForeColor = Color.FromArgb(0x5C, 0x45, 0x00),
+            Padding = new Padding(4, 1, 4, 1),
+            Anchor = AnchorStyles.Right
+        };
 
         private readonly RadioButton _cadastrado = new RadioButton { Name = "cadastrado", Text = "Cadastrado", AutoSize = true, Checked = true };
         private readonly RadioButton _avulso = new RadioButton { Name = "avulso", Text = "Avulso", AutoSize = true };
@@ -138,7 +151,7 @@ namespace PontoDoGesso.Forms
             if (orcamento != null)
                 Exibir(orcamento);
             else
-                Exibir(new Orcamento { Data = DateTime.Today });
+                Exibir(new Orcamento { Data = Hoje });
 
             if (cliente != null)
             {
@@ -158,6 +171,12 @@ namespace PontoDoGesso.Forms
         public Orcamento Orcamento => _orcamento;
 
         public bool Alterado => _alterado;
+
+        /// <summary>A data foi mudada à mão nesta tela: o app não a troca mais sozinho.</summary>
+        public bool DataAlteradaAMao => _dataManual;
+
+        /// <summary>Dia de hoje no relógio do Windows (lido a cada vez, nunca guardado).</summary>
+        protected virtual DateTime Hoje => DateTime.Today;
 
         public string DicaDe(Control controle) => _dicas.GetToolTip(controle);
 
@@ -194,13 +213,16 @@ namespace PontoDoGesso.Forms
 
         private Control CriarCabecalho()
         {
-            var cabecalho = Suspenso(new TableLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, ColumnCount = 3 });
+            var cabecalho = Suspenso(new TableLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, ColumnCount = 4 });
             cabecalho.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             cabecalho.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             cabecalho.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            cabecalho.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             cabecalho.Controls.Add(_titulo, 0, 0);
-            cabecalho.Controls.Add(Rotulo("Data"), 1, 0);
-            cabecalho.Controls.Add(_data, 2, 0);
+            cabecalho.Controls.Add(_avisoData, 1, 0);
+            cabecalho.Controls.Add(Rotulo("Data"), 2, 0);
+            cabecalho.Controls.Add(_data, 3, 0);
+            _dicas.SetToolTip(_avisoData, "A data foi escolhida à mão: o app não troca mais pela data de hoje.");
             return cabecalho;
         }
 
@@ -462,6 +484,39 @@ namespace PontoDoGesso.Forms
             _telefone.Alterado += (s, e) => AtualizarWhatsApp();
             _validadeDias.ValueChanged += (s, e) => MarcarAlterado();
             _data.ValueChanged += (s, e) => MarcarAlterado();
+            _data.ValueChanged += (s, e) =>
+            {
+                if (_carregando || _ajustandoData)
+                    return;
+
+                _dataManual = true;
+                _avisoData.Visible = true;
+            };
+        }
+
+        /// <summary>Muda a data pelo app (não conta como alteração à mão).</summary>
+        private void DefinirData(DateTime data)
+        {
+            _ajustandoData = true;
+            try
+            {
+                _data.Value = data;
+            }
+            finally
+            {
+                _ajustandoData = false;
+            }
+        }
+
+        /// <summary>
+        /// Orçamento novo, com a data não mexida à mão: se o dia virou desde que a tela abriu, passa para hoje.
+        /// Chamado ao salvar e exportar (antes de gravar) e ao voltar para a tela.
+        /// </summary>
+        public void AtualizarData()
+        {
+            var data = DataOrcamento.Atual(_orcamento.Id != 0, _dataManual, _data.Value, Hoje);
+            if (data != _data.Value.Date)
+                DefinirData(data);
         }
 
         private void MarcarAlterado()
@@ -479,7 +534,9 @@ namespace PontoDoGesso.Forms
             {
                 _orcamento = orcamento;
                 AtualizarTitulo();
-                _data.Value = orcamento.Data == default(DateTime) ? DateTime.Today : orcamento.Data;
+                _data.Value = orcamento.Data == default(DateTime) ? Hoje : orcamento.Data;
+                _dataManual = false;
+                _avisoData.Visible = false;
 
                 _clienteId = orcamento.ClienteId;
                 _cadastrado.Checked = orcamento.Id == 0 || orcamento.ClienteId != null;
@@ -892,6 +949,8 @@ namespace PontoDoGesso.Forms
             if (_grade.IsCurrentCellInEditMode && !_grade.EndEdit())
                 return false;
 
+            AtualizarData();
+
             var nome = Estilo.Limpo(_nome.Text);
             if (nome == null)
                 return Recusar("Informe o nome do cliente.", _nome);
@@ -1044,7 +1103,7 @@ namespace PontoDoGesso.Forms
             }
 
             _perguntouCadastro = false;
-            Exibir(new Orcamento { Data = DateTime.Today });
+            Exibir(new Orcamento { Data = Hoje });
             _buscaCliente.Focus();
             return true;
         }
@@ -1061,10 +1120,18 @@ namespace PontoDoGesso.Forms
 
             _orcamento = new Orcamento();
             _perguntouCadastro = false;
-            _data.Value = DateTime.Today;
+            _dataManual = false;
+            _avisoData.Visible = false;
+            DefinirData(Hoje);
             AtualizarTitulo();
             _alterado = true;
             return true;
+        }
+
+        protected override void OnActivated(EventArgs e)
+        {
+            base.OnActivated(e);
+            AtualizarData();
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)

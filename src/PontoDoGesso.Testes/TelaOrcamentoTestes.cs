@@ -717,6 +717,136 @@ namespace PontoDoGesso.Testes
             Assert.Equal("Placa", Assert.Single(copia.Itens).Descricao);
         }
 
+        // ---------- data do orçamento ----------
+
+        private static DateTimePicker CampoData(Form form) => Tela.Achar<DateTimePicker>(form, "data");
+
+        [Fact]
+        public void OrcamentoNovoPassaParaHojeAoSalvarSeODiaVirou()
+        {
+            var ontem = new DateTime(2026, 11, 18);
+            var hoje = ontem.AddDays(1);
+
+            Rodar(_temporario.Banco, form =>
+            {
+                form.HojeFalso = ontem;
+                form.NovoOrcamento();
+                Assert.Equal(ontem, CampoData(form).Value.Date);
+                Avulso(form, "Maria");
+                AdicionarItem(form, "1", "un", "Placa", "10");
+
+                // A tela ficou aberta de um dia para o outro
+                form.HojeFalso = hoje;
+                Assert.True(form.Salvar(), form.UltimoAviso);
+                Assert.Equal(hoje, CampoData(form).Value.Date);
+                Assert.False(form.DataAlteradaAMao);
+                Assert.False(Tela.Achar<Label>(form, "avisoData").Visible);
+            });
+
+            Assert.Equal(hoje, _orcamentos.ObterPorId(1).Data);
+        }
+
+        [Fact]
+        public void OrcamentoNovoPassaParaHojeAoExportarSeODiaVirou()
+        {
+            var ontem = new DateTime(2026, 11, 18);
+            PastaExportacao();
+
+            Rodar(_temporario.Banco, form =>
+            {
+                form.HojeFalso = ontem;
+                form.NovoOrcamento();
+                Avulso(form, "Maria");
+                AdicionarItem(form, "1", "un", "Placa", "10");
+
+                form.HojeFalso = ontem.AddDays(1);
+                form.ExportarPng();
+                Assert.Equal(ontem.AddDays(1), CampoData(form).Value.Date);
+            });
+
+            Assert.Equal(ontem.AddDays(1), _orcamentos.ObterPorId(1).Data);
+        }
+
+        [Fact]
+        public void DataMudadaAMaoMostraAvisoENaoMudaMaisSozinha()
+        {
+            var hoje = new DateTime(2026, 11, 19);
+            var escolhida = new DateTime(2026, 11, 10);
+
+            Rodar(_temporario.Banco, form =>
+            {
+                form.HojeFalso = hoje;
+                form.NovoOrcamento();
+                Assert.False(Tela.Achar<Label>(form, "avisoData").Visible);
+
+                CampoData(form).Value = escolhida;
+                Assert.True(form.DataAlteradaAMao);
+                Assert.True(Tela.Achar<Label>(form, "avisoData").Visible);
+                Assert.Equal("data alterada manualmente", Texto(form, "avisoData"));
+
+                Avulso(form, "Maria");
+                AdicionarItem(form, "1", "un", "Placa", "10");
+                form.HojeFalso = hoje.AddDays(1);
+                Assert.True(form.Salvar(), form.UltimoAviso);
+                Assert.Equal(escolhida, CampoData(form).Value.Date);
+            });
+
+            Assert.Equal(escolhida, _orcamentos.ObterPorId(1).Data);
+        }
+
+        [Fact]
+        public void OrcamentoSalvoMantemADataAoReabrirEExportar()
+        {
+            PastaExportacao();
+            var orcamento = new Orcamento { Data = new DateTime(2026, 11, 2), CliNome = "Maria" };
+            orcamento.Itens.Add(new ItemOrcamento { Quantidade = 1, Descricao = "Placa", UnitarioCentavos = 1000 });
+            _orcamentos.Salvar(orcamento);
+
+            Rodar(_temporario.Banco, form =>
+            {
+                form.HojeFalso = new DateTime(2026, 11, 19);
+                form.AtualizarData();
+                Assert.Equal(new DateTime(2026, 11, 2), CampoData(form).Value.Date);
+
+                Tela.Achar<TextBox>(form, "observacoes").Text = "Mudou a observação";
+                form.ExportarPng();
+                Assert.Equal(new DateTime(2026, 11, 2), CampoData(form).Value.Date);
+                Assert.False(Tela.Achar<Label>(form, "avisoData").Visible);
+            }, orcamento: _orcamentos.ObterPorId(orcamento.Id));
+
+            var salvo = _orcamentos.ObterPorId(orcamento.Id);
+            Assert.Equal(new DateTime(2026, 11, 2), salvo.Data);
+            Assert.Equal("Mudou a observação", salvo.Observacoes);
+        }
+
+        [Fact]
+        public void DuplicarUsaOHojeDoRelogioEEsqueceADataManual()
+        {
+            var hoje = new DateTime(2026, 11, 19);
+
+            Rodar(_temporario.Banco, form =>
+            {
+                Avulso(form, "Maria");
+                AdicionarItem(form, "1", "un", "Placa", "10");
+                CampoData(form).Value = new DateTime(2026, 1, 5);
+                Assert.True(form.Salvar(), form.UltimoAviso);
+
+                form.HojeFalso = hoje;
+                Assert.True(form.Duplicar());
+                Assert.Equal(hoje, CampoData(form).Value.Date);
+                Assert.False(form.DataAlteradaAMao);
+                Assert.False(Tela.Achar<Label>(form, "avisoData").Visible);
+
+                // A cópia ainda não foi salva: continua acompanhando o relógio
+                form.HojeFalso = hoje.AddDays(1);
+                Assert.True(form.Salvar(), form.UltimoAviso);
+                Assert.Equal(hoje.AddDays(1), CampoData(form).Value.Date);
+            });
+
+            Assert.Equal(new DateTime(2026, 1, 5), _orcamentos.ObterPorId(1).Data);
+            Assert.Equal(hoje.AddDays(1), _orcamentos.ObterPorId(2).Data);
+        }
+
         [Fact]
         public void AbrirOrcamentoSalvoMostraOsDados()
         {
@@ -940,6 +1070,11 @@ namespace PontoDoGesso.Testes
             public bool Resposta { get; set; }
             public DialogResult RespostaSalvar { get; set; } = DialogResult.No;
             public Action<Cliente> ClienteParaCadastrar { get; set; }
+
+            /// <summary>Relógio do teste (o inicializador roda antes do construtor da tela, que já lê o dia).</summary>
+            public DateTime HojeFalso { get; set; } = DateTime.Today;
+
+            protected override DateTime Hoje => HojeFalso;
 
             public OrcamentoSemDialogos(Banco banco, Orcamento orcamento = null, Cliente cliente = null) : base(banco, orcamento, cliente)
             {
