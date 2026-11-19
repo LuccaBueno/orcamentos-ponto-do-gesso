@@ -171,5 +171,9 @@ namespace PontoDoGesso.Forms
 
         protected virtual bool Confirmar(string pergunta) =>
             MessageBox.Show(this, pergunta, Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes;
+
+        /// <summary>Enter vai para o próximo campo; no último, salva.</summary>
+        protected override bool ProcessDialogKey(Keys keyData) =>
+            EnterAvanca.Tratar(this, keyData, AcceptButton) || base.ProcessDialogKey(keyData);
     }
 }

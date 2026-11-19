@@ -136,5 +136,9 @@ namespace PontoDoGesso.Forms
 
         protected virtual void Avisar(string mensagem) =>
             MessageBox.Show(this, mensagem, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+        /// <summary>Enter vai para o próximo campo; no último, salva.</summary>
+        protected override bool ProcessDialogKey(Keys keyData) =>
+            EnterAvanca.Tratar(this, keyData, AcceptButton) || base.ProcessDialogKey(keyData);
     }
 }

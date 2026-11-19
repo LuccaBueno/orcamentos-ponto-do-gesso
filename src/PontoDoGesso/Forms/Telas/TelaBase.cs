@@ -85,6 +85,15 @@ namespace PontoDoGesso.Forms
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
+        /// <summary>Enter avança para o próximo campo (o campo de busca mantém o comportamento da tela).</summary>
+        protected override bool ProcessDialogKey(Keys keyData)
+        {
+            if (!(_busca != null && _busca.Focused) && EnterAvanca.Tratar(this, keyData))
+                return true;
+
+            return base.ProcessDialogKey(keyData);
+        }
+
         /// <summary>Pergunta usada pelo <see cref="PodeSair"/> de cada tela; <paramref name="salvar"/> devolve falso se não conseguiu.</summary>
         protected bool PerguntarAntesDeSair(bool alterado, string pergunta, Func<bool> salvar)
         {
