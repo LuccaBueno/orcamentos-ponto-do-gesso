@@ -41,6 +41,12 @@ namespace PontoDoGesso.Dominio
 
         public TipoEntrega TipoEntrega { get; set; } = TipoEntrega.Entrega;
 
+        /// <summary>O CNPJ da empresa sai no cabeçalho deste orçamento (desligado por padrão).</summary>
+        public bool MostrarCnpj { get; set; }
+
+        /// <summary>Cópia (snapshot) do CNPJ da empresa, só dígitos, quando <see cref="MostrarCnpj"/> está ligado.</summary>
+        public string EmpresaCnpj { get; set; }
+
         /// <summary>Sai impresso no orçamento.</summary>
         public string Observacoes { get; set; }
 

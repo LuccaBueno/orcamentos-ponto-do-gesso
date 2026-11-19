@@ -272,12 +272,22 @@ namespace PontoDoGesso.Exportacao
             // Endereço em duas linhas, começando no meio da moldura; diminui a fonte se não couber (Arial no lugar da Calibri é mais largo)
             var xEndereco = Pt(Esquerda + Largura * 0.514);
             var larguraEndereco = Pt(Direita - 4) - xEndereco;
-            var fonteEndereco = FonteQueCabe(grafico, FonteEndereco, larguraEndereco, _loja.EnderecoLinha1, _loja.EnderecoLinha2);
+            var cnpj = TextoCnpj(_orcamento);
+            var fonteEndereco = FonteQueCabe(grafico, FonteEndereco, larguraEndereco, _loja.EnderecoLinha1, _loja.EnderecoLinha2, cnpj);
+
+            // Sem CNPJ, como na folha: linha 1 na altura do telefone e linha 2 embaixo. Com CNPJ, as três linhas dividem o mesmo espaço.
+            var linhas = cnpj == null ? new[] { 43.7, 54.4 } : new[] { 39.0, 46.7, 54.4 };
             if (!string.IsNullOrEmpty(_loja.EnderecoLinha1))
-                grafico.DrawString(_loja.EnderecoLinha1, fonteEndereco, PincelLaranja, xEndereco, linhaBase);
+                grafico.DrawString(_loja.EnderecoLinha1, fonteEndereco, PincelLaranja, xEndereco, Pt(Margem + linhas[0]));
             if (!string.IsNullOrEmpty(_loja.EnderecoLinha2))
-                grafico.DrawString(_loja.EnderecoLinha2, fonteEndereco, PincelLaranja, xEndereco, Pt(Margem + 54.4));
+                grafico.DrawString(_loja.EnderecoLinha2, fonteEndereco, PincelLaranja, xEndereco, Pt(Margem + linhas[1]));
+            if (cnpj != null)
+                grafico.DrawString(cnpj, fonteEndereco, PincelLaranja, xEndereco, Pt(Margem + linhas[2]));
         }
+
+        /// <summary>"CNPJ: 00.000.000/0000-00" se o orçamento pediu e guardou um CNPJ válido; senão nulo (cabeçalho como sempre foi).</summary>
+        public static string TextoCnpj(Orcamento orcamento) =>
+            orcamento.MostrarCnpj && Cnpj.Valido(orcamento.EmpresaCnpj) ? "CNPJ: " + Cnpj.Formatar(orcamento.EmpresaCnpj) : null;
 
         /// <summary>A própria fonte, ou uma menor da mesma família em que todos os textos caibam na largura (em pontos).</summary>
         private static XFont FonteQueCabe(XGraphics grafico, XFont fonte, double largura, params string[] textos)

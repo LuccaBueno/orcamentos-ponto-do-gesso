@@ -13,6 +13,7 @@ namespace PontoDoGesso.Dados
             ["loja.endereco_linha1"] = "Rua do Cardoso, 104 – Alto do",
             ["loja.endereco_linha2"] = "Cardoso - Pindamonhangaba - SP",
             ["loja.rodape"] = "As entregas são realizadas apenas até o térreo.",
+            ["loja.cnpj"] = "",
             ["orcamento.validade_sugerida_dias"] = "7",
             ["orcamento.perguntar_cadastro_avulso"] = "1",
             ["cliente.ddd_padrao"] = "12",

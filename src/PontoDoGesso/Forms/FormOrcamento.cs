@@ -76,6 +76,11 @@ namespace PontoDoGesso.Forms
         private readonly CheckBox _validade = new CheckBox { Name = "validade", Text = "Validade", AutoSize = true };
         private readonly NumericUpDown _validadeDias = new NumericUpDown { Name = "validadeDias", Minimum = 1, Maximum = 365, Width = 55, Enabled = false };
         private readonly Label _validadeAte = new Label { Name = "validadeAte", AutoSize = true, ForeColor = Color.DimGray, Margin = new Padding(3, 6, 3, 0) };
+        private readonly CheckBox _mostrarCnpj = new CheckBox { Name = "mostrarCnpj", Text = "Mostrar CNPJ da empresa neste orçamento", AutoSize = true };
+        private readonly Label _dicaCnpj = new Label { Name = "dicaCnpj", AutoSize = true, ForeColor = Color.DimGray, Margin = new Padding(3, 4, 3, 0) };
+
+        /// <summary>CNPJ da tela Empresa (só dígitos), lido ao abrir a tela; vazio = não cadastrado.</summary>
+        private string _cnpjEmpresa;
 
         private readonly Label _subtotal = new Label { Name = "subtotal", AutoSize = true, Anchor = AnchorStyles.Right };
         private readonly CheckBox _desconto = new CheckBox { Name = "desconto", Text = "Desconto", AutoSize = true };
@@ -114,6 +119,8 @@ namespace PontoDoGesso.Forms
             _telefone.DddPadrao = _configuracoes.Obter("cliente.ddd_padrao") ?? "12";
             _cidadePadrao = _configuracoes.Obter("cliente.cidade_padrao") ?? new Cliente().Cidade;
             _validadeDias.Value = LerValidadeSugerida();
+            _cnpjEmpresa = Formatacao.SomenteDigitos(_configuracoes.Obter("loja.cnpj"));
+            _mostrarCnpj.CheckedChanged += (s, e) => AtualizarCnpj();
 
             _novoCliente = Estilo.CriarBotao("+ Novo", (s, e) => CadastrarCliente());
             _novoCliente.Name = "novoCliente";
@@ -380,6 +387,12 @@ namespace PontoDoGesso.Forms
             esquerda.Controls.Add(validade, 0, 2);
             esquerda.SetColumnSpan(validade, 2);
 
+            var cnpj = Suspenso(new FlowLayoutPanel { AutoSize = true, WrapContents = false, Margin = new Padding(0) });
+            cnpj.Controls.Add(_mostrarCnpj);
+            cnpj.Controls.Add(_dicaCnpj);
+            esquerda.Controls.Add(cnpj, 0, 3);
+            esquerda.SetColumnSpan(cnpj, 2);
+
             // Direita: totais
             var totais = Suspenso(new TableLayoutPanel { AutoSize = true, ColumnCount = 2, Margin = new Padding(16, 0, 0, 0), Anchor = AnchorStyles.Top | AnchorStyles.Right });
             totais.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
@@ -477,7 +490,7 @@ namespace PontoDoGesso.Forms
             foreach (var opcao in new[] { _cadastrado, _entrega, _descontoReais })
                 opcao.CheckedChanged += (s, e) => MarcarAlterado();
 
-            foreach (var caixa in new[] { _desconto, _validade })
+            foreach (var caixa in new[] { _desconto, _validade, _mostrarCnpj })
                 caixa.CheckedChanged += (s, e) => MarcarAlterado();
 
             _telefone.Alterado += (s, e) => MarcarAlterado();
@@ -571,6 +584,8 @@ namespace PontoDoGesso.Forms
 
                 _observacoes.Text = orcamento.Observacoes ?? "";
                 _contador.Text = _observacoes.TextLength + "/" + LimiteObservacoes;
+                _mostrarCnpj.Checked = orcamento.MostrarCnpj;
+                AtualizarCnpj();
                 _validade.Checked = orcamento.ValidadeDias != null;
                 _validadeDias.Value = orcamento.ValidadeDias ?? LerValidadeSugerida();
 
@@ -608,6 +623,17 @@ namespace PontoDoGesso.Forms
         {
             Text = _orcamento.Numero == 0 ? "Orçamento Nº — (novo)" : "Orçamento Nº " + Formatacao.Codigo(_orcamento.Numero);
             _titulo.Text = Text;
+        }
+
+        /// <summary>CNPJ que este orçamento usa: o guardado nele (orçamento antigo sai igual) ou, se ainda não tem, o da tela Empresa.</summary>
+        private string CnpjDoOrcamento => Cnpj.Valido(_orcamento?.EmpresaCnpj) ? _orcamento.EmpresaCnpj : Cnpj.Valido(_cnpjEmpresa) ? _cnpjEmpresa : null;
+
+        /// <summary>Sem CNPJ cadastrado a caixa fica desligada, com a dica de onde cadastrar (dica de controle desabilitado não aparece no Windows).</summary>
+        private void AtualizarCnpj()
+        {
+            var cnpj = CnpjDoOrcamento;
+            _mostrarCnpj.Enabled = cnpj != null || _mostrarCnpj.Checked;
+            _dicaCnpj.Text = cnpj == null ? "Cadastre o CNPJ na tela Empresa" : "(" + Cnpj.Formatar(cnpj) + ")";
         }
 
         private void AtualizarValidade()
@@ -1006,6 +1032,8 @@ namespace PontoDoGesso.Forms
             orcamento.EntCidade = _retirada.Checked ? null : Estilo.Limpo(_cidade.Text);
             orcamento.EntReferencia = _retirada.Checked ? null : Estilo.Limpo(_referencia.Text);
             orcamento.Observacoes = Estilo.Limpo(_observacoes.Text);
+            orcamento.MostrarCnpj = _mostrarCnpj.Checked;
+            orcamento.EmpresaCnpj = _mostrarCnpj.Checked ? CnpjDoOrcamento : null;
             orcamento.DescontoTipo = tipoDesconto;
             orcamento.DescontoValor = valorDesconto;
             orcamento.FreteCentavos = _frete.Centavos ?? 0;
@@ -1119,6 +1147,16 @@ namespace PontoDoGesso.Forms
             }
 
             _orcamento = new Orcamento();
+            _carregando = true;
+            try
+            {
+                _mostrarCnpj.Checked = false;
+                AtualizarCnpj();
+            }
+            finally
+            {
+                _carregando = false;
+            }
             _perguntouCadastro = false;
             _dataManual = false;
             _avisoData.Visible = false;

@@ -168,6 +168,8 @@ namespace PontoDoGesso.Dados
                 orcamento.EntReferencia,
                 TipoEntrega = orcamento.TipoEntrega.ToString().ToUpperInvariant(),
                 orcamento.Observacoes,
+                orcamento.MostrarCnpj,
+                EmpresaCnpj = orcamento.MostrarCnpj ? orcamento.EmpresaCnpj : null,
                 orcamento.SubtotalCentavos,
                 DescontoTipo = orcamento.DescontoTipo?.ToString().ToUpperInvariant(),
                 DescontoValor = orcamento.DescontoTipo == null ? null : ConversoresDapper.Texto(orcamento.DescontoValor),
@@ -181,10 +183,10 @@ namespace PontoDoGesso.Dados
             // sqlite_sequence guarda o maior id já usado: o número segue o id e não volta atrás nem quando um orçamento é excluído
             conexao.ExecuteScalar<long>(
                 @"INSERT INTO orcamentos (numero, data, validade_dias, cliente_id, cli_nome, cli_telefone, ent_endereco, ent_numero, ent_bairro, ent_cidade, ent_referencia,
-                                          tipo_entrega, observacoes, subtotal_centavos, desconto_tipo, desconto_valor, desconto_centavos, frete_centavos, total_centavos, criado_em, atualizado_em)
+                                          tipo_entrega, observacoes, mostrar_cnpj, empresa_cnpj, subtotal_centavos, desconto_tipo, desconto_valor, desconto_centavos, frete_centavos, total_centavos, criado_em, atualizado_em)
                   VALUES (coalesce((SELECT seq FROM sqlite_sequence WHERE name = 'orcamentos'), 0) + 1,
                           @Data, @ValidadeDias, @ClienteId, @CliNome, @CliTelefone, @EntEndereco, @EntNumero, @EntBairro, @EntCidade, @EntReferencia,
-                          @TipoEntrega, @Observacoes, @SubtotalCentavos, @DescontoTipo, @DescontoValor, @DescontoCentavos, @FreteCentavos, @TotalCentavos, @Agora, @Agora);
+                          @TipoEntrega, @Observacoes, @MostrarCnpj, @EmpresaCnpj, @SubtotalCentavos, @DescontoTipo, @DescontoValor, @DescontoCentavos, @FreteCentavos, @TotalCentavos, @Agora, @Agora);
                   SELECT last_insert_rowid();",
                 parametros, transacao);
 
@@ -194,7 +196,7 @@ namespace PontoDoGesso.Dados
                 @"UPDATE orcamentos
                   SET data = @Data, validade_dias = @ValidadeDias, cliente_id = @ClienteId, cli_nome = @CliNome, cli_telefone = @CliTelefone,
                       ent_endereco = @EntEndereco, ent_numero = @EntNumero, ent_bairro = @EntBairro, ent_cidade = @EntCidade, ent_referencia = @EntReferencia,
-                      tipo_entrega = @TipoEntrega, observacoes = @Observacoes, subtotal_centavos = @SubtotalCentavos, desconto_tipo = @DescontoTipo,
+                      tipo_entrega = @TipoEntrega, observacoes = @Observacoes, mostrar_cnpj = @MostrarCnpj, empresa_cnpj = @EmpresaCnpj, subtotal_centavos = @SubtotalCentavos, desconto_tipo = @DescontoTipo,
                       desconto_valor = @DescontoValor, desconto_centavos = @DescontoCentavos, frete_centavos = @FreteCentavos, total_centavos = @TotalCentavos,
                       atualizado_em = @Agora
                   WHERE id = @Id",

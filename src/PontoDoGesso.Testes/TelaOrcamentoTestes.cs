@@ -847,6 +847,79 @@ namespace PontoDoGesso.Testes
             Assert.Equal(hoje.AddDays(1), _orcamentos.ObterPorId(2).Data);
         }
 
+        // ---------- CNPJ ----------
+
+        [Fact]
+        public void SemCnpjCadastradoACaixaFicaDesligadaComADica()
+        {
+            Rodar(_temporario.Banco, form =>
+            {
+                var caixa = Tela.Achar<CheckBox>(form, "mostrarCnpj");
+                Assert.False(caixa.Checked);
+                Assert.False(caixa.Enabled);
+                Assert.Equal("Cadastre o CNPJ na tela Empresa", Texto(form, "dicaCnpj"));
+            });
+        }
+
+        [Fact]
+        public void CnpjDesmarcadoPorPadraoEGuardadoQuandoMarcado()
+        {
+            new ConfiguracaoRepositorio(_temporario.Banco).Definir("loja.cnpj", CnpjTestes.Ficticio);
+
+            Rodar(_temporario.Banco, form =>
+            {
+                var caixa = Tela.Achar<CheckBox>(form, "mostrarCnpj");
+                Assert.True(caixa.Enabled);
+                Assert.False(caixa.Checked);
+                Assert.Equal("(11.222.333/0001-81)", Texto(form, "dicaCnpj"));
+
+                Avulso(form, "Maria");
+                AdicionarItem(form, "1", "un", "Placa", "10");
+                caixa.Checked = true;
+                Assert.True(form.Salvar(), form.UltimoAviso);
+
+                // Duplicado nasce desmarcado
+                Assert.True(form.Duplicar());
+                Assert.False(caixa.Checked);
+                Assert.True(form.Salvar(), form.UltimoAviso);
+
+                // Ctrl+N também
+                form.NovoOrcamento();
+                Assert.False(caixa.Checked);
+            });
+
+            var marcado = _orcamentos.ObterPorId(1);
+            Assert.True(marcado.MostrarCnpj);
+            Assert.Equal(CnpjTestes.Ficticio, marcado.EmpresaCnpj);
+            Assert.False(_orcamentos.ObterPorId(2).MostrarCnpj);
+            Assert.Null(_orcamentos.ObterPorId(2).EmpresaCnpj);
+        }
+
+        [Fact]
+        public void OrcamentoAntigoContinuaComOCnpjQueUsou()
+        {
+            var configuracoes = new ConfiguracaoRepositorio(_temporario.Banco);
+            var orcamento = new Orcamento { Data = new DateTime(2026, 11, 2), CliNome = "Maria", MostrarCnpj = true, EmpresaCnpj = CnpjTestes.Ficticio };
+            orcamento.Itens.Add(new ItemOrcamento { Quantidade = 1, Descricao = "Placa", UnitarioCentavos = 1000 });
+            _orcamentos.Salvar(orcamento);
+
+            // A empresa trocou de CNPJ (ou apagou) depois
+            configuracoes.Definir("loja.cnpj", "");
+
+            Rodar(_temporario.Banco, form =>
+            {
+                var caixa = Tela.Achar<CheckBox>(form, "mostrarCnpj");
+                Assert.True(caixa.Checked);
+                Assert.True(caixa.Enabled);
+                Assert.Equal("(11.222.333/0001-81)", Texto(form, "dicaCnpj"));
+
+                Tela.Achar<TextBox>(form, "observacoes").Text = "Reexportado";
+                Assert.True(form.Salvar(), form.UltimoAviso);
+            }, orcamento: _orcamentos.ObterPorId(orcamento.Id));
+
+            Assert.Equal(CnpjTestes.Ficticio, _orcamentos.ObterPorId(orcamento.Id).EmpresaCnpj);
+        }
+
         [Fact]
         public void AbrirOrcamentoSalvoMostraOsDados()
         {

@@ -284,9 +284,25 @@ namespace PontoDoGesso.Testes
                     using (var novo = ExportadorPng.CriarImagem(orcamento, DadosLoja.Padrao))
                     using (var imagem = LadoALado(folha, novo))
                         imagem.Save(Path.Combine(pastaLadoALado, nome + ".png"), System.Drawing.Imaging.ImageFormat.Png);
+
+            // CNPJ: o mesmo orçamento com a caixa desmarcada (igual a antes) e marcada; CNPJ fictício
+            var pastaCnpj = Path.Combine(pasta, "cnpj");
+            Directory.CreateDirectory(pastaCnpj);
+            var semCnpj = Exemplo(3);
+            var comCnpj = Exemplo(3);
+            comCnpj.MostrarCnpj = true;
+            comCnpj.EmpresaCnpj = CnpjTestes.Ficticio;
+
+            ExportadorPng.Gerar(semCnpj, DadosLoja.Padrao, Path.Combine(pastaCnpj, "sem-cnpj.png"));
+            ExportadorPng.Gerar(comCnpj, DadosLoja.Padrao, Path.Combine(pastaCnpj, "com-cnpj.png"));
+            ExportadorPdf.Gerar(comCnpj, DadosLoja.Padrao, Path.Combine(pastaCnpj, "com-cnpj.pdf"));
+            using (var sem = ExportadorPng.CriarImagem(semCnpj, DadosLoja.Padrao))
+            using (var com = ExportadorPng.CriarImagem(comCnpj, DadosLoja.Padrao))
+            using (var imagem = LadoALado(sem, com, "Sem CNPJ (caixa desmarcada, igual a antes)", "Com CNPJ (caixa marcada)"))
+                imagem.Save(Path.Combine(pastaCnpj, "sem-e-com-cnpj.png"), System.Drawing.Imaging.ImageFormat.Png);
         }
 
-        private static Bitmap LadoALado(Image folha, Image novo)
+        private static Bitmap LadoALado(Image folha, Image novo, string tituloEsquerda = "Folha em papel (1ª via, ampliada para A4)", string tituloDireita = "Orçamento novo (PNG)")
         {
             const int topo = 60, espaco = 40;
             var largura = folha.Width + espaco + novo.Width;
@@ -298,8 +314,8 @@ namespace PontoDoGesso.Testes
             {
                 g.Clear(Color.White);
                 g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
-                g.DrawString("Folha em papel (1ª via, ampliada para A4)", fonte, Brushes.DimGray, 10, 18);
-                g.DrawString("Orçamento novo (PNG)", fonte, Brushes.DimGray, folha.Width + espaco + 10, 18);
+                g.DrawString(tituloEsquerda, fonte, Brushes.DimGray, 10, 18);
+                g.DrawString(tituloDireita, fonte, Brushes.DimGray, folha.Width + espaco + 10, 18);
                 g.DrawImage(folha, 0, topo, folha.Width, folha.Height);
                 g.DrawImage(novo, folha.Width + espaco, topo, novo.Width, novo.Height);
                 g.DrawRectangle(borda, 0, topo, folha.Width - 1, folha.Height - 1);

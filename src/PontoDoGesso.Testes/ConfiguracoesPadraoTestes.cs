@@ -37,13 +37,14 @@ namespace PontoDoGesso.Testes
         {
             _temporario.Banco.Preparar();
 
-            Assert.Equal(15, Contar());
+            Assert.Equal(16, Contar());
             Assert.Equal("PONTO DO GESSO", Ler("loja.nome"));
             Assert.Equal("Gesso e Ferramentas", Ler("loja.subtitulo"));
             Assert.Equal("(12) 99244-5402", Ler("loja.telefone"));
             Assert.Equal("Rua do Cardoso, 104 – Alto do", Ler("loja.endereco_linha1"));
             Assert.Equal("Cardoso - Pindamonhangaba - SP", Ler("loja.endereco_linha2"));
             Assert.Equal("As entregas são realizadas apenas até o térreo.", Ler("loja.rodape"));
+            Assert.Equal("", Ler("loja.cnpj"));
             Assert.Equal("7", Ler("orcamento.validade_sugerida_dias"));
             Assert.Equal("12", Ler("cliente.ddd_padrao"));
             Assert.Equal(Caminhos.PastaExportacao, Ler("exportacao.pasta"));
@@ -67,7 +68,7 @@ namespace PontoDoGesso.Testes
             _temporario.Banco.Preparar();
 
             Assert.Equal("15", Ler("orcamento.validade_sugerida_dias"));
-            Assert.Equal(15, Contar());
+            Assert.Equal(16, Contar());
         }
     }
 }
