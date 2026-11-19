@@ -91,7 +91,7 @@ namespace PontoDoGesso.Forms
         private readonly CampoMoeda _frete = new CampoMoeda { Name = "frete", Width = 90 };
         private readonly Label _freteExibido = new Label { Name = "freteExibido", AutoSize = true, Anchor = AnchorStyles.Right };
         private readonly Label _total = new Label { Name = "total", AutoSize = true, Anchor = AnchorStyles.Right, Font = new Font("Segoe UI", 12F, FontStyle.Bold) };
-        private readonly Label _erroTotais = new Label { Name = "erroTotais", AutoSize = true, ForeColor = Color.Firebrick, Anchor = AnchorStyles.Right };
+        private readonly Label _erroTotais = new Label { Name = "erroTotais", AutoSize = true, MaximumSize = new Size(360, 0), ForeColor = Color.Firebrick, Anchor = AnchorStyles.Right };
 
         private readonly ToolTip _dicas = new ToolTip();
         private readonly AcoesExportacao _acoes;

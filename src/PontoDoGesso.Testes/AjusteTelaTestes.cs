@@ -123,25 +123,36 @@ namespace PontoDoGesso.Testes
                         if (destino == Destino.Orcamento)
                             form.NovoOrcamento(cliente);
 
-                        // Mede só depois de o layout assentar (os rótulos AutoSize dos totais mudam de largura ao recalcular)
-                        Application.DoEvents();
-                        form.TelaAtual.PerformLayout();
-                        form.PerformLayout();
-                        Application.DoEvents();
-
+                        // Com dezenas de janelas de teste abertas em paralelo, às vezes a medida pegava a tela no meio de uma passada de
+                        // layout (painel com 1 px de altura). Mede de novo até o layout parar de mudar; um corte de verdade não some esperando.
                         var conteudo = (Panel)form.Controls.Find("conteudo", false)[0];
-                        var visivel = conteudo.RectangleToScreen(conteudo.ClientRectangle);
-                        Assert.False(conteudo.HorizontalScroll.Visible || conteudo.VerticalScroll.Visible, destino + " precisou de barra de rolagem em " + largura);
-
-                        foreach (var controle in Visiveis(form.TelaAtual))
+                        var problemas = new System.Collections.Generic.List<string>();
+                        var relogio = System.Diagnostics.Stopwatch.StartNew();
+                        do
                         {
-                            var lugar = controle.Parent.RectangleToScreen(controle.Bounds);
-                            Assert.True(visivel.Contains(lugar), destino + ": " + Nome(controle) + " cortado em " + largura + " (" + lugar + " fora de " + visivel + ")");
+                            Application.DoEvents();
+                            System.Threading.Thread.Sleep(problemas.Count == 0 ? 0 : 100);
+                            Application.DoEvents();
+                            problemas.Clear();
 
-                            // Texto rolado para fora da vista: o campo parece vazio
-                            if (controle is TextBoxBase campo && !campo.Multiline && campo.TextLength > 0)
-                                Assert.True(campo.GetPositionFromCharIndex(0).X >= 0, destino + ": texto de " + Nome(controle) + " rolado para fora da vista");
+                            var visivel = conteudo.RectangleToScreen(conteudo.ClientRectangle);
+                            if (conteudo.HorizontalScroll.Visible || conteudo.VerticalScroll.Visible)
+                                problemas.Add(destino + " precisou de barra de rolagem em " + largura);
+
+                            foreach (var controle in Visiveis(form.TelaAtual))
+                            {
+                                var lugar = controle.Parent.RectangleToScreen(controle.Bounds);
+                                if (!visivel.Contains(lugar))
+                                    problemas.Add(destino + ": " + Nome(controle) + " cortado em " + largura + " (" + lugar + " fora de " + visivel + ")" + Cadeia(controle));
+
+                                // Texto rolado para fora da vista: o campo parece vazio
+                                if (controle is TextBoxBase campo && !campo.Multiline && campo.TextLength > 0 && campo.GetPositionFromCharIndex(0).X < 0)
+                                    problemas.Add(destino + ": texto de " + Nome(controle) + " rolado para fora da vista");
+                            }
                         }
+                        while (problemas.Count > 0 && relogio.Elapsed < TimeSpan.FromSeconds(3));
+
+                        Assert.True(problemas.Count == 0, string.Join(" | ", problemas));
 
                         Tela.Capturar(form, "tela-" + largura + "-" + destino);
                     }
@@ -149,6 +160,15 @@ namespace PontoDoGesso.Testes
                     form.Descartar();
                 }
             });
+        }
+
+        /// <summary>Larguras dos painéis acima do controle, para entender um corte.</summary>
+        private static string Cadeia(Control controle)
+        {
+            var texto = "";
+            for (var c = controle; c != null && !(c is Form); c = c.Parent)
+                texto += " < " + Nome(c) + " " + c.Bounds + (c is ScrollableControl s ? " disp " + s.DisplayRectangle : "");
+            return texto;
         }
 
         private static string Nome(Control controle) => string.IsNullOrEmpty(controle.Name) ? controle.GetType().Name + " \"" + controle.Text + "\"" : controle.Name;
