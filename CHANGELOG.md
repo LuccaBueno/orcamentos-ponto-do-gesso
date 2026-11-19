@@ -4,6 +4,20 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/); 
 
 ## [Não lançado]
 
+Melhorias pedidas no uso real da v0.9.5. O banco recebe a migração 004 (com backup antes).
+
+### Adicionado
+- Enter vai para o próximo campo, como o Tab, nos formulários (cliente, produto, Empresa, Configurações, cliente/entrega do orçamento). Nos diálogos, Enter no último campo salva. Observações continuam quebrando linha; a barra "Adicionar item" e as listas de sugestões não mudam.
+- Orçamento: botão **Usar endereço do cadastro** e lista **Endereços usados antes** (até 10 endereços de entrega distintos dos orçamentos anteriores do cliente, mais recentes primeiro, com a data do último uso).
+- Campos opcionais **Receber com** e **Telefone no local** na entrega; saem no PNG/PDF/impressão só quando preenchidos.
+- Busca do histórico também encontra pelo endereço ou bairro de entrega.
+
+### Alterado
+- Ao escolher um cliente cadastrado, o orçamento preenche só nome e telefone; a entrega começa vazia (cidade padrão), porque quase toda entrega vai para uma obra.
+
+### Corrigido
+- Menu lateral: "Abrir pasta de orçamentos" saía cortado; agora quebra em duas linhas.
+
 ## [0.9.5] - 2026-11-19
 
 Só a correção dos totais da tela de orçamento. Inclui tudo da v0.9.4: quem está na v0.9.2, v0.9.3 ou v0.9.4 atualiza pelo botão **Verificar atualizações** e continua com os mesmos clientes, produtos e orçamentos (vindo da v0.9.2 ou v0.9.3, o banco recebe a migração 003, com backup antes).

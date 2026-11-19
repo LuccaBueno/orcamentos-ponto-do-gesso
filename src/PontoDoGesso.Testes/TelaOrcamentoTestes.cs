@@ -101,6 +101,8 @@ namespace PontoDoGesso.Testes
                 // A entrega começa vazia: o endereço do cadastro só entra pelo botão
                 Assert.Equal("", Texto(form, "endereco"));
                 Assert.True(Tela.Achar<Button>(form, "usarCadastro").Enabled);
+                Tela.Achar<Button>(form, "usarCadastro").PerformClick();
+                Assert.Equal("Rua A", Texto(form, "endereco"));
                 Assert.Equal("Atenção: Pede tudo discriminado", Texto(form, "avisoCliente"));
                 Assert.True(Tela.Achar<Label>(form, "avisoCliente").Visible);
 
@@ -143,7 +145,7 @@ namespace PontoDoGesso.Testes
                 Assert.Equal("0001 – João Silva", busca.Text);
                 Assert.Equal("João Silva", Texto(form, "nome"));
                 Assert.Equal("99244-5402", Tela.Achar<CampoTelefone>(form, "telefone").Numero);
-                Assert.Equal("Perto da praça", Texto(form, "referencia"));
+                Assert.Equal("", Texto(form, "referencia"));
                 Assert.False(sugestoes.Visible);
             });
         }
