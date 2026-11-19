@@ -61,7 +61,7 @@ namespace PontoDoGesso.Testes
             ConferirTela(() => new TelaOrcamento(_temporario.Banco), "buscaCliente",
                 "data", "cadastrado", "buscaCliente", "novoCliente", "nome", "telefone",
                 "entrega", "endereco", "numero", "bairro", "cidade", "referencia",
-                "itens", "observacoes", "validade", "desconto", "frete",
+                "barraProduto", "barraQuantidade", "barraUnidade", "barraUnitario", "adicionarItem", "itens", "observacoes", "validade", "desconto", "frete",
                 "salvar", "copiarImagem", "png", "pdf", "imprimir", "duplicar");
 
         [Fact]

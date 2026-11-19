@@ -154,20 +154,16 @@ namespace PontoDoGesso.Testes
                     sugestoesCliente.Teclar(Keys.Enter);
                     Quadro(1600);
 
-                    legenda = "2. Itens: digite a quantidade e o código ou o nome do produto";
-                    var grade = Tela.Achar<GradeItens>(form, "itens");
+                    legenda = "2. Itens: parte do nome do produto, Enter, a quantidade, Enter, Enter";
                     foreach (var (quantidade, busque) in new[] { ("8", "drywall rU"), ("12", "montante"), ("1", "massa") })
                     {
-                        var indice = grade.Rows.Add();
-                        grade.Rows[indice].Cells["quantidade"].Value = quantidade;
-                        Quadro(500);
-                        grade.CurrentCell = grade.Rows[indice].Cells["descricao"];
-                        grade.BeginEdit(false);
-                        var campo = (TextBox)grade.EditingControl;
-                        var sugestoes = form.Controls.OfType<ListaSugestoes>().Single(lista => lista.Campo == campo);
-                        Digitar(campo, busque.ToLowerInvariant());
+                        Digitar(form.Barra.CampoProduto, busque.ToLowerInvariant());
                         Quadro(700);
-                        sugestoes.Teclar(Keys.Enter);
+                        form.Barra.Sugestoes.Teclar(Keys.Enter);
+                        Quadro(500);
+                        Digitar(form.Barra.CampoQuantidade.Campo, quantidade);
+                        Quadro(500);
+                        form.Barra.Adicionar();
                         Quadro(900);
                     }
 

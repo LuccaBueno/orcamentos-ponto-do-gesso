@@ -142,8 +142,8 @@ namespace PontoDoGesso.Testes
                 if (!atual.Visible)
                     continue;
                 // As telas da janela principal são UserControls: o GetNextControl da janela não entra nelas
-                if (atual is PontoDoGesso.Forms.TelaBase tela)
-                    ordem.AddRange(OrdemTab(tela));
+                if (atual is PontoDoGesso.Forms.TelaBase || atual is PontoDoGesso.Controles.BarraItem)
+                    ordem.AddRange(OrdemTab(atual));
                 else if (atual.CanSelect && atual.TabStop && !(atual is Panel) && !(atual is Label && !(atual is LinkLabel)))
                     ordem.Add(string.IsNullOrEmpty(atual.Name) ? "[" + atual.Text + "]" : atual.Name);
             }

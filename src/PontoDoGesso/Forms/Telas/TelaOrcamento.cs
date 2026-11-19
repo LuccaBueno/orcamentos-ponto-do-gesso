@@ -71,7 +71,7 @@ namespace PontoDoGesso.Forms
 
         private readonly GradeItens _grade;
 
-        private readonly TextBox _observacoes = new TextBox { Name = "observacoes", Dock = DockStyle.Fill, Multiline = true, AcceptsReturn = true, ScrollBars = ScrollBars.Vertical, MaxLength = LimiteObservacoes, Height = 64 };
+        private readonly TextBox _observacoes = new TextBox { Name = "observacoes", Dock = DockStyle.Fill, Multiline = true, AcceptsReturn = true, ScrollBars = ScrollBars.Vertical, MaxLength = LimiteObservacoes, Height = 46 };
         private readonly Label _contador = new Label { Name = "contador", AutoSize = true, ForeColor = Color.DimGray, Anchor = AnchorStyles.Right };
         private readonly CheckBox _validade = new CheckBox { Name = "validade", Text = "Validade", AutoSize = true };
         private readonly NumericUpDown _validadeDias = new NumericUpDown { Name = "validadeDias", Minimum = 1, Maximum = 365, Width = 55, Enabled = false };
@@ -99,7 +99,7 @@ namespace PontoDoGesso.Forms
 
         private readonly List<Control> _suspensos = new List<Control>();
         private readonly ListaSugestoes _sugestoesClientes;
-        private readonly ListaSugestoes _sugestoesProdutos;
+        private readonly BarraItem _barra = new BarraItem { Name = "barraItem", Dock = DockStyle.Fill };
 
         public TelaOrcamento(Banco banco, Orcamento orcamento = null, Cliente cliente = null)
         {
@@ -129,11 +129,17 @@ namespace PontoDoGesso.Forms
             AdicionarLinha(layout, CriarCabecalho(), SizeType.AutoSize);
             AdicionarLinha(layout, CriarCliente(), SizeType.AutoSize);
             AdicionarLinha(layout, CriarEntrega(), SizeType.AutoSize);
+            AdicionarLinha(layout, CriarItens(), SizeType.AutoSize);
             AdicionarLinha(layout, _grade, SizeType.Percent);
             AdicionarLinha(layout, new Label
             {
-                Text = "Itens: Enter avança (Qtd → Un → Descrição → Unitário). Na descrição, digite o código ou o nome: Enter escolhe do catálogo, Esc mantém o texto. Delete remove a linha; Ctrl+↑/↓ muda a ordem.",
-                AutoSize = true,
+                Name = "dicaItens",
+                Text = "Na lista: − e + (botões ou teclas) mudam a quantidade · lixeira ou Delete remove · arrastar ou Ctrl+↑/↓ muda a ordem · F2 corrige a célula",
+                AutoSize = false,
+                AutoEllipsis = true,
+                Dock = DockStyle.Fill,
+                Height = 17,
+                Font = new Font("Segoe UI", 8.25F),
                 ForeColor = Color.DimGray
             }, SizeType.AutoSize);
             AdicionarLinha(layout, CriarRodape(), SizeType.AutoSize);
@@ -143,10 +149,15 @@ namespace PontoDoGesso.Forms
 
             _sugestoesClientes = new ListaSugestoes(this, texto => _clientes.Buscar(texto).Take(10), DescreverCliente);
             _sugestoesClientes.Ligar(_buscaCliente);
-            _sugestoesClientes.Escolhido += (s, e) => SelecionarCliente((Cliente)e.Valor);
+            _sugestoesClientes.Escolhido += (s, e) =>
+            {
+                // Cliente escolhido pelo teclado: o próximo passo é lançar os itens
+                SelecionarCliente((Cliente)e.Valor);
+                _barra.CampoProduto.Focus();
+            };
 
-            _sugestoesProdutos = new ListaSugestoes(this, texto => _produtos.Buscar(texto).Take(10), DescreverProduto);
-            _sugestoesProdutos.Escolhido += (s, e) => EscolherProduto(_grade.CurrentCell.RowIndex, (Produto)e.Valor);
+            _barra.LigarSugestoes(this, texto => _produtos.Buscar(texto).Take(10), DescreverProduto);
+            _barra.Adicionado += (s, e) => AdicionarItem(e.Item, e.Produto);
 
             LigarAlteracoes();
 
@@ -172,7 +183,8 @@ namespace PontoDoGesso.Forms
 
         public Orcamento Orcamento => _orcamento;
 
-        public bool Alterado => _alterado;
+        /// <summary>Há algo não salvo (inclusive um item digitado na barra e ainda não adicionado).</summary>
+        public bool Alterado => _alterado || !_barra.Vazia;
 
         /// <summary>A data foi mudada à mão nesta tela: o app não a troca mais sozinho.</summary>
         public bool DataAlteradaAMao => _dataManual;
@@ -197,14 +209,12 @@ namespace PontoDoGesso.Forms
             return painel;
         }
 
-        /// <summary>Bloco com título; o GroupBox com AutoSize cortava linhas ao mostrar/esconder o aviso do cliente.</summary>
-        private TableLayoutPanel Grupo(string titulo)
-        {
-            var grupo = Suspenso(new TableLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, ColumnCount = 1, Margin = new Padding(0, 2, 0, 4) });
-            grupo.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            grupo.Controls.Add(new Label { Text = titulo, AutoSize = true, Font = new Font(Font, FontStyle.Bold), ForeColor = Color.FromArgb(0xC5, 0x5A, 0x11), Margin = new Padding(0, 2, 0, 0) });
-            return grupo;
-        }
+        /// <summary>
+        /// Título do bloco (Cliente, Entrega, Itens) na mesma linha dos primeiros campos: sobra altura para a lista de itens
+        /// em monitor 1024×768. (O GroupBox com AutoSize cortava linhas ao mostrar/esconder o aviso do cliente.)
+        /// </summary>
+        private Label Titulo(string texto) =>
+            new Label { Text = texto, AutoSize = true, Anchor = AnchorStyles.Left, Font = new Font(Font, FontStyle.Bold), ForeColor = Color.FromArgb(0xC5, 0x5A, 0x11), Margin = new Padding(0, 0, 8, 0), MinimumSize = new Size(58, 0) };
 
         private static Label Rotulo(string texto) => new Label { Text = texto, AutoSize = true, Anchor = AnchorStyles.Left };
 
@@ -230,14 +240,14 @@ namespace PontoDoGesso.Forms
 
         private Control CriarCliente()
         {
-            var grupo = Grupo("Cliente");
-            var tabela = Suspenso(new TableLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, ColumnCount = 4 });
+            var tabela = Suspenso(new TableLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, ColumnCount = 4, Margin = new Padding(0, 2, 0, 2) });
             tabela.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             tabela.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             tabela.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             tabela.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
 
             var tipos = Suspenso(new FlowLayoutPanel { AutoSize = true, WrapContents = false, Margin = new Padding(0) });
+            tipos.Controls.Add(Titulo("Cliente"));
             tipos.Controls.Add(_cadastrado);
             tipos.Controls.Add(_avulso);
             tabela.Controls.Add(tipos, 0, 0);
@@ -252,35 +262,40 @@ namespace PontoDoGesso.Forms
             tabela.Controls.Add(busca, 1, 0);
             tabela.SetColumnSpan(busca, 3);
 
-            tabela.Controls.Add(Rotulo("Nome *"), 0, 1);
-            tabela.Controls.Add(_nome, 1, 1);
-            tabela.Controls.Add(Rotulo("Telefone"), 2, 1);
-            tabela.Controls.Add(_telefone, 3, 1);
+            // Nome e telefone numa linha própria: o nome começa logo depois do rótulo, sem o vão da coluna dos botões de tipo
+            var nome = Suspenso(new TableLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, ColumnCount = 4, Margin = new Padding(0) });
+            nome.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            nome.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            nome.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            nome.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            nome.Controls.Add(new Label { Text = "Nome *", AutoSize = true, Anchor = AnchorStyles.Left, MinimumSize = new Size(66, 0) }, 0, 0);
+            nome.Controls.Add(_nome, 1, 0);
+            nome.Controls.Add(Rotulo("Telefone"), 2, 0);
+            nome.Controls.Add(_telefone, 3, 0);
+            tabela.Controls.Add(nome, 0, 1);
+            tabela.SetColumnSpan(nome, 4);
 
             tabela.Controls.Add(_avisoCliente, 0, 2);
             tabela.SetColumnSpan(_avisoCliente, 4);
 
-            grupo.Controls.Add(tabela);
-
             _cadastrado.CheckedChanged += (s, e) => AoMudarTipoCliente();
-            return grupo;
+            return tabela;
         }
 
         private Control CriarEntrega()
         {
-            var grupo = Grupo("Entrega");
-            var tabela = Suspenso(new TableLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, ColumnCount = 1 });
+            var tabela = Suspenso(new TableLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, ColumnCount = 1, Margin = new Padding(0, 2, 0, 2) });
             tabela.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
 
             var tipos = Suspenso(new FlowLayoutPanel { AutoSize = true, WrapContents = false, Margin = new Padding(0) });
+            tipos.Controls.Add(Titulo("Entrega"));
             tipos.Controls.Add(_entrega);
             tipos.Controls.Add(_retirada);
             tabela.Controls.Add(tipos, 0, 0);
             tabela.Controls.Add(_painelEntrega, 0, 1);
-            grupo.Controls.Add(tabela);
 
             _retirada.CheckedChanged += (s, e) => AoMudarTipoEntrega();
-            return grupo;
+            return tabela;
         }
 
         private TableLayoutPanel CriarPainelEntrega()
@@ -315,7 +330,7 @@ namespace PontoDoGesso.Forms
             {
                 Name = "itens",
                 Dock = DockStyle.Fill,
-                AllowUserToAddRows = true,
+                AllowUserToAddRows = false,
                 AllowUserToDeleteRows = false,
                 AllowUserToResizeRows = false,
                 AllowUserToOrderColumns = false,
@@ -326,15 +341,30 @@ namespace PontoDoGesso.Forms
                 BackgroundColor = Color.White,
                 BorderStyle = BorderStyle.FixedSingle,
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                MinimumSize = new Size(0, 150)
+                MinimumSize = new Size(0, 120),
+                RowTemplate = { Height = 26 }
             };
 
             grade.Columns.Add(Estilo.CriarColuna("codigo", "Cód.", 7));
+            grade.Columns.Add(BotaoDaLinha(GradeItens.ColunaMenos, "−", "Diminuir a quantidade (tecla −)"));
             grade.Columns.Add(Estilo.CriarColuna("quantidade", "Qtd", 8));
+            grade.Columns.Add(BotaoDaLinha(GradeItens.ColunaMais, "+", "Aumentar a quantidade (tecla +)"));
             grade.Columns.Add(Estilo.CriarColuna("unidade", "Un", 7));
-            grade.Columns.Add(Estilo.CriarColuna("descricao", "Descrição (código ou nome)", 52));
+            grade.Columns.Add(Estilo.CriarColuna("descricao", "Descrição", 48));
             grade.Columns.Add(Estilo.CriarColuna("unitario", "Unitário", 13));
             grade.Columns.Add(Estilo.CriarColuna("total", "Total", 13));
+            var lixeira = Icones.Desenhar(Icones.Lixeira, 18, Color.Firebrick);
+            grade.Columns.Add(new DataGridViewImageColumn
+            {
+                Name = GradeItens.ColunaRemover,
+                HeaderText = "",
+                ToolTipText = "Remover o item (Delete)",
+                Image = lixeira,
+                DefaultCellStyle = { NullValue = lixeira },
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                Width = 32,
+                Resizable = DataGridViewTriState.False
+            });
 
             grade.Columns["codigo"].ReadOnly = true;
             grade.Columns["total"].ReadOnly = true;
@@ -346,7 +376,6 @@ namespace PontoDoGesso.Forms
             grade.Columns["total"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
             ((DataGridViewTextBoxColumn)grade.Columns["descricao"]).MaxInputLength = 200;
 
-            grade.EditingControlShowing += AoMostrarEdicao;
             grade.CellEndEdit += AoTerminarEdicao;
             grade.CellValueChanged += (s, e) =>
             {
@@ -567,15 +596,8 @@ namespace PontoDoGesso.Forms
 
                 _grade.Rows.Clear();
                 foreach (var item in orcamento.Itens.OrderBy(item => item.Ordem))
-                {
-                    var linha = _grade.Rows[_grade.Rows.Add()];
-                    linha.Tag = item.ProdutoId == null ? null : new Produto { Id = item.ProdutoId.Value, Nome = item.Descricao };
-                    linha.Cells["codigo"].Value = item.ProdutoId == null ? null : Formatacao.Codigo(item.ProdutoId.Value);
-                    linha.Cells["quantidade"].Value = Formatacao.Quantidade(item.Quantidade);
-                    linha.Cells["unidade"].Value = item.Unidade;
-                    linha.Cells["descricao"].Value = item.Descricao;
-                    linha.Cells["unitario"].Value = Formatacao.Valor(item.UnitarioCentavos);
-                }
+                    AdicionarLinhaItem(item, null);
+                _barra.Limpar();
 
                 _observacoes.Text = orcamento.Observacoes ?? "";
                 _contador.Text = _observacoes.TextLength + "/" + LimiteObservacoes;
@@ -758,25 +780,56 @@ namespace PontoDoGesso.Forms
             return Formatacao.Codigo(produto.Id) + " – " + produto.Nome + " – " + Formatacao.Moeda(produto.PrecoCentavos) + (produto.Unidade == null ? "" : " / " + produto.Unidade);
         }
 
-        private void AoMostrarEdicao(object sender, DataGridViewEditingControlShowingEventArgs e)
+        private static DataGridViewButtonColumn BotaoDaLinha(string nome, string texto, string dica) => new DataGridViewButtonColumn
         {
-            if (_grade.Columns[_grade.CurrentCell.ColumnIndex].Name == "descricao" && e.Control is TextBox campo)
-            {
-                _sugestoesProdutos.Ligar(campo);
-                _grade.Sugestoes = _sugestoesProdutos;
-            }
-            else
-            {
-                _sugestoesProdutos.Desligar();
-                _grade.Sugestoes = null;
-            }
+            Name = nome,
+            HeaderText = "",
+            Text = texto,
+            UseColumnTextForButtonValue = true,
+            ToolTipText = dica,
+            AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+            Width = 28,
+            Resizable = DataGridViewTriState.False,
+            FlatStyle = FlatStyle.System,
+            DefaultCellStyle = { Font = new Font("Segoe UI", 10F, FontStyle.Bold), Alignment = DataGridViewContentAlignment.MiddleCenter }
+        };
+
+        /// <summary>Título "Itens" e a barra de adicionar item.</summary>
+        private Control CriarItens()
+        {
+            var itens = Suspenso(new TableLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, ColumnCount = 2, Margin = new Padding(0, 4, 0, 0) });
+            itens.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            itens.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            itens.Controls.Add(Titulo("Itens"), 0, 0);
+            itens.Controls.Add(_barra, 1, 0);
+            return itens;
         }
+
+        /// <summary>Item vindo da barra (ou de fora): entra no fim da lista. O preço do catálogo é copiado.</summary>
+        public void AdicionarItem(ItemOrcamento item, Produto produto = null)
+        {
+            var linha = AdicionarLinhaItem(item, produto);
+            // A linha nova fica marcada (e à vista): + e − já mudam a quantidade dela
+            _grade.CurrentCell = linha.Cells["quantidade"];
+            MarcarAlterado();
+        }
+
+        private DataGridViewRow AdicionarLinhaItem(ItemOrcamento item, Produto produto)
+        {
+            var linha = _grade.Rows[_grade.Rows.Add()];
+            linha.Tag = produto ?? (item.ProdutoId == null ? null : new Produto { Id = item.ProdutoId.Value, Nome = item.Descricao });
+            linha.Cells["codigo"].Value = item.ProdutoId == null ? null : Formatacao.Codigo(item.ProdutoId.Value);
+            linha.Cells["quantidade"].Value = Formatacao.Quantidade(item.Quantidade);
+            linha.Cells["unidade"].Value = item.Unidade;
+            linha.Cells["descricao"].Value = item.Descricao;
+            linha.Cells["unitario"].Value = Formatacao.Valor(item.UnitarioCentavos);
+            return linha;
+        }
+
+        public BarraItem Barra => _barra;
 
         private void AoTerminarEdicao(object sender, DataGridViewCellEventArgs e)
         {
-            _sugestoesProdutos.Desligar();
-            _grade.Sugestoes = null;
-
             var linha = _grade.Rows[e.RowIndex];
             if (_grade.Columns[e.ColumnIndex].Name == "descricao" && linha.Tag is Produto produto && produto.Nome != Convert.ToString(linha.Cells["descricao"].Value))
             {
@@ -786,29 +839,6 @@ namespace PontoDoGesso.Forms
             }
 
             MarcarAlterado();
-        }
-
-        /// <summary>Preenche a linha com o produto do catálogo (preço copiado: mudar aqui não altera o catálogo) e vai para a próxima linha.</summary>
-        public void EscolherProduto(int indice, Produto produto)
-        {
-            if (_grade.IsCurrentCellInEditMode && _grade.CurrentCell.RowIndex == indice && _grade.Columns[_grade.CurrentCell.ColumnIndex].Name == "descricao")
-                _grade.EditingControl.Text = produto.Nome;
-
-            _grade.EndEdit();
-
-            var linha = _grade.Rows[indice];
-            linha.Tag = produto;
-            linha.Cells["codigo"].Value = Formatacao.Codigo(produto.Id);
-            linha.Cells["descricao"].Value = produto.Nome;
-            linha.Cells["unidade"].Value = produto.Unidade;
-            linha.Cells["unitario"].Value = Formatacao.Valor(produto.PrecoCentavos);
-            if (string.IsNullOrWhiteSpace(Convert.ToString(linha.Cells["quantidade"].Value)))
-                linha.Cells["quantidade"].Value = "1";
-
-            MarcarAlterado();
-
-            if (indice + 1 < _grade.Rows.Count)
-                _grade.CurrentCell = _grade.Rows[indice + 1].Cells["quantidade"];
         }
 
         private static string Texto(DataGridViewRow linha, string coluna) => Convert.ToString(linha.Cells[coluna].Value)?.Trim() ?? "";
@@ -969,6 +999,10 @@ namespace PontoDoGesso.Forms
 
             AtualizarData();
 
+            // Item digitado na barra e não adicionado: entra agora (ou mostra o que falta)
+            if (!_barra.Vazia && !_barra.Adicionar())
+                return Recusar("O item da barra \"Adicionar item\" está incompleto: " + _barra.Erro + " Complete ou tecle Esc para limpar a barra.", _barra.CampoProduto);
+
             var nome = Estilo.Limpo(_nome.Text);
             if (nome == null)
                 return Recusar("Informe o nome do cliente.", _nome);
@@ -1091,7 +1125,7 @@ namespace PontoDoGesso.Forms
         {
             string aviso = null;
 
-            if (_alterado || _orcamento.Id == 0)
+            if (Alterado || _orcamento.Id == 0)
             {
                 if (!Salvar())
                     return;
@@ -1115,7 +1149,7 @@ namespace PontoDoGesso.Forms
         /// <summary>Ctrl+N: esta janela passa a ser um orçamento em branco (pergunta antes se há alterações).</summary>
         public bool NovoOrcamento()
         {
-            if (_alterado)
+            if (Alterado)
             {
                 var resposta = PerguntarSalvar("Este orçamento tem alterações não salvas. Salvar antes de começar outro?");
                 if (resposta == DialogResult.Cancel || (resposta == DialogResult.Yes && !Salvar()))
@@ -1131,7 +1165,7 @@ namespace PontoDoGesso.Forms
         /// <summary>Esta mesma janela passa a ser um orçamento novo (sem número), com os mesmos dados e a data de hoje.</summary>
         public bool Duplicar()
         {
-            if (_alterado && _orcamento.Id != 0)
+            if (Alterado && _orcamento.Id != 0)
             {
                 var resposta = PerguntarSalvar("Salvar as alterações do orçamento Nº " + Formatacao.Codigo(_orcamento.Numero) + " antes de duplicar?");
                 if (resposta == DialogResult.Cancel || (resposta == DialogResult.Yes && !Salvar()))
@@ -1166,7 +1200,7 @@ namespace PontoDoGesso.Forms
         public override void AoAtivar() => AtualizarData();
 
         public override bool PodeSair() =>
-            PerguntarAntesDeSair(_alterado, "Este orçamento tem alterações não salvas. Salvar antes de sair?", Salvar);
+            PerguntarAntesDeSair(Alterado, "Este orçamento tem alterações não salvas. Salvar antes de sair?", Salvar);
 
         protected override bool Confirmar(string pergunta) => Confirmar(pergunta, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
     }

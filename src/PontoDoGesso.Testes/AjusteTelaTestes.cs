@@ -122,6 +122,11 @@ namespace PontoDoGesso.Testes
                         form.Ir(destino);
                         if (destino == Destino.Orcamento)
                             form.NovoOrcamento(cliente);
+
+                        // Mede só depois de o layout assentar (os rótulos AutoSize dos totais mudam de largura ao recalcular)
+                        Application.DoEvents();
+                        form.TelaAtual.PerformLayout();
+                        form.PerformLayout();
                         Application.DoEvents();
 
                         var conteudo = (Panel)form.Controls.Find("conteudo", false)[0];
