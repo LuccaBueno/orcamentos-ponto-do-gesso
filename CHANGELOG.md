@@ -4,6 +4,10 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/); 
 
 ## [Não lançado]
 
+## [0.9.5] - 2026-11-19
+
+Só a correção dos totais da tela de orçamento. Inclui tudo da v0.9.4: quem está na v0.9.2, v0.9.3 ou v0.9.4 atualiza pelo botão **Verificar atualizações** e continua com os mesmos clientes, produtos e orçamentos (vindo da v0.9.2 ou v0.9.3, o banco recebe a migração 003, com backup antes).
+
 ### Corrigido
 - Tela de orçamento: os valores de Subtotal, Desconto, Frete e TOTAL às vezes saíam da borda direita da tela (o painel dos totais ficava com o layout velho). Os totais têm agora colunas de largura fixa.
 
