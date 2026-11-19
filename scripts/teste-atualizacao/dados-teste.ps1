@@ -48,6 +48,16 @@ try {
     "orçamentos: " + $comando.ExecuteScalar()
     $comando.CommandText = "SELECT valor FROM configuracoes WHERE chave = 'atualizacao.ultima_verificacao'"
     "ultima verificação: " + $comando.ExecuteScalar()
+    $comando.CommandText = "SELECT max(versao) FROM versao_banco"
+    "banco: versão " + $comando.ExecuteScalar()
+    if ($Acao -eq 'criar') {
+        $comando.CommandText = "UPDATE configuracoes SET valor = 'LOJA DE TESTE DA ATUALIZAÇÃO' WHERE chave = 'loja.nome'"
+        "loja renomeada para o teste: " + $comando.ExecuteNonQuery()
+    }
+    $comando.CommandText = "SELECT group_concat(chave || '=' || coalesce(valor, ''), '; ') FROM (SELECT * FROM configuracoes WHERE chave LIKE 'loja.%' AND chave <> 'loja.cnpj' ORDER BY chave)"
+    "loja: " + $comando.ExecuteScalar()
+    $comando.CommandText = "SELECT count(*) FROM configuracoes WHERE chave = 'loja.cnpj'"
+    "banco: chave loja.cnpj " + $comando.ExecuteScalar()
     if ($Acao -eq 'liberar-verificacao') {
         $comando.CommandText = "UPDATE configuracoes SET valor = NULL WHERE chave = 'atualizacao.ultima_verificacao'"
         "verificação liberada: " + $comando.ExecuteNonQuery()

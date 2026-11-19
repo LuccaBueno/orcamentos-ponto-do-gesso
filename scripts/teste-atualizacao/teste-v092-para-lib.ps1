@@ -89,7 +89,8 @@ Conferir (Test-Path (Join-Path $app 'lib\x86\SQLite.Interop.dll')) 'lib\x86\SQLi
 Conferir (Test-Path (Join-Path "$app.anterior" 'System.Data.SQLite.dll')) 'v0.9.2 guardada em PontoDoGesso.anterior'
 $depois = & $ps32 -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'dados-teste.ps1') -App $app -Dados $dados -Acao conferir
 $depois | ForEach-Object { "        $_" }
-Conferir ((($antes | Where-Object { $_ -notlike 'ultima*' }) -join '|') -eq (($depois | Where-Object { $_ -notlike 'ultima*' }) -join '|')) 'clientes e orçamentos iguais aos de antes'
+$filtrar = { param($linhas) ($linhas | Where-Object { $_ -notlike 'ultima*' -and $_ -notlike 'banco:*' -and $_ -notlike 'loja renomeada*' }) -join '|' }
+Conferir ((& $filtrar $antes) -eq (& $filtrar $depois)) 'clientes, orçamentos e dados da loja iguais aos de antes'
 $p = Start-Process -FilePath $exe -ArgumentList '--autoteste', "`"$base\autoteste.txt`"" -WorkingDirectory $app -Wait -PassThru
 Conferir ($p.ExitCode -eq 0) 'autoteste do app atualizado (SQLite, banco, PDF e PNG)'
 "        log do Atualizador:"

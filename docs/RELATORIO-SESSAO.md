@@ -4,6 +4,13 @@ Sessão sem acompanhamento, a partir do pedido feito depois do uso real na loja 
 
 Ao final: **506 testes passando** (eram 442 no início da sessão).
 
+**Depois da sessão (19/11/2026, a pedido do Lucca):** publicada a **v0.9.4** (https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/releases/tag/v0.9.4) com tudo desta sessão (seção [0.9.4] do `C:\dev\orcamentos-ponto-do-gesso\CHANGELOG.md`). A v1.0.0 **não** foi publicada.
+
+- A release tem `PontoDoGesso-v0.9.4.zip`, `PontoDoGesso-v0.9.4.zip.sha256`, `PontoDoGesso.zip`, `PontoDoGesso-Instalador-v0.9.4.exe` e `PontoDoGesso-Instalador.exe`. Os links do README (`releases/latest/download/PontoDoGesso-Instalador.exe` e `.../PontoDoGesso.zip`) entregam exatamente esses arquivos: instalador versão 0.9.4 (SHA-256 `3df928fad2b9be803f588399935d1c9efd100b301c996ba2fca871bea3aaadc9`), zip com o `PontoDoGesso.exe` 0.9.4.0 (SHA-256 `38d39f558e05df7dd404cd21e4e9a520e659de6a6f7df0ee7cab33010a0c3fdd`, igual ao `.sha256`).
+- **Atualização v0.9.3 → v0.9.4 contra o GitHub de verdade** — `C:\dev\orcamentos-ponto-do-gesso\scripts\teste-atualizacao\teste-v093-para-v094.ps1` (tudo em `C:\dev\orcamentos-ponto-do-gesso\.tmp\teste-v0.9.3-para-v0.9.4\`): baixa a v0.9.3 publicada (SHA-256 conferido), cria dados com ela (banco na **versão 2**, antes da migração 003, com o nome da loja trocado), abre o app e, com o **código da própria v0.9.3**, consulta a última release no GitHub: ela enxerga a **v0.9.4 como versão nova**, baixa, confere o SHA-256 e chama o Atualizador; o app fecha, a pasta é trocada e o app novo abre. Resultado: exe 0.9.4, v0.9.3 guardada em `PontoDoGesso.anterior`, **banco na versão 3** com a chave `loja.cnpj`, clientes, orçamentos e **dados da loja iguais**, **backup da migração criado** (`backups\dados_2026-11-19_1638.db`) e autoteste do app novo OK. 17 conferências, todas ok.
+- **Atualização v0.9.2 → v0.9.4** (a loja ainda está na v0.9.2): `C:\dev\orcamentos-ponto-do-gesso\scripts\teste-atualizacao\teste-v092-para-lib.ps1` com o zip da v0.9.4 publicado. O código da v0.9.2 enxerga a v0.9.4, a pasta passa para a organização com `lib\` (sem DLLs na raiz, sem `x86\`), o banco vai da versão 2 para a 3, o backup da migração é criado e os dados continuam iguais.
+- No caminho: o teste de tamanho das telas falhava 1 vez em cada ~10 execuções da suíte (inclusive no CI do commit da v0.9.4): com dezenas de janelas de teste em paralelo, media a tela no meio de uma passada de layout (painel com 1 px de altura). O teste passou a medir de novo até o layout parar de mudar (até 3 s; contraprova: com um corte de verdade ele continua falhando) e os totais ganharam colunas de largura fixa. Depois disso, 8 execuções seguidas sem falha. Isso foi corrigido **depois** da tag: a v0.9.4 publicada tem o código de antes dessa correção (o layout dos totais é o mesmo na tela).
+
 ## O que mudou
 
 | Item | O que foi feito | Onde |
@@ -75,10 +82,7 @@ Antes de qualquer teste com os dados reais, o app vai aplicar a migração 003 e
 
 ### Na loja (Windows 7)
 
-1. Depois que você publicar uma versão com estas mudanças: atualizar pelo botão e conferir que os dados (inclusive os da loja, agora na tela Empresa) continuam iguais.
-2. Conferir no monitor da loja que nada fica cortado com a janela maximizada (a resolução da loja ainda não foi anotada na tabela "PC da loja" do `C:\dev\orcamentos-ponto-do-gesso\docs\fases\README.md`).
-3. Conferir os ícones do menu lateral e os botões − e + no Windows 7 (fontes e desenho).
-4. Cronometrar um orçamento de 5 itens com quem usa o app no balcão.
+Siga a **Parte C — atualização pelo botão para a v0.9.4 e teste das novidades**, mais abaixo neste arquivo (na seção "Roteiro da visita à loja").
 
 # Relatório da sessão — 18/11/2026 (depois do primeiro teste na loja: instalador, pasta lib\ e Voltar ao menu)
 
@@ -132,7 +136,7 @@ Durante a sessão nenhuma tag nem release foi criada.
 
 ### Na loja (Windows 7), com a v0.9.3 publicada
 
-1. **Atualização pelo botão** a partir da v0.9.2 já instalada: Verificar atualizações → v0.9.3 → Atualizar agora. Passo a passo completo na **Parte C — teste da atualização pelo botão: v0.9.2 → v0.9.3**, mais abaixo neste arquivo. Conferir que `C:\PontoDoGesso\` ficou organizada (só o exe, os `.config`, o Atualizador, `lib\` e `assets\`) e que os dados continuam.
+1. **Atualização pelo botão** a partir da v0.9.2 já instalada: Verificar atualizações → v0.9.3 → Atualizar agora. **Substituído (19/11/2026) pela atualização para a v0.9.4:** passo a passo na **Parte C — atualização pelo botão para a v0.9.4 e teste das novidades**, mais abaixo neste arquivo. Conferir que `C:\PontoDoGesso\` ficou organizada (só o exe, os `.config`, o Atualizador, `lib\` e `assets\`) e que os dados continuam.
 2. **Instalador por cima:** baixar `PontoDoGesso-Instalador.exe` pelo botão do README e instalar. Conferir: não pediu senha de administrador; aviso do SmartScreen ("Mais informações › Executar assim mesmo"); atalhos na Área de Trabalho e no Menu Iniciar com o ícone laranja; "Abrir o Ponto do Gesso" no fim; dados mantidos.
 3. Ajuda → Diagnóstico → Testar banco e Testar PDF/PNG (confirmam o `lib\` no Windows 7).
 4. Se possível, num outro PC com Windows 7 sem o .NET 4.8: abrir o instalador e conferir a mensagem em português com o link.
@@ -442,25 +446,33 @@ O **teste da atualização pelo botão** é a parte C: a loja já está com a v0
    - marca os itens nos arquivos das fases (`C:\dev\orcamentos-ponto-do-gesso\docs\fases\FASE-01-esqueleto-win7.md` a `FASE-10-polimento-v1.md`);
    - preenche a tabela "PC da loja" de `C:\dev\orcamentos-ponto-do-gesso\docs\fases\README.md`.
 
-### Parte C — teste da atualização pelo botão: v0.9.2 → v0.9.3
+### Parte C — atualização pelo botão para a v0.9.4 e teste das novidades
 
-*Atualizado em 18/11/2026: a **v0.9.3** foi publicada (https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/releases/tag/v0.9.3).* A loja está com a **v0.9.2** (descompactada do zip, com as DLLs soltas na raiz de `C:\PontoDoGesso\`). O botão testa de verdade a atualização para a v0.9.3, que muda a pasta do app para a organização nova com `lib\`, com o antivírus ligado e os dados reais. O código da v0.9.2 já foi conferido contra o GitHub: ele enxerga a v0.9.3 como versão nova.
+*Atualizado em 19/11/2026: a **v0.9.4** foi publicada (https://github.com/LuccaBueno/orcamentos-ponto-do-gesso/releases/tag/v0.9.4) e substitui o teste v0.9.2 → v0.9.3, que não chegou a ser feito.* A loja está com a **v0.9.2** (DLLs soltas na raiz de `C:\PontoDoGesso\`); se alguém já tiver atualizado para a v0.9.3, o roteiro é o mesmo. O botão vai direto para a **v0.9.4**: muda a pasta do app para a organização com `lib\` e, ao abrir, aplica a **migração 003** do banco (com backup antes). Os dois caminhos foram testados de verdade no PC do Lucca: o código da v0.9.3 contra o GitHub e o da v0.9.2 com o zip publicado da v0.9.4.
 
-1. **Antes:** **Configurações → Backup → Fazer backup agora** e **Copiar backup para…** um pendrive. Tirar uma foto da pasta `C:\PontoDoGesso\` (dezenas de DLLs na raiz e a pasta `x86\`) e anotar quantos orçamentos aparecem no **Histórico**.
-2. Abrir o app. Em até um dia aparece **Nova versão 0.9.3!** no rodapé (ou clicar em **Verificar atualizações**). Conferir a tela com "Versão nova: 0.9.3" → **Atualizar agora**.
-3. O app tem de fechar e abrir sozinho em poucos segundos com **Versão 0.9.3** no rodapé.
-4. **Os dados continuam:** o Histórico mostra os mesmos orçamentos de antes; abrir um orçamento antigo, um cliente e um produto.
-5. **A pasta `C:\PontoDoGesso\` ficou organizada:** na raiz só `PontoDoGesso.exe`, `PontoDoGesso.exe.config`, `PontoDoGesso.Atualizador.exe`, `PontoDoGesso.Atualizador.exe.config` e as pastas `lib\` e `assets\`. **Nenhuma DLL solta na raiz e nenhuma pasta `x86\`**; as DLLs estão em `C:\PontoDoGesso\lib\` e o `SQLite.Interop.dll` em `C:\PontoDoGesso\lib\x86\`. Tirar foto.
-6. Conferir que existem:
-   - `C:\PontoDoGesso.anterior\` (a v0.9.2 guardada, com as DLLs na raiz);
-   - em `%APPDATA%\PontoDoGesso\backups\`, um `dados_..._antes-de-atualizar.db`.
-7. Na versão nova: **Ajuda → Diagnóstico → Testar banco** e **Testar PDF/PNG** (confirmam que o app acha as DLLs em `lib\` no Windows 7); fazer um orçamento de teste e **Copiar imagem**; abrir o orçamento e sair pelo **← Voltar ao menu** e pelo `Esc`.
+**Atualizar**
+
+1. **Antes:** **Configurações → Backup → Fazer backup agora** e **Copiar backup para…** um pendrive. Anotar quantos orçamentos aparecem no **Histórico** e tirar uma foto da aba **Loja** das Configurações (nome, telefone, endereço, rodapé) e da pasta `C:\PontoDoGesso\`.
+2. Abrir o app. Em até um dia aparece **Nova versão 0.9.4!** (ou clicar em **Verificar atualizações**). Conferir "Versão nova: 0.9.4" → **Atualizar agora**.
+3. O app tem de fechar e abrir sozinho em poucos segundos, **maximizado**, com o **menu lateral** à esquerda e **Versão 0.9.4** embaixo dele.
+4. **Os dados continuam:** **Histórico** com os mesmos orçamentos; abrir um orçamento antigo, um cliente e um produto. **Empresa** (menu lateral) com o mesmo nome, telefone, endereço e rodapé da foto do passo 1.
+5. **Pasta organizada:** na raiz de `C:\PontoDoGesso\` só `PontoDoGesso.exe`, `PontoDoGesso.exe.config`, `PontoDoGesso.Atualizador.exe`, `PontoDoGesso.Atualizador.exe.config` e as pastas `lib\` e `assets\`; nenhuma DLL solta e nenhuma pasta `x86\`. (Se a loja já estava na v0.9.3, isso já estava assim.)
+6. Conferir que existem `C:\PontoDoGesso.anterior\` (a versão de antes) e, em `%APPDATA%\PontoDoGesso\backups\`, um `dados_..._antes-de-atualizar.db` e um `dados_AAAA-MM-DD_HHmm.db` **sem sufixo** (o backup antes da migração 003).
+7. **Ajuda → Diagnóstico → Testar banco** e **Testar PDF/PNG**.
 8. **Se o antivírus reclamou ou bloqueou:** anote a mensagem exata (foto), aplique as exclusões da seção 5 de `C:\dev\orcamentos-ponto-do-gesso\docs\INSTALACAO-WINDOWS7.md` e repita.
-9. **Se o botão não funcionar:** fechar o app, baixar o `PontoDoGesso-Instalador.exe` pelo botão do README (é a v0.9.3) e instalar por cima. Os dados não são afetados. O instalador também cria os atalhos na Área de Trabalho e no Menu Iniciar e apaga as DLLs antigas da raiz.
-   - **Plano B** se a v0.9.3 não abrir: `C:\PontoDoGesso.anterior\` tem a v0.9.2; ou extrair o zip da v0.9.2 (pendrive) em `C:\`.
-10. Opcional, depois que o botão funcionou: rodar também o `PontoDoGesso-Instalador.exe` por cima, para ganhar os atalhos e a entrada em Programas e Recursos. Conferir que não pediu senha de administrador e que os dados continuam.
-11. Copiar `%APPDATA%\PontoDoGesso\logs\` (inclui `atualizacao_AAAA-MM.log`) para o pendrive.
-   → Resultados em `C:\dev\orcamentos-ponto-do-gesso\docs\fases\FASE-02-atualizacao.md`, nos itens "Teste real no PC da loja" e "Teste com o antivírus", e na tabela "PC da loja" de `C:\dev\orcamentos-ponto-do-gesso\docs\fases\README.md`.
+9. **Se o botão não funcionar:** fechar o app, baixar o `PontoDoGesso-Instalador.exe` pelo botão do README (é a v0.9.4) e instalar por cima; os dados não são afetados. **Plano B** se a v0.9.4 não abrir: `C:PontoDoGesso.anterior` tem a versão de antes, mas ela recusa o banco já migrado ("versão mais nova do app"). Para voltar: fechar o app; em `%APPDATA%PontoDoGesso`, renomear `dados.db` para `dados-migrado.db` (e, se existirem, `dados.db-wal` e `dados.db-shm` para `dados-migrado.db-wal` e `dados-migrado.db-shm`); copiar o backup **sem sufixo** `backupsdados_AAAA-MM-DD_HHmm.db` para `%APPDATA%PontoDoGessodados.db`; usar a pasta `C:PontoDoGesso.anterior` no lugar de `C:PontoDoGesso`. Avisar o Lucca antes, se possível.
+
+**Testar as novidades** (com os dados reais ou, para não misturar, em **Ajuda → Dados de demonstração**)
+
+10. **Janela única:** clicar em cada item do menu lateral (Início, Novo orçamento, Histórico, Clientes, Produtos, Empresa, Configurações): a tela troca sem abrir janela nova e o item fica laranja. Conferir no monitor da loja que **nada fica cortado** (anotar a resolução na tabela "PC da loja" de `C:\dev\orcamentos-ponto-do-gesso\docs\fases\README.md`) e que os **ícones** do menu e os botões **−** e **+** aparecem direito no Windows 7.
+11. Começar um orçamento, digitar algo e clicar em outro item do menu: tem de aparecer **Salvar / Não salvar / Cancelar**; **Cancelar** fica no orçamento. Repetir fechando o app pelo X.
+12. **Histórico:** **Abrir** e **Duplicar** um orçamento abrem na área principal. **Clientes:** **Novo orçamento para este cliente** e **Orçamentos deste cliente** trocam a tela. **Início:** os últimos 5 orçamentos abrem com Enter ou clique duplo.
+13. **Data:** num orçamento novo a data é a de hoje. Escolher outra data no calendário: aparece **data alterada manualmente**. Duplicar um orçamento antigo: a cópia vem com a data de hoje. Abrir um orçamento salvo em outro dia e exportar de novo: a data dele não muda. Se der, deixar um orçamento novo aberto de um dia para o outro e exportar no dia seguinte: tem de sair a data do dia seguinte.
+14. **Empresa e CNPJ:** na tela **Empresa**, digitar um CNPJ errado (ex.: `11.222.333/0001-82`) e ver "CNPJ não existe"; digitar o **CNPJ certo da loja**, ver a pré-visualização do cabeçalho e **Salvar**. Num orçamento novo, a caixa **Mostrar CNPJ da empresa neste orçamento** vem **desmarcada**: exportar o PNG e conferir que sai igual a antes. Marcar a caixa, exportar PNG, PDF e imprimir: o CNPJ sai abaixo do endereço. **Duplicar** esse orçamento: a caixa volta desmarcada.
+15. **Barra de itens — cronometrar:** com o relógio do celular, fazer um orçamento de **5 itens do catálogo só pelo teclado** (para cada item: parte do nome, `Enter`, a quantidade, `Enter`, `Enter`) e anotar o tempo, do primeiro item ao último (meta: menos de 1 minuto). Depois o mesmo **só com o mouse** (clique na sugestão, **+** e **Adicionar**) e anotar o tempo. Se der, pedir para quem atende no balcão fazer também.
+16. Na lista de itens: **−**, **+** e a **lixeira** de uma linha; com uma linha selecionada, as teclas `+` e `−` (também as do teclado numérico) e `Delete`; arrastar uma linha para cima; `Ctrl+↑`/`Ctrl+↓`. Corrigir um preço direto na lista e conferir que o catálogo não mudou.
+17. Copiar `%APPDATA%\PontoDoGesso\logs\` (inclui `atualizacao_AAAA-MM.log`) para o pendrive.
+   → Resultados em `C:\dev\orcamentos-ponto-do-gesso\docs\fases\FASE-02-atualizacao.md` (itens "Teste real no PC da loja" e "Teste com o antivírus"), na tabela "PC da loja" de `C:\dev\orcamentos-ponto-do-gesso\docs\fases\README.md` e, com os tempos do passo 15, neste relatório.
 
 A **v1.0.0** só sai depois desse teste.
 
