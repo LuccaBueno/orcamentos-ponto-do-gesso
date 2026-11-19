@@ -392,7 +392,8 @@ namespace PontoDoGesso.Forms
         {
             var rodape = Suspenso(new TableLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, ColumnCount = 2, Margin = new Padding(0, 4, 0, 0) });
             rodape.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            rodape.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            // Totais numa coluna de largura fixa (12 de margem + 252 + 112): ver o comentário dos totais
+            rodape.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 376F));
 
             // Esquerda: observações e validade
             var esquerda = Suspenso(new TableLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, ColumnCount = 2, Margin = new Padding(0) });
@@ -417,10 +418,11 @@ namespace PontoDoGesso.Forms
             esquerda.Controls.Add(cnpj, 0, 3);
             esquerda.SetColumnSpan(cnpj, 2);
 
-            // Direita: totais
-            var totais = Suspenso(new TableLayoutPanel { AutoSize = true, ColumnCount = 2, Margin = new Padding(16, 0, 0, 0), Anchor = AnchorStyles.Top | AnchorStyles.Right });
-            totais.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-            totais.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            // Direita: totais, sem tamanho automático, ocupando a coluna fixa do rodapé e com colunas de largura fixa. Com AutoSize
+            // (painel automático dentro de painel automático), às vezes o layout dos totais ficava velho e o valor saía da borda
+            var totais = Suspenso(new TableLayoutPanel { ColumnCount = 2, Margin = new Padding(12, 0, 0, 0), Dock = DockStyle.Fill, MinimumSize = new Size(0, 132) });
+            totais.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 252F));
+            totais.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 112F));
 
             totais.Controls.Add(Rotulo("Subtotal"), 0, 0);
             totais.Controls.Add(_subtotal, 1, 0);
