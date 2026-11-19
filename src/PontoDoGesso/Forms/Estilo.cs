@@ -5,7 +5,7 @@ using PontoDoGesso.Servicos;
 
 namespace PontoDoGesso.Forms
 {
-    /// <summary>Aparência comum das janelas de cadastro.</summary>
+    /// <summary>Aparência comum das janelas (diálogos) e telas.</summary>
     internal static class Estilo
     {
         public static void Aplicar(Form form, int largura, int altura)
@@ -45,73 +45,6 @@ namespace PontoDoGesso.Forms
         {
             for (var i = 0; i < controles.Length; i++)
                 controles[i].TabIndex = i;
-        }
-
-        /// <summary>Ctrl+F leva o cursor para o campo de busca da janela.</summary>
-        public static void LigarBusca(Form form, TextBox busca)
-        {
-            form.KeyPreview = true;
-            form.KeyDown += (s, e) =>
-            {
-                if (e.KeyData != (Keys.Control | Keys.F))
-                    return;
-
-                busca.Focus();
-                busca.SelectAll();
-                e.Handled = true;
-                e.SuppressKeyPress = true;
-            };
-        }
-
-        private static readonly Color Laranja = Color.FromArgb(0xC5, 0x5A, 0x11);
-
-        /// <summary>
-        /// Faixa no alto da janela com o botão "Voltar ao menu" (fecha a janela; o OnFormClosing de cada uma pergunta se há
-        /// alterações não salvas). O Esc faz o mesmo: ver <see cref="EscVoltaAoMenu"/>.
-        /// </summary>
-        public static Control CriarVoltarAoMenu(Form form)
-        {
-            var voltar = new Button
-            {
-                Name = "voltarMenu",
-                Text = "←  Voltar ao menu  (Esc)",
-                AutoSize = true,
-                Font = new Font("Segoe UI", 11F, FontStyle.Bold),
-                ForeColor = Color.White,
-                BackColor = Laranja,
-                FlatStyle = FlatStyle.Flat,
-                Padding = new Padding(10, 3, 10, 3),
-                Margin = new Padding(0),
-                Cursor = Cursors.Hand,
-                TabStop = false
-            };
-            voltar.FlatAppearance.BorderColor = Laranja;
-            voltar.Click += (s, e) => form.Close();
-
-            var faixa = new FlowLayoutPanel { Name = "faixaVoltar", Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Padding = new Padding(8, 8, 8, 4) };
-            faixa.Controls.Add(voltar);
-            return faixa;
-        }
-
-        /// <summary>
-        /// Esc fecha a janela (volta ao menu), a não ser que uma lista de sugestões esteja aberta: aí o Esc só fecha a lista.
-        /// Chamado no ProcessDialogKey da janela, depois dos controles (a grade já usou o Esc para cancelar a edição).
-        /// </summary>
-        public static bool EscVoltaAoMenu(Form form, Keys tecla)
-        {
-            if (tecla != Keys.Escape || ListaAberta(form))
-                return false;
-
-            form.Close();
-            return true;
-        }
-
-        private static bool ListaAberta(Control controle)
-        {
-            foreach (Control filho in controle.Controls)
-                if ((filho is Controles.ListaSugestoes && filho.Visible) || ListaAberta(filho))
-                    return true;
-            return false;
         }
 
         public static Button CriarBotao(string texto, EventHandler aoClicar)

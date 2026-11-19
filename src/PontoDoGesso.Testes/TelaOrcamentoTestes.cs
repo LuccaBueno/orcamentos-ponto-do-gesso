@@ -51,11 +51,11 @@ namespace PontoDoGesso.Testes
             return produto;
         }
 
-        private static GradeItens Grade(Form form) => Tela.Achar<GradeItens>(form, "itens");
+        private static GradeItens Grade(Control form) => Tela.Achar<GradeItens>(form, "itens");
 
-        private static string Texto(Form form, string nome) => Tela.Achar<Control>(form, nome).Text;
+        private static string Texto(Control form, string nome) => Tela.Achar<Control>(form, nome).Text;
 
-        private static int AdicionarItem(Form form, string quantidade, string unidade, string descricao, string unitario)
+        private static int AdicionarItem(Control form, string quantidade, string unidade, string descricao, string unitario)
         {
             var grade = Grade(form);
             var indice = grade.Rows.Add();
@@ -67,7 +67,7 @@ namespace PontoDoGesso.Testes
             return indice;
         }
 
-        private static void Avulso(Form form, string nome, string numeroTelefone = null)
+        private static void Avulso(Control form, string nome, string numeroTelefone = null)
         {
             Tela.Achar<RadioButton>(form, "avulso").Checked = true;
             Tela.Achar<TextBox>(form, "nome").Text = nome;
@@ -658,13 +658,11 @@ namespace PontoDoGesso.Testes
                     Assert.True(form.Alterado);
 
                     form.RespostaSalvar = DialogResult.Cancel;
-                    form.Close();
-                    Assert.True(form.Visible);
-                    Assert.Single(form.Perguntas);
+                    Assert.False(form.PodeSair());
+                    Assert.Equal("Este orçamento tem alterações não salvas. Salvar antes de sair?", Assert.Single(form.Perguntas));
 
                     form.RespostaSalvar = DialogResult.No;
-                    form.Close();
-                    Assert.False(form.Visible);
+                    Assert.True(form.PodeSair());
                 }
             });
 
@@ -681,7 +679,7 @@ namespace PontoDoGesso.Testes
                 using (var form = new OrcamentoSemDialogos(_temporario.Banco, null, cliente))
                 {
                     Tela.Exibir(form);
-                    form.Close();
+                    Assert.True(form.PodeSair());
                     Assert.Empty(form.Perguntas);
                 }
             });
@@ -719,7 +717,7 @@ namespace PontoDoGesso.Testes
 
         // ---------- data do orçamento ----------
 
-        private static DateTimePicker CampoData(Form form) => Tela.Achar<DateTimePicker>(form, "data");
+        private static DateTimePicker CampoData(Control form) => Tela.Achar<DateTimePicker>(form, "data");
 
         [Fact]
         public void OrcamentoNovoPassaParaHojeAoSalvarSeODiaVirou()
@@ -1135,7 +1133,7 @@ namespace PontoDoGesso.Testes
             }, orcamento: _orcamentos.ObterPorId(orcamento.Id));
         }
 
-        private class OrcamentoSemDialogos : FormOrcamento
+        private class OrcamentoSemDialogos : TelaOrcamento
         {
             public List<string> Avisos { get; } = new List<string>();
             public List<string> Perguntas { get; } = new List<string>();
@@ -1164,12 +1162,8 @@ namespace PontoDoGesso.Testes
                 return ProcessCmdKey(ref mensagem, tecla);
             }
 
-            /// <summary>Fecha sem perguntar nada, no fim de cada teste.</summary>
-            public void Descartar()
-            {
-                RespostaSalvar = DialogResult.No;
-                Close();
-            }
+            /// <summary>No fim de cada teste: nada a perguntar (a tela é descartada pelo using).</summary>
+            public void Descartar() => RespostaSalvar = DialogResult.No;
 
             protected override void Avisar(string mensagem) => Avisos.Add(mensagem);
 

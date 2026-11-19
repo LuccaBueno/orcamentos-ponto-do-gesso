@@ -35,16 +35,17 @@ namespace PontoDoGesso.Testes
         private Banco CriarDemonstracao() =>
             Demonstracao.Criar(Path.Combine(_pasta, "demo.db"), Path.Combine(_pasta, "demo-backups"), Path.Combine(_pasta, "demo-exportados"), DateTime.Today);
 
-        private static Bitmap Foto(Form form)
+        private static Bitmap Foto(Control form)
         {
+            Application.DoEvents();
             Application.DoEvents();
             var imagem = new Bitmap(form.Width, form.Height);
             form.DrawToBitmap(imagem, new Rectangle(Point.Empty, form.Size));
 
             // O DrawToBitmap ignora a ordem de sobreposição: a lista de sugestões ficaria escondida atrás dos campos
-            foreach (var lista in form.Controls.OfType<ListaSugestoes>().Where(lista => lista.Visible))
+            foreach (var lista in Listas(form))
             {
-                var tela = form.PointToScreen(lista.Location);
+                var tela = lista.Parent.PointToScreen(lista.Location);
                 using (var foto = new Bitmap(lista.Width, lista.Height))
                 using (var g = Graphics.FromImage(imagem))
                 {
@@ -55,7 +56,10 @@ namespace PontoDoGesso.Testes
             return imagem;
         }
 
-        private void Salvar(Form form, string nome)
+        private static System.Collections.Generic.IEnumerable<ListaSugestoes> Listas(Control raiz) =>
+            raiz.Controls.OfType<ListaSugestoes>().Where(lista => lista.Visible).Concat(raiz.Controls.Cast<Control>().SelectMany(Listas));
+
+        private void Salvar(Control form, string nome)
         {
             using (var imagem = Foto(form))
                 imagem.Save(Path.Combine(_destino, nome + ".png"), ImageFormat.Png);
@@ -75,47 +79,25 @@ namespace PontoDoGesso.Testes
             Tela.EmSta(() =>
             {
                 // O "banco real" da tela principal é só um arquivo vazio na pasta temporária: nunca o do %APPDATA%
+                // Janela do tamanho de um monitor 1366×768 com a barra de tarefas (a janela abre maximizada)
                 using (var form = new PrincipalDemo(new Banco(Path.Combine(_pasta, "real.db"), Path.Combine(_pasta, "backups")), () => banco))
                 {
                     Tela.Exibir(form);
+                    form.Size = new Size(1366, 728);
                     form.AlternarDemonstracao();
                     Salvar(form, "principal");
-                }
 
-                using (var form = new OrcamentoSemAvisos(banco, orcamentos.ObterPorId(ultimo.Id)))
-                {
-                    Tela.Exibir(form);
+                    form.AbrirOrcamento(orcamentos.ObterPorId(ultimo.Id), false);
                     Salvar(form, "orcamento");
-                    form.Close();
-                }
 
-                var filtro = new FiltroHistorico { Periodo = PeriodoHistorico.Ultimos30Dias, Frete = PresencaHistorico.Com };
-                using (var form = new FormHistorico(banco, filtro))
-                {
-                    Tela.Exibir(form);
+                    form.AbrirHistorico(new FiltroHistorico { Periodo = PeriodoHistorico.Ultimos30Dias, Frete = PresencaHistorico.Com });
                     Salvar(form, "historico");
-                    form.Close();
-                }
 
-                using (var form = new FormProdutos(banco))
-                {
-                    Tela.Exibir(form);
-                    Salvar(form, "produtos");
-                    form.Close();
-                }
-
-                using (var form = new FormClientes(banco))
-                {
-                    Tela.Exibir(form);
-                    Salvar(form, "clientes");
-                    form.Close();
-                }
-
-                using (var form = new FormConfiguracoes(banco))
-                {
-                    Tela.Exibir(form);
-                    Salvar(form, "configuracoes");
-                    form.Close();
+                    foreach (var (destino, nome) in new[] { (Destino.Produtos, "produtos"), (Destino.Clientes, "clientes"), (Destino.Empresa, "empresa"), (Destino.Configuracoes, "configuracoes") })
+                    {
+                        form.Ir(destino);
+                        Salvar(form, nome);
+                    }
                 }
             });
 
@@ -140,16 +122,16 @@ namespace PontoDoGesso.Testes
             {
                 using (var form = new OrcamentoSemAvisos(banco))
                 {
-                    Tela.Exibir(form);
+                    var janela = Tela.Exibir(form, 920, 680);
                     var escala = 0.72;
-                    var largura = (int)(form.Width * escala);
-                    var alturaTela = (int)(form.Height * escala);
+                    var largura = (int)(janela.Width * escala);
+                    var alturaTela = (int)(janela.Height * escala);
                     gif = new GifAnimado(largura, alturaTela + 40);
                     var legenda = "";
 
                     void Quadro(int ms)
                     {
-                        using (var foto = Foto(form))
+                        using (var foto = Foto(janela))
                         using (var quadro = ComLegenda(foto, largura, alturaTela, legenda))
                             gif.Adicionar(quadro, ms);
                     }
@@ -207,7 +189,6 @@ namespace PontoDoGesso.Testes
                     using (var quadro = ImagemFinal(imagem, largura, alturaTela, legenda))
                         gif.Adicionar(quadro, 5000);
 
-                    form.Close();
                 }
             });
 
@@ -276,7 +257,7 @@ namespace PontoDoGesso.Testes
             protected override Banco CriarBancoDemonstracao() => _criar();
         }
 
-        private class OrcamentoSemAvisos : FormOrcamento
+        private class OrcamentoSemAvisos : TelaOrcamento
         {
             public string UltimoAviso { get; private set; }
 

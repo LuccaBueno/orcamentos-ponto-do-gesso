@@ -9,7 +9,7 @@ using PontoDoGesso.Servicos;
 
 namespace PontoDoGesso.Forms
 {
-    public class FormProdutos : Form
+    public class TelaProdutos : TelaBase
     {
         private readonly Banco _banco;
         private readonly ProdutoRepositorio _produtos;
@@ -19,18 +19,16 @@ namespace PontoDoGesso.Forms
         private readonly Button _editar;
         private readonly Button _inativar;
 
-        public FormProdutos(Banco banco)
+        public TelaProdutos(Banco banco)
         {
             _banco = banco;
             _produtos = new ProdutoRepositorio(banco);
 
             Text = "Produtos";
-            Estilo.Aplicar(this, 780, 500);
-            MinimumSize = new Size(640, 360);
 
             _busca = new TextBox { Name = "busca", Dock = DockStyle.Fill };
             _busca.TextChanged += (s, e) => Carregar();
-            Estilo.LigarBusca(this, _busca);
+            LigarBusca(_busca);
 
             _mostrarInativos = new CheckBox { Name = "mostrarInativos", Text = "Mostrar inativos", AutoSize = true, Anchor = AnchorStyles.Left };
             _mostrarInativos.CheckedChanged += (s, e) => Carregar();
@@ -90,8 +88,8 @@ namespace PontoDoGesso.Forms
             Controls.Add(_lista);
             Controls.Add(topo);
             Controls.Add(botoes);
-            Controls.Add(Estilo.CriarVoltarAoMenu(this));
             Estilo.OrdemTab(topo, _lista, botoes);
+            ControleInicial = _busca;
 
             Carregar();
         }
@@ -224,7 +222,6 @@ namespace PontoDoGesso.Forms
                 return form.ShowDialog(this) == DialogResult.OK;
         }
 
-        protected override bool ProcessDialogKey(Keys keyData) =>
-            Estilo.EscVoltaAoMenu(this, keyData) || base.ProcessDialogKey(keyData);
+        public override Destino Destino => Destino.Produtos;
     }
 }

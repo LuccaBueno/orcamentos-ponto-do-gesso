@@ -66,6 +66,8 @@ namespace PontoDoGesso.Testes
         /// <summary>Mostra a janela e só volta quando ela e todos os controles visíveis já têm handle (nada fica no meio do CreateHandle).</summary>
         public static void Exibir(Form form)
         {
+            // A janela principal abre maximizada: nos testes ela fica normal, fora da área visível
+            form.WindowState = FormWindowState.Normal;
             form.StartPosition = FormStartPosition.Manual;
             form.Location = new Point(-4000, -4000);
             form.ShowInTaskbar = false;
@@ -80,6 +82,21 @@ namespace PontoDoGesso.Testes
                 Thread.Sleep(5);
             }
             Application.DoEvents();
+        }
+
+        /// <summary>
+        /// Mostra uma tela (UserControl) sozinha numa janela fora da área visível, do tamanho da área de telas da janela principal
+        /// maximizada num monitor 1366×768. A janela é descartada junto com a tela.
+        /// </summary>
+        public static Form Exibir(PontoDoGesso.Forms.TelaBase tela, int largura = 1150, int altura = 680)
+        {
+            var janela = new Form { Text = tela.Text, ClientSize = new Size(largura, altura), Font = tela.Font };
+            janela.Controls.Add(tela);
+            tela.Disposed += (s, e) => janela.Dispose();
+            Exibir(janela);
+            janela.ActiveControl = tela.ControleInicial ?? tela;
+            Application.DoEvents();
+            return janela;
         }
 
         /// <summary>Fecha como o usuário faria (o Close de janela não modal já descarta) e processa as mensagens pendentes.</summary>
@@ -113,7 +130,7 @@ namespace PontoDoGesso.Testes
         }
 
         /// <summary>Controles na ordem em que o Tab passa por eles (só os que podem receber o cursor agora), pelo nome ou pelo texto.</summary>
-        public static string[] OrdemTab(Form form)
+        public static string[] OrdemTab(Control form)
         {
             var ordem = new System.Collections.Generic.List<string>();
             Control atual = null;
@@ -122,19 +139,31 @@ namespace PontoDoGesso.Testes
                 atual = form.GetNextControl(atual, true);
                 if (atual == null)
                     break;
-                if (atual.CanSelect && atual.TabStop && !(atual is Panel) && !(atual is Label && !(atual is LinkLabel)))
+                if (!atual.Visible)
+                    continue;
+                // As telas da janela principal são UserControls: o GetNextControl da janela não entra nelas
+                if (atual is PontoDoGesso.Forms.TelaBase tela)
+                    ordem.AddRange(OrdemTab(tela));
+                else if (atual.CanSelect && atual.TabStop && !(atual is Panel) && !(atual is Label && !(atual is LinkLabel)))
                     ordem.Add(string.IsNullOrEmpty(atual.Name) ? "[" + atual.Text + "]" : atual.Name);
             }
             return ordem.ToArray();
         }
 
-        /// <summary>Tecla vista pela janela com KeyPreview (dispara o KeyDown da janela, como o teclado faria).</summary>
-        public static bool Teclar(Form form, Keys tecla)
+        /// <summary>Atalho de teclado como o Windows entrega: passa pelo ProcessCmdKey do controle (as telas tratam Ctrl+F, Ctrl+S... ali).</summary>
+        /// <summary>Controle com o cursor, descendo pelos UserControls (o ActiveControl da janela para no UserControl).</summary>
+        public static Control Focado(ContainerControl raiz)
         {
-            var argumentos = new KeyEventArgs(tecla);
-            var aoTeclar = typeof(Control).GetMethod("OnKeyDown", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-            aoTeclar.Invoke(form, new object[] { argumentos });
-            return argumentos.Handled;
+            var ativo = raiz.ActiveControl;
+            while (ativo is ContainerControl container && container.ActiveControl != null)
+                ativo = container.ActiveControl;
+            return ativo;
+        }
+
+        public static bool Teclar(Control controle, Keys tecla)
+        {
+            var processar = typeof(Control).GetMethod("ProcessCmdKey", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            return (bool)processar.Invoke(controle, new object[] { new Message(), tecla });
         }
 
         /// <summary>F1 com o cursor no controle: o pedido de ajuda sobe até a janela.</summary>
@@ -145,7 +174,7 @@ namespace PontoDoGesso.Testes
         }
 
         /// <summary>Foto da janela em .tmp\telas, só quando PONTODOGESSO_CAPTURA estiver definida.</summary>
-        public static void Capturar(Form form, string nome)
+        public static void Capturar(Control form, string nome)
         {
             if (Environment.GetEnvironmentVariable("PONTODOGESSO_CAPTURA") == null)
                 return;

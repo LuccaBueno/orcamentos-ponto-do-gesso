@@ -10,7 +10,7 @@ using PontoDoGesso.Servicos;
 
 namespace PontoDoGesso.Forms
 {
-    public class FormOrcamento : Form
+    public class TelaOrcamento : TelaBase
     {
         public const int LimiteObservacoes = 300;
 
@@ -101,7 +101,7 @@ namespace PontoDoGesso.Forms
         private readonly ListaSugestoes _sugestoesClientes;
         private readonly ListaSugestoes _sugestoesProdutos;
 
-        public FormOrcamento(Banco banco, Orcamento orcamento = null, Cliente cliente = null)
+        public TelaOrcamento(Banco banco, Orcamento orcamento = null, Cliente cliente = null)
         {
             _banco = banco;
             _clientes = new ClienteRepositorio(banco);
@@ -112,10 +112,6 @@ namespace PontoDoGesso.Forms
 
             // O layout fica parado durante a montagem (ver Suspenso)
             SuspendLayout();
-            Estilo.Aplicar(this, 920, 680);
-            MinimumSize = new Size(820, 600);
-            MinimizeBox = true;
-            MaximizeBox = true;
             _telefone.DddPadrao = _configuracoes.Obter("cliente.ddd_padrao") ?? "12";
             _cidadePadrao = _configuracoes.Obter("cliente.cidade_padrao") ?? new Cliente().Cidade;
             _validadeDias.Value = LerValidadeSugerida();
@@ -144,7 +140,6 @@ namespace PontoDoGesso.Forms
 
             Controls.Add(layout);
             Controls.Add(CriarBotoes());
-            Controls.Add(Estilo.CriarVoltarAoMenu(this));
 
             _sugestoesClientes = new ListaSugestoes(this, texto => _clientes.Buscar(texto).Take(10), DescreverCliente);
             _sugestoesClientes.Ligar(_buscaCliente);
@@ -172,7 +167,7 @@ namespace PontoDoGesso.Forms
             PerformLayout();
 
             // A data vem primeiro no Tab, mas quase nunca muda: a janela abre com o cursor no cliente
-            ActiveControl = _buscaCliente.Enabled ? (Control)_buscaCliente : _nome;
+            ControleInicial = _buscaCliente.Enabled ? (Control)_buscaCliente : _nome;
         }
 
         public Orcamento Orcamento => _orcamento;
@@ -956,9 +951,6 @@ namespace PontoDoGesso.Forms
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
-        protected override bool ProcessDialogKey(Keys keyData) =>
-            Estilo.EscVoltaAoMenu(this, keyData) || base.ProcessDialogKey(keyData);
-
         /// <summary>Ctrl+F: a busca é de cliente cadastrado; num avulso, volta para Cadastrado (nome e telefone ficam).</summary>
         private void FocarBuscaCliente()
         {
@@ -1166,30 +1158,16 @@ namespace PontoDoGesso.Forms
             return true;
         }
 
-        protected override void OnActivated(EventArgs e)
-        {
-            base.OnActivated(e);
-            AtualizarData();
-        }
+        public override Destino Destino => Destino.Orcamento;
 
-        protected override void OnFormClosing(FormClosingEventArgs e)
-        {
-            if (_alterado && e.CloseReason == CloseReason.UserClosing)
-            {
-                var resposta = PerguntarSalvar("Este orçamento tem alterações não salvas. Salvar antes de voltar ao menu?");
-                if (resposta == DialogResult.Cancel || (resposta == DialogResult.Yes && !Salvar()))
-                    e.Cancel = true;
-            }
+        public override Size TamanhoMinimo => new Size(800, 600);
 
-            base.OnFormClosing(e);
-        }
+        /// <summary>Ao voltar para a tela (ou para o app), o orçamento novo confere se o dia virou.</summary>
+        public override void AoAtivar() => AtualizarData();
 
-        protected virtual void Avisar(string mensagem) =>
-            MessageBox.Show(this, mensagem, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        public override bool PodeSair() =>
+            PerguntarAntesDeSair(_alterado, "Este orçamento tem alterações não salvas. Salvar antes de sair?", Salvar);
 
-        protected virtual bool Confirmar(string pergunta) =>
-            MessageBox.Show(this, pergunta, Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
-
-        protected virtual DialogResult PerguntarSalvar(string pergunta) => PerguntaSalvar.Perguntar(this, pergunta, Text);
+        protected override bool Confirmar(string pergunta) => Confirmar(pergunta, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
     }
 }

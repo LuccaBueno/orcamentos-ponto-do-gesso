@@ -24,12 +24,12 @@ namespace PontoDoGesso.Testes
             _orcamentos = new OrcamentoRepositorio(_temporario.Banco);
             _clientes = new ClienteRepositorio(_temporario.Banco);
             new ConfiguracaoRepositorio(_temporario.Banco).Definir("exportacao.pasta", System.IO.Path.Combine(_temporario.Pasta, "exportados"));
-            FormHistorico.FiltroLembrado = null;
+            TelaHistorico.FiltroLembrado = null;
         }
 
         public void Dispose()
         {
-            FormHistorico.FiltroLembrado = null;
+            TelaHistorico.FiltroLembrado = null;
             _temporario.Dispose();
         }
 
@@ -67,12 +67,12 @@ namespace PontoDoGesso.Testes
             });
         }
 
-        private static DataGridView Lista(Form form) => Tela.Achar<DataGridView>(form, "lista");
+        private static DataGridView Lista(Control form) => Tela.Achar<DataGridView>(form, "lista");
 
-        private static string[] Coluna(Form form, string coluna) =>
+        private static string[] Coluna(Control form, string coluna) =>
             Lista(form).Rows.Cast<DataGridViewRow>().Select(linha => Convert.ToString(linha.Cells[coluna].Value)).ToArray();
 
-        private static string Texto(Form form, string nome) => Tela.Achar<Control>(form, nome).Text;
+        private static string Texto(Control form, string nome) => Tela.Achar<Control>(form, nome).Text;
 
         [Fact]
         public void ListaMaisRecentesPrimeiroComTodasAsColunasEValidadeVencida()
@@ -177,7 +177,6 @@ namespace PontoDoGesso.Testes
         {
             Rodar(form =>
             {
-                Assert.True(form.KeyPreview);
                 Assert.True(Tela.Teclar(form, Keys.Control | Keys.F));
                 Assert.Same(Tela.Achar<TextBox>(form, "texto"), form.ActiveControl);
             }, new FiltroHistorico());
@@ -197,18 +196,18 @@ namespace PontoDoGesso.Testes
 
             // Aberto com um filtro próprio (ex.: pela tela do cliente) não troca os lembrados
             Rodar(form => Assert.Equal("", Texto(form, "texto")), new FiltroHistorico { ClienteId = 99 });
-            Assert.Equal("ana", FormHistorico.FiltroLembrado.Texto);
+            Assert.Equal("ana", TelaHistorico.FiltroLembrado.Texto);
         }
 
         [Fact]
         public void CarregaAosPoucosEMostraAQuantidadeTotal()
         {
-            for (var i = 0; i < FormHistorico.TamanhoPagina + 5; i++)
+            for (var i = 0; i < TelaHistorico.TamanhoPagina + 5; i++)
                 Novo("Cliente " + i, Hoje, preco: 100);
 
             Rodar(form =>
             {
-                Assert.Equal(FormHistorico.TamanhoPagina, Lista(form).Rows.Count);
+                Assert.Equal(TelaHistorico.TamanhoPagina, Lista(form).Rows.Count);
                 Assert.Equal("205 orçamentos · Total R$ 205,00 · mostrando 200", Texto(form, "resumo"));
                 Assert.True(Tela.Achar<Button>(form, "carregarMais").Visible);
 
@@ -280,7 +279,7 @@ namespace PontoDoGesso.Testes
             });
         }
 
-        private class HistoricoSemDialogos : FormHistorico
+        private class HistoricoSemDialogos : TelaHistorico
         {
             public List<string> Abertos { get; } = new List<string>();
             public List<string> Perguntas { get; } = new List<string>();

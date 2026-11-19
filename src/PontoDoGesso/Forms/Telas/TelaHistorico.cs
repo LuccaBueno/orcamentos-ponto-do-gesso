@@ -11,7 +11,7 @@ using PontoDoGesso.Servicos;
 namespace PontoDoGesso.Forms
 {
     /// <summary>Histórico de orçamentos com filtros combináveis; carrega aos poucos para continuar rápido com milhares de orçamentos.</summary>
-    public class FormHistorico : Form
+    public class TelaHistorico : TelaBase
     {
         public const int TamanhoPagina = 200;
 
@@ -63,7 +63,7 @@ namespace PontoDoGesso.Forms
         private readonly ListaSugestoes _sugestoesClientes;
 
         /// <param name="filtro">Filtro inicial (ex.: orçamentos de um cliente); sem ele, usa os filtros lembrados.</param>
-        public FormHistorico(Banco banco, FiltroHistorico filtro = null)
+        public TelaHistorico(Banco banco, FiltroHistorico filtro = null)
         {
             _banco = banco;
             _orcamentos = new OrcamentoRepositorio(banco);
@@ -74,10 +74,6 @@ namespace PontoDoGesso.Forms
 
             SuspendLayout();
             Text = "Histórico de orçamentos";
-            Estilo.Aplicar(this, 1040, 620);
-            MinimumSize = new Size(900, 480);
-            MinimizeBox = true;
-            MaximizeBox = true;
 
             _lista = CriarLista();
             _carregarMais = Estilo.CriarBotao("Carregar mais", (s, e) => CarregarMais());
@@ -95,11 +91,10 @@ namespace PontoDoGesso.Forms
             Controls.Add(filtros);
             Controls.Add(rodape);
             Controls.Add(botoes);
-            Controls.Add(Estilo.CriarVoltarAoMenu(this));
 
             // Tab na ordem da tela (filtros, lista, botões), mas a janela abre com o cursor na lista: setas e Enter abrem o orçamento
             Estilo.OrdemTab(filtros, _lista, rodape, botoes);
-            ActiveControl = _lista;
+            ControleInicial = _lista;
 
             _sugestoesClientes = new ListaSugestoes(this, texto => _clientes.Buscar(texto, true).Take(10), valor => Descrever((Cliente)valor));
             _sugestoesClientes.Ligar(_clienteEspecifico);
@@ -162,7 +157,7 @@ namespace PontoDoGesso.Forms
             _frete.SelectedIndexChanged += (s, e) => AoMudarFiltro();
             _desconto.SelectedIndexChanged += (s, e) => AoMudarFiltro();
             _texto.TextChanged += (s, e) => AoMudarFiltro();
-            Estilo.LigarBusca(this, _texto);
+            LigarBusca(_texto);
             _clienteEspecifico.TextChanged += (s, e) =>
             {
                 // Apagar o texto tira o filtro do cliente
@@ -207,9 +202,6 @@ namespace PontoDoGesso.Forms
         }
 
         /// <summary>Enter na lista abre o orçamento (a grade usaria o Enter para descer de linha).</summary>
-        protected override bool ProcessDialogKey(Keys keyData) =>
-            Estilo.EscVoltaAoMenu(this, keyData) || base.ProcessDialogKey(keyData);
-
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
             if (keyData == Keys.Enter && _lista.Focused && Selecionado != null)
@@ -455,19 +447,12 @@ namespace PontoDoGesso.Forms
                 return;
 
             AbrirOrcamento(orcamento, duplicar);
-            Carregar();
+            if (!IsDisposed)
+                Carregar();
         }
 
-        protected virtual void AbrirOrcamento(Orcamento orcamento, bool duplicar)
-        {
-            using (var form = new FormOrcamento(_banco, orcamento))
-            {
-                if (duplicar)
-                    form.Duplicar();
-
-                form.ShowDialog(this);
-            }
-        }
+        /// <summary>O orçamento abre na área principal, no lugar do histórico.</summary>
+        protected virtual void AbrirOrcamento(Orcamento orcamento, bool duplicar) => Navegacao?.AbrirOrcamento(orcamento, duplicar);
 
         private void Excluir()
         {
@@ -483,10 +468,8 @@ namespace PontoDoGesso.Forms
             Carregar();
         }
 
-        protected virtual void Avisar(string mensagem) =>
-            MessageBox.Show(this, mensagem, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        public override Destino Destino => Destino.Historico;
 
-        protected virtual bool Confirmar(string pergunta) =>
-            MessageBox.Show(this, pergunta, Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes;
+        public override Size TamanhoMinimo => new Size(800, 460);
     }
 }

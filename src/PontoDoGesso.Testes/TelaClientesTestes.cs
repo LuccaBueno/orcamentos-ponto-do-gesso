@@ -33,7 +33,7 @@ namespace PontoDoGesso.Testes
             return cliente;
         }
 
-        private static string[] Nomes(FormClientes form) =>
+        private static string[] Nomes(TelaClientes form) =>
             Tela.Achar<DataGridView>(form, "lista").Rows.Cast<DataGridViewRow>().Select(linha => (string)linha.Cells["nome"].Value).ToArray();
 
         [Fact]
@@ -43,7 +43,7 @@ namespace PontoDoGesso.Testes
 
             Tela.EmSta(() =>
             {
-                using (var form = new FormClientes(_temporario.Banco))
+                using (var form = new TelaClientes(_temporario.Banco))
                 {
                     Tela.Exibir(form);
                     Tela.Capturar(form, "clientes");
@@ -66,7 +66,7 @@ namespace PontoDoGesso.Testes
 
             Tela.EmSta(() =>
             {
-                using (var form = new FormClientes(_temporario.Banco))
+                using (var form = new TelaClientes(_temporario.Banco))
                 {
                     Tela.Exibir(form);
                     Tela.Achar<TextBox>(form, "busca").Text = "joao";
@@ -83,7 +83,7 @@ namespace PontoDoGesso.Testes
 
             Tela.EmSta(() =>
             {
-                using (var form = new FormClientes(_temporario.Banco))
+                using (var form = new TelaClientes(_temporario.Banco))
                 {
                     Tela.Exibir(form);
                     var inativar = Tela.Achar<Button>(form, "inativar");
@@ -170,7 +170,7 @@ namespace PontoDoGesso.Testes
                     Assert.True(form.Salvar());
                 }
 
-                using (var lista = new FormClientes(_temporario.Banco))
+                using (var lista = new TelaClientes(_temporario.Banco))
                 {
                     Tela.Exibir(lista);
                     Assert.Equal("(11) 98765-4321", Tela.Achar<DataGridView>(lista, "lista").Rows[0].Cells["telefone"].Value);
@@ -295,7 +295,7 @@ namespace PontoDoGesso.Testes
         }
 
         [Fact]
-        public void DuploCliqueAbreEdicaoEEscFecha()
+        public void DuploCliqueAbreEdicao()
         {
             var joao = Novo("João");
 
@@ -309,9 +309,6 @@ namespace PontoDoGesso.Testes
                         .Invoke(lista, new object[] { new DataGridViewCellEventArgs(1, 0) });
 
                     Assert.Equal(joao.Id, Assert.Single(form.Abertos).Id);
-
-                    Tela.Achar<Button>(form, "voltarMenu").PerformClick();
-                    Assert.False(form.Visible);
                 }
             });
         }
@@ -362,7 +359,7 @@ namespace PontoDoGesso.Testes
             });
         }
 
-        private class ListaSemDialogos : FormClientes
+        private class ListaSemDialogos : TelaClientes
         {
             public List<Cliente> Abertos { get; } = new List<Cliente>();
             public List<Cliente> Orcamentos { get; } = new List<Cliente>();

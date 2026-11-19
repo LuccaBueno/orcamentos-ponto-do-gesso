@@ -10,22 +10,13 @@ using PontoDoGesso.Servicos;
 
 namespace PontoDoGesso.Forms
 {
-    /// <summary>Dados da loja, padrões do orçamento, exportação e backup.</summary>
-    public class FormConfiguracoes : Form
+    /// <summary>Padrões do orçamento, exportação e backup. Os dados da empresa ficam na tela Empresa.</summary>
+    public class TelaConfiguracoes : TelaBase
     {
         public const string ImpressoraDoWindows = "(impressora padrão do Windows)";
 
         private readonly ConfiguracaoRepositorio _configuracoes;
         private readonly Backup _backup;
-        private readonly Timer _atrasoPrevia = new Timer { Interval = 300 };
-
-        private readonly TextBox _nome = Campo("lojaNome", 60);
-        private readonly TextBox _subtitulo = Campo("lojaSubtitulo", 60);
-        private readonly TextBox _telefoneLoja = Campo("lojaTelefone", 40);
-        private readonly TextBox _endereco1 = Campo("lojaEndereco1", 60);
-        private readonly TextBox _endereco2 = Campo("lojaEndereco2", 60);
-        private readonly TextBox _rodape = Campo("lojaRodape", 120);
-        private readonly PictureBox _previa = new PictureBox { Name = "previa", Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.Zoom, BackColor = Color.White, BorderStyle = BorderStyle.FixedSingle, MinimumSize = new Size(0, 150) };
 
         private readonly NumericUpDown _validade = new NumericUpDown { Name = "validade", Minimum = 1, Maximum = 365, Width = 60 };
         private readonly TextBox _cidade = Campo("cidade", 60);
@@ -38,22 +29,19 @@ namespace PontoDoGesso.Forms
         private readonly Label _ultimoBackup = new Label { Name = "ultimoBackup", AutoSize = true, Font = new Font("Segoe UI", 10F, FontStyle.Bold), Margin = new Padding(3, 6, 3, 6) };
         private readonly TextBox _pastaExtra = new TextBox { Name = "pastaExtra", ReadOnly = true, Dock = DockStyle.Fill };
 
-        public FormConfiguracoes(Banco banco)
+        public TelaConfiguracoes(Banco banco)
         {
             _configuracoes = new ConfiguracaoRepositorio(banco);
             _backup = new Backup(banco);
 
             Text = "Configurações";
-            Estilo.Aplicar(this, 680, 540);
-            MinimumSize = new Size(600, 500);
 
             var abas = new TabControl { Name = "abas", Dock = DockStyle.Fill };
-            abas.TabPages.Add(Aba("Loja", CriarLoja()));
             abas.TabPages.Add(Aba("Orçamento", CriarOrcamento()));
             abas.TabPages.Add(Aba("Exportação", CriarExportacao()));
             abas.TabPages.Add(Aba("Backup", CriarBackup()));
 
-            var salvar = Estilo.CriarBotao("Salvar", (s, e) => SalvarEFechar());
+            var salvar = Estilo.CriarBotao("Salvar", (s, e) => SalvarEAvisar());
             salvar.Name = "salvar";
 
             var botoes = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(6) };
@@ -61,22 +49,9 @@ namespace PontoDoGesso.Forms
 
             Controls.Add(abas);
             Controls.Add(botoes);
-            Controls.Add(Estilo.CriarVoltarAoMenu(this));
 
             Exibir(ConfiguracoesApp.Ler(_configuracoes));
             _salvas = Chave(Lidas());
-
-            _atrasoPrevia.Tick += (s, e) =>
-            {
-                _atrasoPrevia.Stop();
-                AtualizarPrevia();
-            };
-            foreach (var campo in new[] { _nome, _subtitulo, _telefoneLoja, _endereco1, _endereco2, _rodape })
-                campo.TextChanged += (s, e) =>
-                {
-                    _atrasoPrevia.Stop();
-                    _atrasoPrevia.Start();
-                };
         }
 
         private static TextBox Campo(string nome, int limite) => new TextBox { Name = nome, Dock = DockStyle.Fill, MaxLength = limite };
@@ -125,24 +100,6 @@ namespace PontoDoGesso.Forms
         }
 
         // ---------- abas ----------
-
-        private Control CriarLoja()
-        {
-            var tabela = Tabela();
-            Linha(tabela, "Nome *", _nome);
-            Linha(tabela, "Subtítulo", _subtitulo);
-            Linha(tabela, "Telefone", _telefoneLoja);
-            Linha(tabela, "Endereço (linha 1)", _endereco1);
-            Linha(tabela, "Endereço (linha 2)", _endereco2);
-            Linha(tabela, "Rodapé", _rodape);
-            Linha(tabela, null, Explicacao("Estes dados saem no cabeçalho e no rodapé de todo orçamento exportado ou impresso (os já salvos também, ao exportar de novo)."));
-            Linha(tabela, null, new Label { Text = "Pré-visualização do cabeçalho", AutoSize = true, Font = new Font(Font, FontStyle.Bold) });
-            tabela.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            tabela.Controls.Add(_previa, 0, tabela.RowCount);
-            tabela.SetColumnSpan(_previa, 2);
-            tabela.RowCount++;
-            return tabela;
-        }
 
         private Control CriarOrcamento()
         {
@@ -215,13 +172,6 @@ namespace PontoDoGesso.Forms
 
         private void Exibir(ConfiguracoesApp configuracoes)
         {
-            _nome.Text = configuracoes.Loja.Nome;
-            _subtitulo.Text = configuracoes.Loja.Subtitulo;
-            _telefoneLoja.Text = configuracoes.Loja.Telefone;
-            _endereco1.Text = configuracoes.Loja.EnderecoLinha1;
-            _endereco2.Text = configuracoes.Loja.EnderecoLinha2;
-            _rodape.Text = configuracoes.Loja.Rodape;
-
             _validade.Value = configuracoes.ValidadeSugeridaDias;
             _cidade.Text = configuracoes.CidadePadrao;
             _ddd.Text = configuracoes.DddPadrao;
@@ -238,7 +188,6 @@ namespace PontoDoGesso.Forms
 
             _pastaExtra.Text = _backup.PastaExtra;
             AtualizarUltimoBackup();
-            AtualizarPrevia();
         }
 
         protected virtual string[] Impressoras()
@@ -257,23 +206,12 @@ namespace PontoDoGesso.Forms
 
         public ConfiguracoesApp Lidas() => new ConfiguracoesApp
         {
-            Loja = LojaDigitada(),
             ValidadeSugeridaDias = (int)_validade.Value,
             CidadePadrao = _cidade.Text,
             DddPadrao = _ddd.Text,
             PerguntarCadastroAvulso = _perguntarAvulso.Checked,
             PastaExportacao = _pasta.Text,
             Impressora = Equals(_impressora.SelectedItem, ImpressoraDoWindows) ? "" : Convert.ToString(_impressora.SelectedItem)
-        };
-
-        private DadosLoja LojaDigitada() => new DadosLoja
-        {
-            Nome = _nome.Text.Trim(),
-            Subtitulo = _subtitulo.Text.Trim(),
-            Telefone = _telefoneLoja.Text.Trim(),
-            EnderecoLinha1 = _endereco1.Text.Trim(),
-            EnderecoLinha2 = _endereco2.Text.Trim(),
-            Rodape = _rodape.Text.Trim()
         };
 
         public bool Salvar()
@@ -291,10 +229,10 @@ namespace PontoDoGesso.Forms
             return true;
         }
 
-        private void SalvarEFechar()
+        private void SalvarEAvisar()
         {
             if (Salvar())
-                DialogResult = DialogResult.OK;
+                Informar("Configurações salvas.");
         }
 
         /// <summary>Configurações como estavam ao abrir a janela (ou no último Salvar), para saber se há alterações.</summary>
@@ -303,58 +241,12 @@ namespace PontoDoGesso.Forms
         public bool Alterado => Chave(Lidas()) != _salvas;
 
         private static string Chave(ConfiguracoesApp c) => string.Join("\u001f",
-            c.Loja.Nome, c.Loja.Subtitulo, c.Loja.Telefone, c.Loja.EnderecoLinha1, c.Loja.EnderecoLinha2, c.Loja.Rodape,
             c.ValidadeSugeridaDias, c.CidadePadrao, c.DddPadrao, c.PerguntarCadastroAvulso, c.PastaExportacao, c.Impressora);
 
-        protected override void OnFormClosing(FormClosingEventArgs e)
-        {
-            if (DialogResult != DialogResult.OK && e.CloseReason == CloseReason.UserClosing && Alterado)
-            {
-                var resposta = PerguntarSalvar("As configurações têm alterações não salvas. Salvar antes de voltar ao menu?");
-                if (resposta == DialogResult.Cancel || (resposta == DialogResult.Yes && !Salvar()))
-                    e.Cancel = true;
-            }
+        public override Destino Destino => Destino.Configuracoes;
 
-            base.OnFormClosing(e);
-        }
-
-        protected virtual DialogResult PerguntarSalvar(string pergunta) => PerguntaSalvar.Perguntar(this, pergunta, Text);
-
-        protected override bool ProcessDialogKey(Keys keyData) =>
-            Estilo.EscVoltaAoMenu(this, keyData) || base.ProcessDialogKey(keyData);
-
-        /// <summary>Topo de um orçamento de exemplo com os dados digitados (ainda não salvos).</summary>
-        public void AtualizarPrevia()
-        {
-            var exemplo = new Orcamento
-            {
-                Data = DateTime.Today,
-                CliNome = "Nome do cliente",
-                Itens = { new ItemOrcamento { Quantidade = 1, Descricao = "Exemplo", UnitarioCentavos = 0 } }
-            };
-
-            const int dpi = 96;
-            var altura = (int)Math.Round(56 / 25.4 * dpi);
-
-            using (var pagina = ExportadorPng.CriarImagem(exemplo, LojaDigitada(), dpi))
-            {
-                var topo = pagina.Clone(new Rectangle(0, 0, pagina.Width, altura), pagina.PixelFormat);
-                var anterior = _previa.Image;
-                _previa.Image = topo;
-                anterior?.Dispose();
-            }
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                _atrasoPrevia.Dispose();
-                _previa.Image?.Dispose();
-            }
-
-            base.Dispose(disposing);
-        }
+        public override bool PodeSair() =>
+            PerguntarAntesDeSair(Alterado, "As configurações têm alterações não salvas. Salvar antes de sair?", Salvar);
 
         // ---------- backup ----------
 
@@ -466,13 +358,6 @@ namespace PontoDoGesso.Forms
 
         protected virtual void Reiniciar() => Application.Restart();
 
-        protected virtual void Avisar(string mensagem) =>
-            MessageBox.Show(this, mensagem, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-
-        protected virtual void Informar(string mensagem) =>
-            MessageBox.Show(this, mensagem, Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-        protected virtual bool Confirmar(string pergunta) =>
-            MessageBox.Show(this, pergunta, Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.Yes;
+        protected override bool Confirmar(string pergunta) => Confirmar(pergunta, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2);
     }
 }

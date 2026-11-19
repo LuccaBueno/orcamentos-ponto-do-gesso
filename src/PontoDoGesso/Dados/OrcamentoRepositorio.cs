@@ -85,6 +85,13 @@ namespace PontoDoGesso.Dados
             }
         }
 
+        /// <summary>Os últimos orçamentos mexidos (criados ou alterados), sem os itens, para a tela inicial.</summary>
+        public List<Orcamento> Ultimos(int quantidade)
+        {
+            using (var conexao = _banco.Abrir())
+                return conexao.Query<Orcamento>("SELECT * FROM orcamentos ORDER BY atualizado_em DESC, numero DESC LIMIT @quantidade", new { quantidade }).ToList();
+        }
+
         /// <summary>Quantidade e soma dos totais de tudo que o filtro encontra (não só da página carregada).</summary>
         public (int Quantidade, long TotalCentavos) Somar(FiltroHistorico filtro, DateTime hoje)
         {

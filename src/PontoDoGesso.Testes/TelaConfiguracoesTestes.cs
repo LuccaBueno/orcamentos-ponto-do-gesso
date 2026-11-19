@@ -33,33 +33,28 @@ namespace PontoDoGesso.Testes
                 {
                     Tela.Exibir(form);
                     // Botão de aba escondida não responde ao PerformClick: a aba Backup fica à vista
-                    Tela.Achar<TabControl>(form, "abas").SelectedIndex = 3;
+                    Tela.Achar<TabControl>(form, "abas").SelectedIndex = 2;
                     teste(form);
                 }
             });
         }
 
-        private static T Achar<T>(Form form, string nome) where T : Control => Tela.Achar<T>(form, nome);
+        private static T Achar<T>(Control form, string nome) where T : Control => Tela.Achar<T>(form, nome);
 
         [Fact]
-        public void MostraOsValoresAtuaisEAPrevia()
+        public void MostraOsValoresAtuaisESemOsDadosDaEmpresa()
         {
             Rodar(form =>
             {
                 Tela.Achar<TabControl>(form, "abas").SelectedIndex = 0;
-                Tela.Capturar(form, "configuracoes-loja");
-                Assert.Equal("PONTO DO GESSO", Achar<TextBox>(form, "lojaNome").Text);
-                Assert.Equal("Cardoso - Pindamonhangaba - SP", Achar<TextBox>(form, "lojaEndereco2").Text);
+                Assert.Equal(new[] { "Orçamento", "Exportação", "Backup" }, Tela.Achar<TabControl>(form, "abas").TabPages.Cast<TabPage>().Select(aba => aba.Text));
+                Assert.Empty(form.Controls.Find("lojaNome", true));
                 Assert.Equal(7, Achar<NumericUpDown>(form, "validade").Value);
                 Assert.Equal("Pindamonhangaba", Achar<TextBox>(form, "cidade").Text);
                 Assert.Equal("12", Achar<TextBox>(form, "ddd").Text);
                 Assert.True(Achar<CheckBox>(form, "perguntarAvulso").Checked);
-                Assert.Equal(FormConfiguracoes.ImpressoraDoWindows, Achar<ComboBox>(form, "impressora").SelectedItem);
+                Assert.Equal(TelaConfiguracoes.ImpressoraDoWindows, Achar<ComboBox>(form, "impressora").SelectedItem);
                 Assert.Equal("Nenhum backup feito ainda.", Achar<Label>(form, "ultimoBackup").Text);
-
-                var previa = Achar<PictureBox>(form, "previa").Image;
-                Assert.Equal(794, previa.Width);
-                Assert.InRange(previa.Height, 200, 220);
             });
         }
 
@@ -68,8 +63,6 @@ namespace PontoDoGesso.Testes
         {
             Rodar(form =>
             {
-                Achar<TextBox>(form, "lojaNome").Text = "LOJA FICTÍCIA";
-                Achar<TextBox>(form, "lojaRodape").Text = "Entregamos só no térreo.";
                 Achar<NumericUpDown>(form, "validade").Value = 15;
                 Achar<TextBox>(form, "cidade").Text = "Taubaté";
                 Achar<TextBox>(form, "ddd").Text = "11";
@@ -79,8 +72,6 @@ namespace PontoDoGesso.Testes
                 Assert.True(form.Salvar(), string.Join(" | ", form.Avisos));
             });
 
-            Assert.Equal("LOJA FICTÍCIA", _configuracoes.Obter("loja.nome"));
-            Assert.Equal("Entregamos só no térreo.", _configuracoes.Obter("loja.rodape"));
             Assert.Equal("15", _configuracoes.Obter("orcamento.validade_sugerida_dias"));
             Assert.Equal("Taubaté", _configuracoes.Obter("cliente.cidade_padrao"));
             Assert.Equal("11", _configuracoes.Obter("cliente.ddd_padrao"));
@@ -91,7 +82,7 @@ namespace PontoDoGesso.Testes
             // Orçamento novo e cliente novo usam a cidade e o DDD padrão
             Tela.EmSta(() =>
             {
-                using (var orcamento = new FormOrcamento(_temporario.Banco))
+                using (var orcamento = new TelaOrcamento(_temporario.Banco))
                 {
                     Assert.Equal("Taubaté", Tela.Achar<TextBox>(orcamento, "cidade").Text);
                     Assert.Equal(15, Tela.Achar<NumericUpDown>(orcamento, "validadeDias").Value);
@@ -103,7 +94,6 @@ namespace PontoDoGesso.Testes
         }
 
         [Theory]
-        [InlineData("lojaNome", " ", "Informe o nome da loja.")]
         [InlineData("ddd", "00", "O DDD padrão \"00\" não existe.")]
         [InlineData("pasta", "pasta-relativa", "Escolha a pasta")]
         public void ValoresInvalidosNaoSaoGravados(string campo, string valor, string aviso)
@@ -115,7 +105,6 @@ namespace PontoDoGesso.Testes
                 Assert.StartsWith(aviso, form.Avisos.Single());
             });
 
-            Assert.Equal("PONTO DO GESSO", _configuracoes.Obter("loja.nome"));
             Assert.Equal("12", _configuracoes.Obter("cliente.ddd_padrao"));
         }
 
@@ -204,7 +193,7 @@ namespace PontoDoGesso.Testes
             Assert.Null(orcamentos.ObterPorId(2));
         }
 
-        private class ConfiguracoesSemDialogos : FormConfiguracoes
+        private class ConfiguracoesSemDialogos : TelaConfiguracoes
         {
             public List<string> Avisos { get; } = new List<string>();
             public List<string> Informacoes { get; } = new List<string>();

@@ -37,7 +37,7 @@ namespace PontoDoGesso.Testes
                 conexao.Execute("UPDATE produtos SET preco_atualizado_em = @data WHERE id = @id", new { id, data });
         }
 
-        private static DataGridView Lista(Form form) => Tela.Achar<DataGridView>(form, "lista");
+        private static DataGridView Lista(Control form) => Tela.Achar<DataGridView>(form, "lista");
 
         [Theory]
         [InlineData(1250, 5, 1313)]
@@ -64,7 +64,7 @@ namespace PontoDoGesso.Testes
 
             Tela.EmSta(() =>
             {
-                using (var form = new FormProdutos(_temporario.Banco))
+                using (var form = new TelaProdutos(_temporario.Banco))
                 {
                     Tela.Exibir(form);
                     Tela.Capturar(form, "produtos");
@@ -89,7 +89,7 @@ namespace PontoDoGesso.Testes
 
             Tela.EmSta(() =>
             {
-                using (var form = new FormProdutos(_temporario.Banco))
+                using (var form = new TelaProdutos(_temporario.Banco))
                 {
                     Tela.Exibir(form);
                     Tela.Achar<TextBox>(form, "busca").Text = "12";
@@ -111,7 +111,7 @@ namespace PontoDoGesso.Testes
 
             Tela.EmSta(() =>
             {
-                using (var form = new FormProdutos(_temporario.Banco))
+                using (var form = new TelaProdutos(_temporario.Banco))
                 {
                     Tela.Exibir(form);
                     var lista = Lista(form);
@@ -139,7 +139,7 @@ namespace PontoDoGesso.Testes
 
             Tela.EmSta(() =>
             {
-                using (var form = new FormProdutos(_temporario.Banco))
+                using (var form = new TelaProdutos(_temporario.Banco))
                 {
                     Tela.Exibir(form);
                     var lista = Lista(form);
@@ -267,7 +267,7 @@ namespace PontoDoGesso.Testes
 
             Tela.EmSta(() =>
             {
-                using (var form = new FormProdutos(_temporario.Banco))
+                using (var form = new TelaProdutos(_temporario.Banco))
                 {
                     Tela.Exibir(form);
                     var inativar = Tela.Achar<Button>(form, "inativar");
@@ -292,7 +292,7 @@ namespace PontoDoGesso.Testes
 
             Tela.EmSta(() =>
             {
-                using (var form = new FormProdutos(_temporario.Banco))
+                using (var form = new TelaProdutos(_temporario.Banco))
                 {
                     Tela.Exibir(form);
                     var lista = Lista(form);

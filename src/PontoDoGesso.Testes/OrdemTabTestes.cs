@@ -29,20 +29,36 @@ namespace PontoDoGesso.Testes
                     Tela.Exibir(form);
                     Assert.Equal(ordem, Tela.OrdemTab(form));
                     if (inicial != null)
-                        Assert.Equal(inicial, form.ActiveControl?.Name);
+                        Assert.Equal(inicial, Tela.Focado(form)?.Name);
                     Tela.Fechar(form);
+                }
+            });
+        }
+
+        /// <summary>Tela da área principal, mostrada sozinha: o Tab percorre só a tela (o menu lateral vem depois, ver TelaPrincipal).</summary>
+        private static void ConferirTela(Func<TelaBase> criar, string inicial, params string[] ordem)
+        {
+            Tela.EmSta(() =>
+            {
+                using (var tela = criar())
+                {
+                    var janela = Tela.Exibir(tela);
+                    Assert.Equal(ordem, Tela.OrdemTab(tela));
+                    if (inicial != null)
+                        Assert.Equal(inicial, Tela.Focado(janela)?.Name);
                 }
             });
         }
 
         [Fact]
         public void TelaPrincipal() =>
-            Conferir(() => new FormPrincipal(_temporario.Banco), "novoOrcamento",
-                "novoOrcamento", "historico", "clientes", "produtos", "configuracoes", "pastaOrcamentos", "verificarAtualizacoes");
+            Conferir(() => new FormPrincipal(_temporario.Banco), "atalhoNovoOrcamento",
+                "atalhoNovoOrcamento", "atalhoHistorico", "atalhoClientes", "atalhoProdutos", "verTodos",
+                "inicio", "novoOrcamento", "historico", "clientes", "produtos", "empresa", "configuracoes", "pastaOrcamentos", "verificarAtualizacoes");
 
         [Fact]
         public void Orcamento() =>
-            Conferir(() => new FormOrcamento(_temporario.Banco), "buscaCliente",
+            ConferirTela(() => new TelaOrcamento(_temporario.Banco), "buscaCliente",
                 "data", "cadastrado", "buscaCliente", "novoCliente", "nome", "telefone",
                 "entrega", "endereco", "numero", "bairro", "cidade", "referencia",
                 "itens", "observacoes", "validade", "desconto", "frete",
@@ -50,12 +66,12 @@ namespace PontoDoGesso.Testes
 
         [Fact]
         public void Historico() =>
-            Conferir(() => new FormHistorico(_temporario.Banco, new FiltroHistorico()), "lista",
+            ConferirTela(() => new TelaHistorico(_temporario.Banco, new FiltroHistorico()), "lista",
                 "periodo", "tipoCliente", "clienteEspecifico", "frete", "desconto", "texto", "limpar", "lista");
 
         [Fact]
         public void Clientes() =>
-            Conferir(() => new FormClientes(_temporario.Banco), "busca",
+            ConferirTela(() => new TelaClientes(_temporario.Banco), "busca",
                 "busca", "mostrarInativos", "lista", "[Novo]");
 
         [Fact]
@@ -65,7 +81,7 @@ namespace PontoDoGesso.Testes
 
         [Fact]
         public void Produtos() =>
-            Conferir(() => new FormProdutos(_temporario.Banco), "busca",
+            ConferirTela(() => new TelaProdutos(_temporario.Banco), "busca",
                 "busca", "mostrarInativos", "lista", "[Novo]", "reajustar");
 
         [Fact]
@@ -75,8 +91,13 @@ namespace PontoDoGesso.Testes
 
         [Fact]
         public void Configuracoes() =>
-            Conferir(() => new FormConfiguracoes(_temporario.Banco), null,
-                "abas", "lojaNome", "lojaSubtitulo", "lojaTelefone", "lojaEndereco1", "lojaEndereco2", "lojaRodape", "salvar");
+            ConferirTela(() => new TelaConfiguracoes(_temporario.Banco), null,
+                "abas", "validade", "cidade", "ddd", "perguntarAvulso", "salvar");
+
+        [Fact]
+        public void Empresa() =>
+            ConferirTela(() => new TelaEmpresa(_temporario.Banco), "lojaNome",
+                "lojaNome", "lojaSubtitulo", "lojaTelefone", "lojaEndereco1", "lojaEndereco2", "lojaCnpj", "lojaRodape", "salvar");
 
         [Fact]
         public void Reajuste()

@@ -8,7 +8,7 @@ using PontoDoGesso.Servicos;
 
 namespace PontoDoGesso.Forms
 {
-    public class FormClientes : Form
+    public class TelaClientes : TelaBase
     {
         private readonly Banco _banco;
         private readonly ClienteRepositorio _clientes;
@@ -20,18 +20,16 @@ namespace PontoDoGesso.Forms
         private readonly Button _novoOrcamento;
         private readonly Button _orcamentosDoCliente;
 
-        public FormClientes(Banco banco)
+        public TelaClientes(Banco banco)
         {
             _banco = banco;
             _clientes = new ClienteRepositorio(banco);
 
             Text = "Clientes";
-            Estilo.Aplicar(this, 760, 480);
-            MinimumSize = new Size(620, 360);
 
             _busca = new TextBox { Name = "busca", Dock = DockStyle.Fill };
             _busca.TextChanged += (s, e) => Carregar();
-            Estilo.LigarBusca(this, _busca);
+            LigarBusca(_busca);
 
             _mostrarInativos = new CheckBox { Name = "mostrarInativos", Text = "Mostrar inativos", AutoSize = true, Anchor = AnchorStyles.Left };
             _mostrarInativos.CheckedChanged += (s, e) => Carregar();
@@ -78,18 +76,17 @@ namespace PontoDoGesso.Forms
             Controls.Add(_lista);
             Controls.Add(topo);
             Controls.Add(botoes);
-            Controls.Add(Estilo.CriarVoltarAoMenu(this));
             Estilo.OrdemTab(topo, _lista, botoes);
+            ControleInicial = _busca;
 
             Carregar();
         }
 
         private Cliente Selecionado => _lista.CurrentRow?.Tag as Cliente;
 
-        /// <summary>Enter na busca abre o primeiro resultado.</summary>
-        protected override bool ProcessDialogKey(Keys keyData) =>
-            Estilo.EscVoltaAoMenu(this, keyData) || base.ProcessDialogKey(keyData);
+        public override Destino Destino => Destino.Clientes;
 
+        /// <summary>Enter na busca abre o primeiro resultado.</summary>
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
             if (keyData == Keys.Enter && _busca.Focused && _lista.Rows.Count > 0)
@@ -164,25 +161,18 @@ namespace PontoDoGesso.Forms
                 AbrirOrcamento(cliente);
         }
 
-        protected virtual void AbrirOrcamento(Cliente cliente)
-        {
-            using (var form = new FormOrcamento(_banco, null, cliente))
-                form.ShowDialog(this);
-        }
+        /// <summary>O orçamento abre na área principal, no lugar da lista de clientes.</summary>
+        protected virtual void AbrirOrcamento(Cliente cliente) => Navegacao?.NovoOrcamento(cliente);
 
         private void VerOrcamentos()
         {
             var cliente = Selecionado;
 
             if (cliente != null)
-                AbrirHistorico(FormHistorico.FiltroDoCliente(cliente));
+                AbrirHistorico(TelaHistorico.FiltroDoCliente(cliente));
         }
 
-        protected virtual void AbrirHistorico(FiltroHistorico filtro)
-        {
-            using (var form = new FormHistorico(_banco, filtro))
-                form.ShowDialog(this);
-        }
+        protected virtual void AbrirHistorico(FiltroHistorico filtro) => Navegacao?.AbrirHistorico(filtro);
 
         private void AlternarAtivo()
         {

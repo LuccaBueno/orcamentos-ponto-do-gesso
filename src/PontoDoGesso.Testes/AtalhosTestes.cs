@@ -23,17 +23,19 @@ namespace PontoDoGesso.Testes
         public void Dispose() => _temporario.Dispose();
 
         [Theory]
-        [InlineData(Keys.Control | Keys.N, typeof(FormOrcamento))]
-        [InlineData(Keys.Control | Keys.F, typeof(FormHistorico))]
-        public void AtalhoNaTelaPrincipalAbreATela(Keys tecla, Type tela)
+        [InlineData(Keys.Control | Keys.N, typeof(TelaOrcamento))]
+        [InlineData(Keys.Control | Keys.F, typeof(TelaHistorico))]
+        public void AtalhoNaTelaInicialTrocaATela(Keys tecla, Type tela)
         {
             Tela.EmSta(() =>
             {
-                using (var form = new Principal(_temporario.Banco))
+                using (var form = new PrincipalDeTeste(_temporario.Banco))
                 {
                     Tela.Exibir(form);
                     Assert.True(form.Teclar(tecla));
-                    Assert.IsType(tela, Assert.Single(form.Abertas));
+                    Assert.IsType(tela, form.TelaAtual);
+                    Assert.Empty(form.Abertas);
+                    form.Descartar();
                 }
             });
         }
@@ -43,7 +45,7 @@ namespace PontoDoGesso.Testes
         {
             Tela.EmSta(() =>
             {
-                using (var form = new Principal(_temporario.Banco))
+                using (var form = new PrincipalDeTeste(_temporario.Banco))
                 {
                     Tela.Exibir(form);
                     var manual = form.MainMenuStrip.Items.OfType<ToolStripMenuItem>().SelectMany(item => item.DropDownItems.OfType<ToolStripMenuItem>()).Single(item => item.Name == "manual");
@@ -68,10 +70,10 @@ namespace PontoDoGesso.Testes
             {
                 Tela.EmSta(() =>
                 {
-                    using (var form = new FormClientes(_temporario.Banco))
+                    using (var form = new FormClienteEditar(_temporario.Banco, new Dominio.Cliente()))
                     {
                         Tela.Exibir(form);
-                        Tela.PedirAjuda(Tela.Achar<TextBox>(form, "busca"));
+                        Tela.PedirAjuda(Tela.Achar<TextBox>(form, "nome"));
                         Tela.Fechar(form);
                     }
                 });
@@ -90,10 +92,10 @@ namespace PontoDoGesso.Testes
         {
             Tela.EmSta(() =>
             {
-                var telas = new (Form Form, string Busca)[]
+                var telas = new (TelaBase Form, string Busca)[]
                 {
-                    (new FormClientes(_temporario.Banco), "busca"),
-                    (new FormProdutos(_temporario.Banco), "busca")
+                    (new TelaClientes(_temporario.Banco), "busca"),
+                    (new TelaProdutos(_temporario.Banco), "busca")
                 };
 
                 foreach (var (form, busca) in telas)
@@ -101,38 +103,12 @@ namespace PontoDoGesso.Testes
                     Tela.Exibir(form);
                     var campo = Tela.Achar<TextBox>(form, busca);
                     campo.Text = "abc";
-                    Assert.True(form.KeyPreview, form.Text);
 
                     Assert.True(Tela.Teclar(form, Keys.Control | Keys.F), form.Text);
                     Assert.Equal(3, campo.SelectionLength);
-                    Tela.Fechar(form);
+                    form.Dispose();
                 }
             });
-        }
-
-        private class Principal : FormPrincipal
-        {
-            public List<Form> Abertas { get; } = new List<Form>();
-            public int Manuais { get; private set; }
-
-            public Principal(Banco banco) : base(banco)
-            {
-            }
-
-            public bool Teclar(Keys tecla)
-            {
-                var mensagem = new Message();
-                return ProcessCmdKey(ref mensagem, tecla);
-            }
-
-            protected override void AbrirManual() => Manuais++;
-
-            protected override void AbrirTela(Func<Form> abrirTela)
-            {
-                var form = abrirTela();
-                Abertas.Add(form);
-                form.Dispose();
-            }
         }
     }
 }

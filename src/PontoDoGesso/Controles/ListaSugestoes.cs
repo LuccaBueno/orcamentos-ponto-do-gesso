@@ -14,7 +14,7 @@ namespace PontoDoGesso.Controles
     {
         private const int MaximoDeLinhas = 8;
 
-        private readonly Form _janela;
+        private readonly Control _janela;
         private readonly Func<string, IEnumerable<object>> _buscar;
         private readonly Func<object, string> _exibir;
         private TextBox _campo;
@@ -22,7 +22,7 @@ namespace PontoDoGesso.Controles
 
         public event EventHandler<SugestaoEscolhidaEventArgs> Escolhido;
 
-        public ListaSugestoes(Form janela, Func<string, IEnumerable<object>> buscar, Func<object, string> exibir)
+        public ListaSugestoes(Control janela, Func<string, IEnumerable<object>> buscar, Func<object, string> exibir)
         {
             _janela = janela;
             _buscar = buscar;

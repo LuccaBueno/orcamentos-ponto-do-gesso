@@ -1,21 +1,41 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using PontoDoGesso.Controles;
 using PontoDoGesso.Dados;
+using PontoDoGesso.Dominio;
 using PontoDoGesso.Exportacao;
 using PontoDoGesso.Servicos;
 
 namespace PontoDoGesso.Forms
 {
-    public class FormPrincipal : Form
+    /// <summary>
+    /// A única janela do app: menu lateral fixo à esquerda e, à direita, a tela escolhida (Início, Orçamento, Histórico...).
+    /// Trocar de tela pergunta antes se há alterações não salvas. Só os diálogos pequenos abrem janelas por cima.
+    /// </summary>
+    public class FormPrincipal : Form, INavegacao, IDialogos
     {
-        private static readonly Color Laranja = Color.FromArgb(0xC5, 0x5A, 0x11);
+        private static readonly Color Laranja = MenuLateral.Laranja;
 
         public const string TituloJanela = "Ponto do Gesso – Orçamentos";
 
+        private static readonly Dictionary<Destino, string> BotoesDoMenu = new Dictionary<Destino, string>
+        {
+            [Destino.Inicio] = "inicio",
+            [Destino.Orcamento] = "novoOrcamento",
+            [Destino.Historico] = "historico",
+            [Destino.Clientes] = "clientes",
+            [Destino.Produtos] = "produtos",
+            [Destino.Empresa] = "empresa",
+            [Destino.Configuracoes] = "configuracoes"
+        };
+
         private readonly Banco _bancoReal;
         private Banco _banco;
+        private readonly MenuLateral _menu = new MenuLateral();
+        private readonly Panel _conteudo = new Panel { Name = "conteudo", Dock = DockStyle.Fill, AutoScroll = true, BackColor = Color.White };
         private LinkLabel _avisoAtualizacao;
         private Label _avisoDemonstracao;
         private ToolStripMenuItem _demonstracao;
@@ -34,84 +54,212 @@ namespace PontoDoGesso.Forms
             Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
             AutoScaleMode = AutoScaleMode.Dpi;
             AutoScaleDimensions = new SizeF(96F, 96F);
-            Font = new Font("Segoe UI", 10F);
+            Font = new Font("Segoe UI", 9.5F);
             BackColor = Color.White;
-            ClientSize = new Size(640, 480);
-            MinimumSize = new Size(560, 460);
+            ClientSize = new Size(1000, 680);
+            MinimumSize = new Size(800, 560);
             StartPosition = FormStartPosition.CenterScreen;
-            AjusteTela.Ligar(this);
+            WindowState = FormWindowState.Maximized;
 
-            var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, Padding = new Padding(24, 16, 24, 8) };
-            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            MontarMenuLateral();
 
-            layout.Controls.Add(CriarCabecalho(), 0, 0);
-            layout.Controls.Add(CriarBotoes(), 0, 1);
-            layout.Controls.Add(CriarRodape(), 0, 2);
-
-            Controls.Add(layout);
+            // Tab: primeiro a tela atual, depois o menu lateral
+            _conteudo.TabIndex = 0;
+            _menu.TabIndex = 1;
+            Controls.Add(_conteudo);
+            Controls.Add(_menu);
             Controls.Add(CriarAvisoDemonstracao());
             var menu = CriarMenu();
             Controls.Add(menu);
             MainMenuStrip = menu;
+
+            MostrarInicio();
         }
 
-        private static Control CriarCabecalho()
-        {
-            var cabecalho = new TableLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, ColumnCount = 1, RowCount = 2 };
-            cabecalho.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            cabecalho.Controls.Add(new Label
-            {
-                Text = "PONTO DO GESSO",
-                Font = new Font("Times New Roman", 28F),
-                ForeColor = Laranja,
-                AutoSize = true,
-                Anchor = AnchorStyles.None
-            }, 0, 0);
-            cabecalho.Controls.Add(new Label
-            {
-                Text = "Gesso e Ferramentas",
-                Font = new Font("Segoe UI", 12F),
-                ForeColor = Laranja,
-                AutoSize = true,
-                Anchor = AnchorStyles.None
-            }, 0, 1);
-            return cabecalho;
-        }
+        // ---------- menu lateral ----------
 
-        private Control CriarRodape()
+        private void MontarMenuLateral()
         {
-            var rodape = new TableLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, ColumnCount = 4, Margin = new Padding(0) };
-            rodape.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-            rodape.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            rodape.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-            rodape.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            var titulo = new TableLayoutPanel { AutoSize = true, ColumnCount = 1, Margin = new Padding(0, 6, 0, 10), Width = _menu.Width - 12 };
+            titulo.Controls.Add(new Label { Text = "PONTO DO GESSO", Font = new Font("Times New Roman", 15F), ForeColor = Laranja, AutoSize = true, Anchor = AnchorStyles.None, Margin = new Padding(0) });
+            titulo.Controls.Add(new Label { Text = "Orçamentos", Font = new Font("Segoe UI", 9F), ForeColor = Laranja, AutoSize = true, Anchor = AnchorStyles.None, Margin = new Padding(0) });
+            _menu.AdicionarTitulo(titulo);
 
-            var pasta = new Button { Name = "pastaOrcamentos", Text = "Abrir pasta de orçamentos", AutoSize = true, Padding = new Padding(6, 2, 6, 2), Anchor = AnchorStyles.Left };
-            pasta.Click += (s, e) => AbrirPastaOrcamentos();
-            rodape.Controls.Add(pasta, 0, 0);
+            _menu.Adicionar("inicio", "Início", Icones.Inicio, () => Ir(Destino.Inicio));
+            _menu.Adicionar("novoOrcamento", "Novo orçamento", Icones.Orcamento, () => Ir(Destino.Orcamento));
+            _menu.Adicionar("historico", "Histórico", Icones.Historico, () => Ir(Destino.Historico));
+            _menu.Adicionar("clientes", "Clientes", Icones.Clientes, () => Ir(Destino.Clientes));
+            _menu.Adicionar("produtos", "Produtos", Icones.Produtos, () => Ir(Destino.Produtos));
+            _menu.Adicionar("empresa", "Empresa", Icones.Empresa, () => Ir(Destino.Empresa));
+            _menu.Adicionar("configuracoes", "Configurações", Icones.Configuracoes, () => Ir(Destino.Configuracoes));
+
+            _menu.Adicionar("pastaOrcamentos", "Abrir pasta de orçamentos", Icones.Pasta, AbrirPastaOrcamentos, true);
+            _menu.Adicionar("verificarAtualizacoes", "Verificar atualizações", Icones.Atualizar, () => AbrirDialogo(() => new FormAtualizacao(_bancoReal)), true);
 
             // Aviso da verificação automática: só aparece quando há versão nova
-            _avisoAtualizacao = new LinkLabel { Name = "avisoAtualizacao", AutoSize = true, Visible = false, Anchor = AnchorStyles.Right, LinkColor = Laranja, Font = new Font("Segoe UI", 10F, FontStyle.Bold) };
-            _avisoAtualizacao.LinkClicked += (s, e) => AbrirTela(() => new FormAtualizacao(_bancoReal, new Atualizacao(), _versaoDisponivel));
-            rodape.Controls.Add(_avisoAtualizacao, 1, 0);
+            _avisoAtualizacao = new LinkLabel { Name = "avisoAtualizacao", AutoSize = true, Visible = false, LinkColor = Laranja, Font = new Font("Segoe UI", 10F, FontStyle.Bold), Margin = new Padding(8, 2, 0, 2) };
+            _avisoAtualizacao.LinkClicked += (s, e) => AbrirDialogo(() => new FormAtualizacao(_bancoReal, new Atualizacao(), _versaoDisponivel));
+            _menu.AdicionarEmbaixo(_avisoAtualizacao);
 
-            var verificar = new LinkLabel { Name = "verificarAtualizacoes", Text = "Verificar atualizações", AutoSize = true, Anchor = AnchorStyles.Right, Margin = new Padding(12, 3, 6, 3) };
-            verificar.LinkClicked += (s, e) => AbrirTela(() => new FormAtualizacao(_bancoReal));
-            rodape.Controls.Add(verificar, 2, 0);
-
-            rodape.Controls.Add(new Label
-            {
-                Name = "versao",
-                Text = "Versão " + Diagnostico.VersaoApp,
-                AutoSize = true,
-                ForeColor = Color.Gray,
-                Anchor = AnchorStyles.Right
-            }, 3, 0);
-            return rodape;
+            _menu.AdicionarEmbaixo(new Label { Name = "versao", Text = "Versão " + Diagnostico.VersaoApp, AutoSize = true, ForeColor = Color.Gray, Margin = new Padding(8, 2, 0, 0) });
         }
+
+        public MenuLateral Menu => _menu;
+
+        // ---------- troca de tela ----------
+
+        /// <summary>Tela que aparece agora na área principal.</summary>
+        public TelaBase TelaAtual { get; private set; }
+
+        public bool Ir(Destino destino)
+        {
+            switch (destino)
+            {
+                case Destino.Orcamento:
+                    return NovoOrcamento();
+                case Destino.Historico:
+                    return Trocar(() => new TelaHistorico(_banco));
+                case Destino.Clientes:
+                    return Trocar(() => new TelaClientes(_banco));
+                case Destino.Produtos:
+                    return Trocar(() => new TelaProdutos(_banco));
+                case Destino.Empresa:
+                    return Trocar(() => new TelaEmpresa(_banco));
+                case Destino.Configuracoes:
+                    return Trocar(() => new TelaConfiguracoes(_banco));
+                default:
+                    return Trocar(() => new TelaInicio(_banco));
+            }
+        }
+
+        /// <summary>Já na tela de orçamento, sem cliente: a mesma tela passa a ser um orçamento em branco (como o Ctrl+N).</summary>
+        public bool NovoOrcamento(Cliente cliente = null)
+        {
+            if (cliente == null && TelaAtual is TelaOrcamento atual)
+                return atual.NovoOrcamento();
+
+            return Trocar(() => new TelaOrcamento(_banco, null, cliente));
+        }
+
+        public bool AbrirOrcamento(Orcamento orcamento, bool duplicar) =>
+            Trocar(() =>
+            {
+                var tela = new TelaOrcamento(_banco, orcamento);
+                if (duplicar)
+                    tela.Duplicar();
+                return tela;
+            });
+
+        public bool AbrirHistorico(FiltroHistorico filtro) => Trocar(() => new TelaHistorico(_banco, filtro));
+
+        /// <summary>Pergunta à tela atual se ela pode sair (alterações não salvas) e só então mostra a nova.</summary>
+        protected virtual bool Trocar(Func<TelaBase> criar)
+        {
+            if (TelaAtual != null && !TelaAtual.PodeSair())
+                return false;
+
+            Mostrar(criar());
+            return true;
+        }
+
+        private void Mostrar(TelaBase nova)
+        {
+            var anterior = TelaAtual;
+            TelaAtual = nova;
+            nova.Navegacao = this;
+            nova.Dialogos = this;
+
+            _conteudo.SuspendLayout();
+            _conteudo.AutoScrollPosition = Point.Empty;
+            _conteudo.AutoScrollMinSize = LogicalToDeviceUnits(nova.TamanhoMinimo);
+            _conteudo.Controls.Add(nova);
+            if (anterior != null)
+                _conteudo.Controls.Remove(anterior);
+            _conteudo.ResumeLayout(true);
+
+            _menu.Destacar(BotoesDoMenu[nova.Destino]);
+            ActiveControl = nova.ControleInicial != null && nova.ControleInicial.Enabled ? nova.ControleInicial : nova;
+            nova.MostrarInicioDosCampos();
+            nova.AoAtivar();
+
+            if (anterior != null)
+                Descartar(anterior);
+        }
+
+        /// <summary>
+        /// A tela que saiu pode estar no meio do próprio clique (ex.: botão Abrir do histórico): é descartada depois que a
+        /// mensagem atual termina.
+        /// </summary>
+        private void Descartar(TelaBase tela)
+        {
+            if (IsHandleCreated && !IsDisposed)
+                BeginInvoke((Action)tela.Dispose);
+            else
+                tela.Dispose();
+        }
+
+        private void MostrarInicio()
+        {
+            TelaBase inicio;
+            try
+            {
+                inicio = new TelaInicio(_banco);
+            }
+            catch (Exception erro) when (erro is System.Data.SQLite.SQLiteException || erro is System.IO.IOException || erro is UnauthorizedAccessException || erro is InvalidOperationException)
+            {
+                // Banco com problema: a janela abre mesmo assim, para dar acesso ao Diagnóstico (Ajuda)
+                Log.RegistrarErro(erro);
+                inicio = new TelaBase { Text = "Início" };
+                inicio.Controls.Add(new Label { Name = "erroBanco", Dock = DockStyle.Fill, Padding = new Padding(16), Text = "Não foi possível abrir os dados do app. " + MensagemErro.Explicar(erro) + "\n\nUse Ajuda → Diagnóstico para investigar." });
+            }
+
+            Mostrar(inicio);
+        }
+
+        protected override void OnActivated(EventArgs e)
+        {
+            base.OnActivated(e);
+            TelaAtual?.AoAtivar();
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            if (e.CloseReason == CloseReason.UserClosing && TelaAtual != null && !TelaAtual.PodeSair())
+                e.Cancel = true;
+
+            base.OnFormClosing(e);
+        }
+
+        /// <summary>Atalhos que a tela atual não usou: Ctrl+N abre um orçamento novo e Ctrl+F o histórico.</summary>
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            switch (keyData)
+            {
+                case Keys.Control | Keys.N:
+                    NovoOrcamento();
+                    return true;
+                case Keys.Control | Keys.F:
+                    Ir(Destino.Historico);
+                    return true;
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+
+        // ---------- mensagens das telas ----------
+
+        public virtual void Avisar(Control tela, string mensagem) =>
+            MessageBox.Show(this, mensagem, tela.Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+        public virtual void Informar(Control tela, string mensagem) =>
+            MessageBox.Show(this, mensagem, tela.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+        public virtual bool Confirmar(Control tela, string pergunta, MessageBoxIcon icone, MessageBoxDefaultButton padrao) =>
+            MessageBox.Show(this, pergunta, tela.Text, MessageBoxButtons.YesNo, icone, padrao) == DialogResult.Yes;
+
+        public virtual DialogResult PerguntarSalvar(Control tela, string pergunta) => PerguntaSalvar.Perguntar(this, pergunta, tela.Text);
+
+        // ---------- atualização ----------
 
         /// <summary>Ligada só pelo Program.cs: nos testes a tela não acessa a internet.</summary>
         public bool VerificarAtualizacaoAoAbrir { get; set; }
@@ -165,6 +313,8 @@ namespace PontoDoGesso.Forms
             _avisoAtualizacao.Visible = true;
         }
 
+        // ---------- pasta e diálogos ----------
+
         private void AbrirPastaOrcamentos()
         {
             var pasta = ArquivosOrcamento.PastaBase(new ConfiguracaoRepositorio(_banco));
@@ -181,87 +331,11 @@ namespace PontoDoGesso.Forms
 
         protected virtual void AbrirPasta(string pasta) => Sistema.AbrirPasta(pasta);
 
-        private Control CriarBotoes()
+        /// <summary>Janela por cima da principal (Verificar atualizações, Sobre); a tela atual continua como estava.</summary>
+        protected virtual void AbrirDialogo(Func<Form> abrir)
         {
-            // Botão sem ação = tela de uma fase que ainda não chegou: fica visível, mas desabilitado
-            var botoes = new[]
-            {
-                CriarBotao("novoOrcamento", "Novo orçamento  (Ctrl+N)", () => new FormOrcamento(_banco)),
-                CriarBotao("historico", "Histórico  (Ctrl+F)", () => new FormHistorico(_banco)),
-                CriarBotao("clientes", "Clientes", () => new FormClientes(_banco)),
-                CriarBotao("produtos", "Produtos", () => new FormProdutos(_banco)),
-                CriarBotao("configuracoes", "Configurações", () => new FormConfiguracoes(_banco))
-            };
-
-            var grade = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 3, Padding = new Padding(0, 12, 0, 12) };
-            grade.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-            grade.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-            for (var linha = 0; linha < 3; linha++)
-                grade.RowStyles.Add(new RowStyle(SizeType.Percent, 100F / 3));
-
-            grade.Controls.Add(botoes[0], 0, 0);
-            grade.SetColumnSpan(botoes[0], 2);
-
-            for (var i = 1; i < botoes.Length; i++)
-                grade.Controls.Add(botoes[i], (i - 1) % 2, 1 + (i - 1) / 2);
-
-            return grade;
-        }
-
-        private Button CriarBotao(string nome, string texto, Func<Form> abrirTela)
-        {
-            var botao = new Button
-            {
-                Name = nome,
-                Text = texto,
-                Dock = DockStyle.Fill,
-                Margin = new Padding(6),
-                Font = new Font("Segoe UI", 13F),
-                Enabled = abrirTela != null
-            };
-
-            if (abrirTela != null)
-                botao.Click += (s, e) => AbrirTela(abrirTela);
-
-            return botao;
-        }
-
-        protected virtual void AbrirTela(Func<Form> abrirTela)
-        {
-            using (var form = abrirTela())
+            using (var form = abrir())
                 form.ShowDialog(this);
-
-            TrazerParaFrente();
-        }
-
-        /// <summary>
-        /// Depois de fechar uma janela (Voltar ao menu, Esc ou X) o menu volta para a frente. No Windows 7 ele às vezes
-        /// ficava atrás de outro programa aberto.
-        /// </summary>
-        public void TrazerParaFrente()
-        {
-            if (IsDisposed)
-                return;
-
-            if (WindowState == FormWindowState.Minimized)
-                WindowState = FormWindowState.Normal;
-            Activate();
-            BringToFront();
-        }
-
-        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
-        {
-            switch (keyData)
-            {
-                case Keys.Control | Keys.N:
-                    AbrirTela(() => new FormOrcamento(_banco));
-                    return true;
-                case Keys.Control | Keys.F:
-                    AbrirTela(() => new FormHistorico(_banco));
-                    return true;
-            }
-
-            return base.ProcessCmdKey(ref msg, keyData);
         }
 
         protected virtual void AbrirManual() => Estilo.AbrirManual(this);
@@ -272,10 +346,10 @@ namespace PontoDoGesso.Forms
             manual.Click += (s, e) => AbrirManual();
 
             var diagnostico = new ToolStripMenuItem("Diagnóstico");
-            diagnostico.Click += AbrirDiagnostico;
+            diagnostico.Click += (s, e) => AbrirDialogo(() => new FormDiagnostico());
 
             var sobre = new ToolStripMenuItem("Sobre") { Name = "sobre" };
-            sobre.Click += (s, e) => AbrirTela(() => new FormSobre(Caminhos.PastaDados));
+            sobre.Click += (s, e) => AbrirDialogo(() => new FormSobre(Caminhos.PastaDados));
 
             _demonstracao = new ToolStripMenuItem("Dados de demonstração") { Name = "demonstracao" };
             _demonstracao.Click += (s, e) => AlternarDemonstracao();
@@ -317,8 +391,12 @@ namespace PontoDoGesso.Forms
 
         public bool EmDemonstracao => _banco != _bancoReal;
 
+        /// <summary>Troca de banco e volta para o Início (antes, a tela atual pode pedir para salvar).</summary>
         public void AlternarDemonstracao()
         {
+            if (TelaAtual != null && !TelaAtual.PodeSair())
+                return;
+
             if (EmDemonstracao)
             {
                 _banco = _bancoReal;
@@ -340,15 +418,10 @@ namespace PontoDoGesso.Forms
             _avisoDemonstracao.Visible = EmDemonstracao;
             _demonstracao.Text = EmDemonstracao ? "Sair da demonstração" : "Dados de demonstração";
             Text = EmDemonstracao ? TituloJanela + " – DEMONSTRAÇÃO" : TituloJanela;
+            MostrarInicio();
         }
 
         /// <summary>Recriado a cada entrada, com datas a partir de hoje; nunca toca no banco real.</summary>
         protected virtual Banco CriarBancoDemonstracao() => Demonstracao.Criar(DateTime.Today);
-
-        private void AbrirDiagnostico(object sender, EventArgs e)
-        {
-            using (var form = new FormDiagnostico())
-                form.ShowDialog(this);
-        }
     }
 }
