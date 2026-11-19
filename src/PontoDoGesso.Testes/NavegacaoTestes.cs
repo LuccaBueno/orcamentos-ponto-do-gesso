@@ -54,7 +54,6 @@ namespace PontoDoGesso.Testes
         [InlineData("historico", typeof(TelaHistorico))]
         [InlineData("clientes", typeof(TelaClientes))]
         [InlineData("produtos", typeof(TelaProdutos))]
-        [InlineData("empresa", typeof(TelaEmpresa))]
         [InlineData("configuracoes", typeof(TelaConfiguracoes))]
         [InlineData("inicio", typeof(TelaInicio))]
         public void BotaoDoMenuTrocaATelaNaMesmaJanelaEFicaDestacado(string botao, Type tela)
@@ -80,7 +79,7 @@ namespace PontoDoGesso.Testes
         {
             Rodar(form =>
             {
-                foreach (var botao in new[] { "novoOrcamento", "historico", "clientes", "produtos", "empresa", "configuracoes" })
+                foreach (var botao in new[] { "novoOrcamento", "historico", "clientes", "produtos", "configuracoes" })
                 {
                     Menu(form, botao);
                     Assert.Empty(form.Controls.Find("voltarMenu", true));
@@ -178,23 +177,25 @@ namespace PontoDoGesso.Testes
         {
             Rodar(form =>
             {
-                Menu(form, "empresa");
                 Menu(form, "configuracoes");
+                Menu(form, "inicio");
                 Assert.Empty(form.Perguntas);
 
+                Menu(form, "configuracoes");
                 Tela.Achar<TextBox>(form, "cidade").Text = "Taubaté";
                 form.RespostaSalvar = DialogResult.Cancel;
-                Menu(form, "empresa");
+                Menu(form, "inicio");
                 Assert.IsType<TelaConfiguracoes>(form.TelaAtual);
                 Assert.Equal("As configurações têm alterações não salvas. Salvar antes de sair?", form.Perguntas.Last());
 
                 form.RespostaSalvar = DialogResult.No;
-                Menu(form, "empresa");
+                Menu(form, "inicio");
+                Menu(form, "configuracoes");
                 Tela.Achar<TextBox>(form, "lojaSubtitulo").Text = "Outro subtítulo";
                 form.RespostaSalvar = DialogResult.Yes;
                 Menu(form, "inicio");
                 Assert.IsType<TelaInicio>(form.TelaAtual);
-                Assert.Equal("Os dados da empresa têm alterações não salvas. Salvar antes de sair?", form.Perguntas.Last());
+                Assert.Equal("As configurações têm alterações não salvas. Salvar antes de sair?", form.Perguntas.Last());
             });
 
             var configuracoes = new ConfiguracaoRepositorio(_temporario.Banco);

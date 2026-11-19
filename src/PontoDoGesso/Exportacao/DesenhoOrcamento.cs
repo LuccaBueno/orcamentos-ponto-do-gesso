@@ -74,6 +74,7 @@ namespace PontoDoGesso.Exportacao
         private static readonly XFont FonteDdd = new XFont(FonteTabela, 15.5);
         private static readonly XFont FonteTelefone = new XFont(FonteTabela, 25);
         private static readonly XFont FonteEndereco = new XFont(FonteTabela, 17);
+        private static readonly XFont FonteCnpj = new XFont(FonteTabela, 18);
         private static readonly XFont FonteRotulo = new XFont(FonteTabela, 12);
         private static readonly XFont FonteValor = new XFont(FonteTabela, 12);
         private static readonly XFont FonteCabecalhoTabela = new XFont(FonteTabela, 13, XFontStyleEx.Bold);
@@ -272,17 +273,22 @@ namespace PontoDoGesso.Exportacao
             // Endereço em duas linhas, começando no meio da moldura; diminui a fonte se não couber (Arial no lugar da Calibri é mais largo)
             var xEndereco = Pt(Esquerda + Largura * 0.514);
             var larguraEndereco = Pt(Direita - 4) - xEndereco;
-            var cnpj = TextoCnpj(_orcamento);
-            var fonteEndereco = FonteQueCabe(grafico, FonteEndereco, larguraEndereco, _loja.EnderecoLinha1, _loja.EnderecoLinha2, cnpj);
+            var fonteEndereco = FonteQueCabe(grafico, FonteEndereco, larguraEndereco, _loja.EnderecoLinha1, _loja.EnderecoLinha2);
 
-            // Sem CNPJ, como na folha: linha 1 na altura do telefone e linha 2 embaixo. Com CNPJ, as três linhas dividem o mesmo espaço.
-            var linhas = cnpj == null ? new[] { 43.7, 54.4 } : new[] { 39.0, 46.7, 54.4 };
+            // Como na folha: linha 1 na altura do telefone e linha 2 embaixo
             if (!string.IsNullOrEmpty(_loja.EnderecoLinha1))
-                grafico.DrawString(_loja.EnderecoLinha1, fonteEndereco, PincelLaranja, xEndereco, Pt(Margem + linhas[0]));
+                grafico.DrawString(_loja.EnderecoLinha1, fonteEndereco, PincelLaranja, xEndereco, Pt(Margem + 43.7));
             if (!string.IsNullOrEmpty(_loja.EnderecoLinha2))
-                grafico.DrawString(_loja.EnderecoLinha2, fonteEndereco, PincelLaranja, xEndereco, Pt(Margem + linhas[1]));
+                grafico.DrawString(_loja.EnderecoLinha2, fonteEndereco, PincelLaranja, xEndereco, Pt(Margem + 54.4));
+
+            // CNPJ embaixo do telefone, na linha de base da linha 2 do endereço: duas colunas de duas linhas alinhadas
+            var cnpj = TextoCnpj(_orcamento);
             if (cnpj != null)
-                grafico.DrawString(cnpj, fonteEndereco, PincelLaranja, xEndereco, Pt(Margem + linhas[2]));
+            {
+                var xCnpj = Pt(Esquerda + 8);
+                var fonteCnpj = FonteQueCabe(grafico, FonteCnpj, xEndereco - Pt(4) - xCnpj, cnpj);
+                grafico.DrawString(cnpj, fonteCnpj, PincelLaranja, xCnpj, Pt(Margem + 54.4));
+            }
         }
 
         /// <summary>"CNPJ: 00.000.000/0000-00" se o orçamento pediu e guardou um CNPJ válido; senão nulo (cabeçalho como sempre foi).</summary>

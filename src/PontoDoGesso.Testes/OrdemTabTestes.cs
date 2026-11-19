@@ -54,7 +54,7 @@ namespace PontoDoGesso.Testes
         public void TelaPrincipal() =>
             Conferir(() => new FormPrincipal(_temporario.Banco), "atalhoNovoOrcamento",
                 "atalhoNovoOrcamento", "atalhoHistorico", "atalhoClientes", "atalhoProdutos", "verTodos",
-                "inicio", "novoOrcamento", "historico", "clientes", "produtos", "empresa", "configuracoes", "pastaOrcamentos", "verificarAtualizacoes");
+                "inicio", "novoOrcamento", "historico", "clientes", "produtos", "configuracoes", "pastaOrcamentos", "verificarAtualizacoes");
 
         [Fact]
         public void Orcamento() =>
@@ -91,8 +91,8 @@ namespace PontoDoGesso.Testes
 
         [Fact]
         public void Configuracoes() =>
-            ConferirTela(() => new TelaConfiguracoes(_temporario.Banco), null,
-                "abas", "validade", "cidade", "ddd", "perguntarAvulso", "salvar");
+            ConferirTela(() => new TelaConfiguracoes(_temporario.Banco), "lojaNome",
+                "abas", "lojaNome", "lojaSubtitulo", "lojaTelefone", "lojaEndereco1", "lojaEndereco2", "lojaCnpj", "lojaRodape", "salvar");
 
         [Fact]
         public void Empresa() =>

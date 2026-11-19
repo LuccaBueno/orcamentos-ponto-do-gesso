@@ -4,6 +4,13 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/); 
 
 ## [Não lançado]
 
+### Alterado
+- Cabeçalho do orçamento com CNPJ: o CNPJ sai embaixo do telefone, à esquerda, em fonte um pouco menor (Calibri 18 pt), alinhado com a 2ª linha do endereço; o endereço volta às posições de sempre. Sem CNPJ marcado, nada muda. Vale para PNG, PDF, impressão e pré-visualização.
+- Menu lateral: "Empresa" virou a primeira aba de **Configurações** (Empresa, Orçamento, Exportação, Backup), com um Salvar (Ctrl+S) só para a tela toda e a pergunta Salvar/Não salvar/Cancelar ao sair com alterações. "Configurações" foi para a parte de baixo do menu, junto de "Abrir pasta de orçamentos" e "Verificar atualizações". A dica do orçamento passa a dizer "Cadastre o CNPJ em Configurações → Empresa".
+
+### Corrigido
+- Campo CNPJ mostrava vírgulas ("12,337,597/0001-43") em Windows com cultura em inglês; agora sempre mostra e grava com pontos.
+
 ## [0.9.6] - 2026-11-19
 
 Melhorias pedidas no uso real da v0.9.5. O banco recebe a migração 004 (com backup antes).

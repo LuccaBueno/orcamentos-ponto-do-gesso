@@ -48,7 +48,7 @@ Se a tela atual tiver alterações não salvas (orçamento, empresa, configuraç
    - `Esc` com a lista fechada limpa a barra.
    - **Na lista**, cada item tem **−**, **+** e a **lixeira**. Com um item selecionado: teclas `+` e `−` mudam a quantidade, `Delete` remove, `Ctrl+↑`/`Ctrl+↓` (ou arrastar com o mouse) mudam a ordem. Quantidade, descrição e preço podem ser corrigidos na própria lista (`F2` ou começar a digitar). Mudar o preço aqui não muda o catálogo.
 4. **Observações** (saem impressas, até 300 letras), **Validade** (opcional, em dias), **Desconto** (opcional, em R$ ou %, só sobre os produtos) e **Frete**.
-5. **Mostrar CNPJ da empresa neste orçamento:** vem **desmarcada** em todo orçamento novo. Marcada, o CNPJ sai no cabeçalho, abaixo do endereço. Se estiver cinza, cadastre o CNPJ na tela **Empresa**.
+5. **Mostrar CNPJ da empresa neste orçamento:** vem **desmarcada** em todo orçamento novo. Marcada, o CNPJ sai no cabeçalho, abaixo do endereço. Se estiver cinza, cadastre o CNPJ em **Configurações → Empresa**.
 6. **Data:** orçamento novo usa a data de hoje do Windows e muda sozinho para hoje se o dia virar com a tela aberta. Dá para escolher outra data no calendário; aí aparece **data alterada manualmente** e o app não mexe mais. Orçamento já salvo mantém a data dele.
 7. **Salvar** (`Ctrl+S`). O número do orçamento (`Nº 0001`, `0002`…) sai no primeiro salvamento. Se ficou um item digitado na barra sem clicar em Adicionar, ele entra antes de salvar.
 

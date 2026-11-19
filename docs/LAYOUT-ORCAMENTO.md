@@ -77,19 +77,18 @@ Sem a Calibri (Windows 7 sem Office) tudo que é Calibri sai em Arial.
 - **Frete:** sem frete, imprime `—` na célula (mantém a linha, como na folha).
 - **Validade:** só imprime se foi ligada naquele orçamento, com a data final calculada.
 - Ícone ao lado do telefone: arquivo `assets\icone-whatsapp.png`, recortado da própria folha atual (`folha-orcamento-atual.pdf`). Se o arquivo não existir, desenha só o telefone.
-- Dados da empresa (nome, subtítulo, telefone, endereço, rodapé e CNPJ) vêm da tela **Empresa** do app.
+- Dados da empresa (nome, subtítulo, telefone, endereço, rodapé e CNPJ) vêm da aba **Empresa** de **Configurações**.
 
 ### CNPJ da empresa (opcional, por orçamento)
 
-Na tela de orçamento há a caixa **"Mostrar CNPJ da empresa neste orçamento"**, **desmarcada** em todo orçamento novo e também ao duplicar. Sem CNPJ cadastrado na tela Empresa, a caixa fica desligada com a dica "Cadastre o CNPJ na tela Empresa".
+Na tela de orçamento há a caixa **"Mostrar CNPJ da empresa neste orçamento"**, **desmarcada** em todo orçamento novo e também ao duplicar. Sem CNPJ cadastrado em Configurações → Empresa, a caixa fica desligada com a dica "Cadastre o CNPJ em Configurações → Empresa".
 
 - **Desmarcada:** o cabeçalho sai exatamente como antes (o teste `CnpjTestes.SemMarcarOCabecalhoFicaExatamenteComoAntes` compara os pixels).
-- **Marcada:** `CNPJ: 00.000.000/0000-00` sai no cabeçalho, abaixo do endereço, na mesma fonte e cor do endereço (Calibri 17 pt laranja, diminui junto com o endereço se não couber). As três linhas dividem o espaço que o endereço ocupava: linhas de base a 39,0 / 46,7 / 54,4 mm do topo da moldura (sem CNPJ: endereço a 43,7 e 54,4 mm, na altura do telefone, como na folha).
+- **Marcada:** `CNPJ: 00.000.000/0000-00` sai no cabeçalho embaixo do telefone, à esquerda (x = 8 mm, Calibri 18 pt laranja, um pouco menor que o telefone; diminui se não couber antes do endereço), na linha de base da 2ª linha do endereço (54,4 mm). O endereço fica onde sempre esteve (43,7 e 54,4 mm): duas colunas de duas linhas alinhadas.
 
 ```
 │ (12) 99244-5402 [ícone]   Rua do Cardoso, 104 – Alto do  │
-│                           Cardoso - Pindamonhangaba - SP │
-│                           CNPJ: 11.222.333/0001-81       │  ← só com a caixa marcada
+│ CNPJ: 11.222.333/0001-81  Cardoso - Pindamonhangaba - SP │  ← CNPJ só com a caixa marcada
 ```
 
 - O orçamento guarda se o CNPJ foi mostrado e **uma cópia do CNPJ usado** (`orcamentos.mostrar_cnpj` e `orcamentos.empresa_cnpj`): reabrir ou exportar de novo um orçamento antigo sai igual, mesmo que o CNPJ da empresa mude ou seja apagado depois.

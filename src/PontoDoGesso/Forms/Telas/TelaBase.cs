@@ -104,21 +104,35 @@ namespace PontoDoGesso.Forms
             return resposta == DialogResult.No || (resposta == DialogResult.Yes && salvar());
         }
 
+        /// <summary>Os diálogos da tela ou, numa tela embutida em outra (Empresa dentro de Configurações), os da tela de fora.</summary>
+        private IDialogos DialogosEfetivos
+        {
+            get
+            {
+                for (Control controle = this; controle != null; controle = controle.Parent)
+                    if (controle is TelaBase tela && tela.Dialogos != null)
+                        return tela.Dialogos;
+                return null;
+            }
+        }
+
         protected virtual DialogResult PerguntarSalvar(string pergunta) =>
-            Dialogos?.PerguntarSalvar(this, pergunta) ?? PerguntaSalvar.Perguntar(this, pergunta, Text);
+            DialogosEfetivos?.PerguntarSalvar(this, pergunta) ?? PerguntaSalvar.Perguntar(this, pergunta, Text);
 
         protected virtual void Avisar(string mensagem)
         {
-            if (Dialogos != null)
-                Dialogos.Avisar(this, mensagem);
+            var dialogos = DialogosEfetivos;
+            if (dialogos != null)
+                dialogos.Avisar(this, mensagem);
             else
                 MessageBox.Show(this, mensagem, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
         protected virtual void Informar(string mensagem)
         {
-            if (Dialogos != null)
-                Dialogos.Informar(this, mensagem);
+            var dialogos = DialogosEfetivos;
+            if (dialogos != null)
+                dialogos.Informar(this, mensagem);
             else
                 MessageBox.Show(this, mensagem, Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
@@ -127,6 +141,6 @@ namespace PontoDoGesso.Forms
         protected virtual bool Confirmar(string pergunta) => Confirmar(pergunta, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
 
         protected bool Confirmar(string pergunta, MessageBoxIcon icone, MessageBoxDefaultButton padrao) =>
-            Dialogos?.Confirmar(this, pergunta, icone, padrao) ?? MessageBox.Show(this, pergunta, Text, MessageBoxButtons.YesNo, icone, padrao) == DialogResult.Yes;
+            DialogosEfetivos?.Confirmar(this, pergunta, icone, padrao) ?? MessageBox.Show(this, pergunta, Text, MessageBoxButtons.YesNo, icone, padrao) == DialogResult.Yes;
     }
 }

@@ -93,7 +93,7 @@ namespace PontoDoGesso.Testes
                     form.AbrirHistorico(new FiltroHistorico { Periodo = PeriodoHistorico.Ultimos30Dias, Frete = PresencaHistorico.Com });
                     Salvar(form, "historico");
 
-                    foreach (var (destino, nome) in new[] { (Destino.Produtos, "produtos"), (Destino.Clientes, "clientes"), (Destino.Empresa, "empresa"), (Destino.Configuracoes, "configuracoes") })
+                    foreach (var (destino, nome) in new[] { (Destino.Produtos, "produtos"), (Destino.Clientes, "clientes"), (Destino.Configuracoes, "configuracoes") })
                     {
                         form.Ir(destino);
                         Salvar(form, nome);

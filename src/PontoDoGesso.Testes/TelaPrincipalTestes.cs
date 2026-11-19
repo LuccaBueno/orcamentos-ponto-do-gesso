@@ -64,7 +64,7 @@ namespace PontoDoGesso.Testes
             Rodar(form =>
             {
                 var botoes = form.Menu.Controls.Cast<Control>().SelectMany(coluna => coluna.Controls.OfType<Button>()).Select(botao => botao.Name);
-                Assert.Equal(new[] { "inicio", "novoOrcamento", "historico", "clientes", "produtos", "empresa", "configuracoes", "pastaOrcamentos", "verificarAtualizacoes" }, botoes);
+                Assert.Equal(new[] { "inicio", "novoOrcamento", "historico", "clientes", "produtos", "configuracoes", "pastaOrcamentos", "verificarAtualizacoes" }, botoes);
                 Assert.Equal("Versão " + Servicos.Diagnostico.VersaoApp, Tela.Achar<Label>(form, "versao").Text);
             });
         }

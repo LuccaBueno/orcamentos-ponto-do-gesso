@@ -23,7 +23,7 @@ namespace PontoDoGesso.Forms
         private readonly MaskedTextBox _cnpj = new MaskedTextBox
         {
             Name = "lojaCnpj",
-            Mask = Cnpj.Mascara,
+            Mask = Cnpj.MascaraCampo,
             TextMaskFormat = MaskFormat.ExcludePromptAndLiterals,
             CutCopyMaskFormat = MaskFormat.IncludeLiterals,
             Width = 150,
@@ -36,8 +36,16 @@ namespace PontoDoGesso.Forms
         /// <summary>Dados como estavam ao abrir a tela (ou no último Salvar), para saber se há alterações.</summary>
         private string _salvos;
 
-        public TelaEmpresa(Banco banco)
+        /// <summary>Dentro da aba Empresa de Configurações: sem título nem botão Salvar próprios (o Salvar é o da tela toda).</summary>
+        private readonly bool _embutida;
+
+        public TelaEmpresa(Banco banco) : this(banco, false)
         {
+        }
+
+        public TelaEmpresa(Banco banco, bool embutida)
+        {
+            _embutida = embutida;
             _configuracoes = new ConfiguracaoRepositorio(banco);
             Text = "Empresa";
             _telefone.DddPadrao = _configuracoes.Obter("cliente.ddd_padrao") ?? "12";
@@ -61,7 +69,8 @@ namespace PontoDoGesso.Forms
             cnpj.Controls.Add(_cnpj);
             cnpj.Controls.Add(_situacaoCnpj);
 
-            Linha(null, new Label { Text = "Empresa", AutoSize = true, Font = new Font("Segoe UI", 14F, FontStyle.Bold), Margin = new Padding(0, 0, 0, 6) });
+            if (!embutida)
+                Linha(null, new Label { Text = "Empresa", AutoSize = true, Font = new Font("Segoe UI", 14F, FontStyle.Bold), Margin = new Padding(0, 0, 0, 6) });
             Linha("Nome *", _nome);
             Linha("Subtítulo", _subtitulo);
             Linha("Telefone (com DDD)", _telefone);
@@ -83,8 +92,11 @@ namespace PontoDoGesso.Forms
             var botoes = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, Padding = new Padding(6) };
             botoes.Controls.Add(salvar);
 
+            if (embutida)
+                Padding = new Padding(0);
             Controls.Add(tabela);
-            Controls.Add(botoes);
+            if (!embutida)
+                Controls.Add(botoes);
             ControleInicial = _nome;
 
             Exibir(DadosLoja.Ler(_configuracoes));
@@ -106,8 +118,6 @@ namespace PontoDoGesso.Forms
                     _cnpj.Select(0, 0);
             }));
         }
-
-        public override Destino Destino => Destino.Empresa;
 
         public override Size TamanhoMinimo => new Size(600, 520);
 
@@ -197,7 +207,7 @@ namespace PontoDoGesso.Forms
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            if (keyData == (Keys.Control | Keys.S))
+            if (keyData == (Keys.Control | Keys.S) && !_embutida)
             {
                 SalvarEAvisar();
                 return true;

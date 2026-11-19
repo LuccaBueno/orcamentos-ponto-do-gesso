@@ -11,7 +11,6 @@ namespace PontoDoGesso.Forms
         Historico,
         Clientes,
         Produtos,
-        Empresa,
         Configuracoes
     }
 

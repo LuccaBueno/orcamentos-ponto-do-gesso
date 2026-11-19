@@ -33,7 +33,7 @@ namespace PontoDoGesso.Testes
                 {
                     Tela.Exibir(form);
                     // Botão de aba escondida não responde ao PerformClick: a aba Backup fica à vista
-                    Tela.Achar<TabControl>(form, "abas").SelectedIndex = 2;
+                    Tela.Achar<TabControl>(form, "abas").SelectedIndex = 3;
                     teste(form);
                 }
             });
@@ -42,13 +42,14 @@ namespace PontoDoGesso.Testes
         private static T Achar<T>(Control form, string nome) where T : Control => Tela.Achar<T>(form, nome);
 
         [Fact]
-        public void MostraOsValoresAtuaisESemOsDadosDaEmpresa()
+        public void MostraOsValoresAtuaisComAEmpresaNaPrimeiraAba()
         {
             Rodar(form =>
             {
                 Tela.Achar<TabControl>(form, "abas").SelectedIndex = 0;
-                Assert.Equal(new[] { "Orçamento", "Exportação", "Backup" }, Tela.Achar<TabControl>(form, "abas").TabPages.Cast<TabPage>().Select(aba => aba.Text));
-                Assert.Empty(form.Controls.Find("lojaNome", true));
+                Assert.Equal(new[] { "Empresa", "Orçamento", "Exportação", "Backup" }, Tela.Achar<TabControl>(form, "abas").TabPages.Cast<TabPage>().Select(aba => aba.Text));
+                Assert.Equal("PONTO DO GESSO", Achar<TextBox>(form, "lojaNome").Text);
+                Assert.Single(form.Controls.Find("salvar", true));
                 Assert.Equal(7, Achar<NumericUpDown>(form, "validade").Value);
                 Assert.Equal("Pindamonhangaba", Achar<TextBox>(form, "cidade").Text);
                 Assert.Equal("12", Achar<TextBox>(form, "ddd").Text);

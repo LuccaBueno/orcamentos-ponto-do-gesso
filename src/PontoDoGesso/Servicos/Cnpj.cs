@@ -5,6 +5,12 @@ namespace PontoDoGesso.Servicos
     {
         public const string Mascara = "00.000.000/0000-00";
 
+        /// <summary>
+        /// Máscara do MaskedTextBox: "." e "/" ali são separadores da cultura do Windows (vírgula em inglês, por exemplo),
+        /// então vão escapados para sair sempre 00.000.000/0000-00.
+        /// </summary>
+        public const string MascaraCampo = @"00\.000\.000\/0000-00";
+
         private static readonly int[] PesosPrimeiro = { 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
         private static readonly int[] PesosSegundo = { 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
 

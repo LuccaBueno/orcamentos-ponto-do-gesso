@@ -693,7 +693,7 @@ namespace PontoDoGesso.Testes
                 var caixa = Tela.Achar<CheckBox>(form, "mostrarCnpj");
                 Assert.False(caixa.Checked);
                 Assert.False(caixa.Enabled);
-                Assert.Equal("Cadastre o CNPJ na tela Empresa", Texto(form, "dicaCnpj"));
+                Assert.Equal("Cadastre o CNPJ em Configurações → Empresa", Texto(form, "dicaCnpj"));
             });
         }
 

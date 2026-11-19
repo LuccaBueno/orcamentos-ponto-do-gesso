@@ -685,7 +685,7 @@ namespace PontoDoGesso.Forms
         {
             var cnpj = CnpjDoOrcamento;
             _mostrarCnpj.Enabled = cnpj != null || _mostrarCnpj.Checked;
-            _dicaCnpj.Text = cnpj == null ? "Cadastre o CNPJ na tela Empresa" : "(" + Cnpj.Formatar(cnpj) + ")";
+            _dicaCnpj.Text = cnpj == null ? "Cadastre o CNPJ em Configurações → Empresa" : "(" + Cnpj.Formatar(cnpj) + ")";
         }
 
         private void AtualizarValidade()

@@ -28,7 +28,6 @@ namespace PontoDoGesso.Forms
             [Destino.Historico] = "historico",
             [Destino.Clientes] = "clientes",
             [Destino.Produtos] = "produtos",
-            [Destino.Empresa] = "empresa",
             [Destino.Configuracoes] = "configuracoes"
         };
 
@@ -90,9 +89,8 @@ namespace PontoDoGesso.Forms
             _menu.Adicionar("historico", "Histórico", Icones.Historico, () => Ir(Destino.Historico));
             _menu.Adicionar("clientes", "Clientes", Icones.Clientes, () => Ir(Destino.Clientes));
             _menu.Adicionar("produtos", "Produtos", Icones.Produtos, () => Ir(Destino.Produtos));
-            _menu.Adicionar("empresa", "Empresa", Icones.Empresa, () => Ir(Destino.Empresa));
-            _menu.Adicionar("configuracoes", "Configurações", Icones.Configuracoes, () => Ir(Destino.Configuracoes));
 
+            _menu.Adicionar("configuracoes", "Configurações", Icones.Configuracoes, () => Ir(Destino.Configuracoes), true);
             _menu.Adicionar("pastaOrcamentos", "Abrir pasta de orçamentos", Icones.Pasta, AbrirPastaOrcamentos, true);
             _menu.Adicionar("verificarAtualizacoes", "Verificar atualizações", Icones.Atualizar, () => AbrirDialogo(() => new FormAtualizacao(_bancoReal)), true);
 
@@ -123,8 +121,6 @@ namespace PontoDoGesso.Forms
                     return Trocar(() => new TelaClientes(_banco));
                 case Destino.Produtos:
                     return Trocar(() => new TelaProdutos(_banco));
-                case Destino.Empresa:
-                    return Trocar(() => new TelaEmpresa(_banco));
                 case Destino.Configuracoes:
                     return Trocar(() => new TelaConfiguracoes(_banco));
                 default:

@@ -46,6 +46,25 @@ namespace PontoDoGesso.Testes
         }
 
         [Fact]
+        public void CampoMostraPontosMesmoComWindowsEmIngles()
+        {
+            var cultura = System.Threading.Thread.CurrentThread.CurrentCulture;
+            try
+            {
+                System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
+                using (var campo = new System.Windows.Forms.MaskedTextBox { Mask = Cnpj.MascaraCampo, TextMaskFormat = System.Windows.Forms.MaskFormat.IncludeLiterals })
+                {
+                    campo.Text = Ficticio;
+                    Assert.Equal("11.222.333/0001-81", campo.Text);
+                }
+            }
+            finally
+            {
+                System.Threading.Thread.CurrentThread.CurrentCulture = cultura;
+            }
+        }
+
+        [Fact]
         public void VazioEhPermitidoEDigitadoComMascaraViraSoDigitos()
         {
             Assert.True(Cnpj.TentarLer("  ", out var vazio, out _));

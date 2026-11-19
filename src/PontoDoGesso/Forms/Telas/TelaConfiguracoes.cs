@@ -10,13 +10,15 @@ using PontoDoGesso.Servicos;
 
 namespace PontoDoGesso.Forms
 {
-    /// <summary>Padrões do orçamento, exportação e backup. Os dados da empresa ficam na tela Empresa.</summary>
+    /// <summary>Dados da empresa, padrões do orçamento, exportação e backup, com um Salvar só para todas as abas.</summary>
     public class TelaConfiguracoes : TelaBase
     {
         public const string ImpressoraDoWindows = "(impressora padrão do Windows)";
 
         private readonly ConfiguracaoRepositorio _configuracoes;
         private readonly Backup _backup;
+        private readonly TelaEmpresa _empresa;
+        private readonly TabControl _abas = new TabControl { Name = "abas", Dock = DockStyle.Fill };
 
         private readonly NumericUpDown _validade = new NumericUpDown { Name = "validade", Minimum = 1, Maximum = 365, Width = 60 };
         private readonly TextBox _cidade = Campo("cidade", 60);
@@ -36,23 +38,28 @@ namespace PontoDoGesso.Forms
 
             Text = "Configurações";
 
-            var abas = new TabControl { Name = "abas", Dock = DockStyle.Fill };
-            abas.TabPages.Add(Aba("Orçamento", CriarOrcamento()));
-            abas.TabPages.Add(Aba("Exportação", CriarExportacao()));
-            abas.TabPages.Add(Aba("Backup", CriarBackup()));
+            _empresa = new TelaEmpresa(banco, true) { Name = "empresa" };
 
-            var salvar = Estilo.CriarBotao("Salvar", (s, e) => SalvarEAvisar());
+            _abas.TabPages.Add(Aba("Empresa", _empresa));
+            _abas.TabPages.Add(Aba("Orçamento", CriarOrcamento()));
+            _abas.TabPages.Add(Aba("Exportação", CriarExportacao()));
+            _abas.TabPages.Add(Aba("Backup", CriarBackup()));
+
+            var salvar = Estilo.CriarBotao("Salvar (Ctrl+S)", (s, e) => SalvarEAvisar());
             salvar.Name = "salvar";
 
             var botoes = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(6) };
             botoes.Controls.Add(salvar);
 
-            Controls.Add(abas);
+            Controls.Add(_abas);
             Controls.Add(botoes);
+            ControleInicial = _empresa.ControleInicial;
 
             Exibir(ConfiguracoesApp.Ler(_configuracoes));
             _salvas = Chave(Lidas());
         }
+
+        public override Size TamanhoMinimo => new Size(640, 600);
 
         private static TextBox Campo(string nome, int limite) => new TextBox { Name = nome, Dock = DockStyle.Fill, MaxLength = limite };
 
@@ -224,6 +231,13 @@ namespace PontoDoGesso.Forms
                 return false;
             }
 
+            // A aba Empresa confere os próprios campos e avisa; as outras abas só gravam se ela gravou
+            if (_empresa.Alterado && !_empresa.Salvar())
+            {
+                _abas.SelectedIndex = 0;
+                return false;
+            }
+
             configuracoes.Gravar(_configuracoes);
             _salvas = Chave(configuracoes);
             return true;
@@ -238,7 +252,7 @@ namespace PontoDoGesso.Forms
         /// <summary>Configurações como estavam ao abrir a janela (ou no último Salvar), para saber se há alterações.</summary>
         private string _salvas;
 
-        public bool Alterado => Chave(Lidas()) != _salvas;
+        public bool Alterado => _empresa.Alterado || Chave(Lidas()) != _salvas;
 
         private static string Chave(ConfiguracoesApp c) => string.Join("\u001f",
             c.ValidadeSugeridaDias, c.CidadePadrao, c.DddPadrao, c.PerguntarCadastroAvulso, c.PastaExportacao, c.Impressora);
@@ -247,6 +261,17 @@ namespace PontoDoGesso.Forms
 
         public override bool PodeSair() =>
             PerguntarAntesDeSair(Alterado, "As configurações têm alterações não salvas. Salvar antes de sair?", Salvar);
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData == (Keys.Control | Keys.S))
+            {
+                SalvarEAvisar();
+                return true;
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
 
         // ---------- backup ----------
 

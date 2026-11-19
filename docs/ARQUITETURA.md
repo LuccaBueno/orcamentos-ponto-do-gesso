@@ -177,7 +177,7 @@ Migrações numeradas em `src\PontoDoGesso\Dados\Migracoes\` (embutidas no exe),
 |---|---|
 | `001_inicial.sql` | Esquema completo |
 | `002_preco_atualizado_em.sql` | Data da última mudança de preço do produto |
-| `003_cnpj_empresa.sql` | `orcamentos.mostrar_cnpj` e `orcamentos.empresa_cnpj`; chave `loja.cnpj`. Os dados da empresa continuam nas mesmas chaves `loja.*` (só passaram a ser editados na tela Empresa, em vez de Configurações): nada é apagado nem copiado |
+| `003_cnpj_empresa.sql` | `orcamentos.mostrar_cnpj` e `orcamentos.empresa_cnpj`; chave `loja.cnpj`. Os dados da empresa continuam nas mesmas chaves `loja.*` (só passaram a ser editados em Configurações → Empresa, em vez de Configurações): nada é apagado nem copiado |
 
 ### Configurações (chaves)
 
@@ -189,7 +189,7 @@ Migrações numeradas em `src\PontoDoGesso\Dados\Migracoes\` (embutidas no exe),
 | `loja.endereco_linha1` | `Rua do Cardoso, 104 – Alto do` |
 | `loja.endereco_linha2` | `Cardoso - Pindamonhangaba - SP` |
 | `loja.rodape` | `As entregas são realizadas apenas até o térreo.` |
-| `loja.cnpj` | vazio — só os 14 dígitos, editado na tela Empresa; sai no cabeçalho só dos orçamentos com "Mostrar CNPJ" marcado |
+| `loja.cnpj` | vazio — só os 14 dígitos, editado em Configurações → Empresa; sai no cabeçalho só dos orçamentos com "Mostrar CNPJ" marcado |
 | `orcamento.validade_sugerida_dias` | `7` — só sugere o número quando a validade é ligada no orçamento |
 | `orcamento.perguntar_cadastro_avulso` | `1` — ao salvar orçamento de cliente avulso pela primeira vez, pergunta se quer cadastrar (`0` = não perguntar; tela na Fase 9) |
 | `cliente.ddd_padrao` | `12` (só pré-preenche o campo; sempre editável) |
@@ -240,7 +240,7 @@ O app tem **uma janela só** (`Forms\FormPrincipal.cs`): menu lateral fixo à es
 - `IDialogos` (também da janela principal) mostra as mensagens das telas; nos testes ela é trocada por uma que responde sozinha.
 - Só diálogos pequenos abrem janela por cima: confirmar, editar cliente/produto, reajuste de preços, pré-visualização de impressão, arquivo salvo, Verificar atualizações, Diagnóstico e Sobre.
 - A janela abre maximizada; tudo cabe sem barra de rolagem em 1024×768 e 1366×768 (teste `AjusteTelaTestes.TodasAsTelasCabemSemCortarNada`). Se a janela ficar menor que o mínimo da tela, a área da direita ganha barras de rolagem em vez de cortar.
-- Atalhos: Ctrl+N (orçamento novo, em qualquer tela), Ctrl+F (busca da tela; onde não há busca, abre o Histórico), Ctrl+S, Ctrl+P, Ctrl+E e Ctrl+Shift+C na tela de orçamento, Ctrl+S na tela Empresa, F1 (manual).
+- Atalhos: Ctrl+N (orçamento novo, em qualquer tela), Ctrl+F (busca da tela; onde não há busca, abre o Histórico), Ctrl+S, Ctrl+P, Ctrl+E e Ctrl+Shift+C na tela de orçamento, Ctrl+S em Configurações → Empresa, F1 (manual).
 
 | Tela (menu lateral) | Função |
 |---|---|
