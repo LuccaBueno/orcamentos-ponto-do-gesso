@@ -4,7 +4,9 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/); 
 
 ## [Não lançado]
 
-Melhorias pedidas depois do uso real na loja (Windows 7): uma janela só, tela Empresa com CNPJ opcional no orçamento, data do orçamento sempre certa e itens mais rápidos de lançar. O banco ganha a migração 003 (com backup antes); os dados da loja continuam onde estavam.
+## [0.9.4] - 2026-11-19
+
+Melhorias pedidas depois do uso real na loja (Windows 7): uma janela só, tela Empresa com CNPJ opcional no orçamento, data do orçamento sempre certa e itens mais rápidos de lançar. O banco ganha a migração 003 (com backup antes); os dados da loja continuam onde estavam. Quem está na v0.9.2 ou v0.9.3 atualiza pelo botão **Verificar atualizações** e continua com os mesmos clientes, produtos e orçamentos.
 
 ### Adicionado
 - **Janela única com menu lateral:** Início, Novo orçamento, Histórico, Clientes, Produtos, Empresa e Configurações, com ícones; embaixo, Abrir pasta de orçamentos e Verificar atualizações. O item da tela atual fica em laranja e a tela troca na área da direita, sem abrir janelas novas (só os diálogos pequenos continuam como janelas). A janela abre maximizada e cabe sem cortar nada em 1024×768 e 1366×768.
