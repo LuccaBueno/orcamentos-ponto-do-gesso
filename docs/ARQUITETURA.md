@@ -40,8 +40,9 @@ C:\dev\orcamentos-ponto-do-gesso\
    ├─ Directory.Build.props         # versão do app (<Version>) e configurações comuns
    ├─ PontoDoGesso\              # app WinForms (net48, x86)
    │  ├─ Program.cs
-   │  ├─ Forms\                     # FormPrincipal, FormOrcamento, FormClientes, FormProdutos, FormHistorico, FormConfiguracoes
-   │  ├─ Controles\                 # controles reutilizáveis (campo de moeda, autocomplete)
+   │  ├─ Forms\                     # FormPrincipal (a única janela) e os diálogos (editar cliente/produto, reajuste, impressão...)
+   │  │  └─ Telas\                  # telas da área principal (UserControl): Início, Orçamento, Histórico, Clientes, Produtos, Empresa, Configurações
+   │  ├─ Controles\                 # menu lateral, ícones, barra "Adicionar item", quantidade com −/+, grade de itens, moeda, telefone, autocomplete
    │  ├─ Dominio\                   # Orcamento, ItemOrcamento, Cliente, Produto
    │  ├─ Dados\                     # Banco (conexão + migrações), repositórios
    │  │  └─ Migracoes\              # 001_inicial.sql, 002_...
@@ -135,6 +136,8 @@ CREATE TABLE orcamentos (
   ent_cidade        TEXT,
   ent_referencia    TEXT,
   tipo_entrega      TEXT NOT NULL DEFAULT 'ENTREGA',   -- ENTREGA | RETIRADA
+  mostrar_cnpj      INTEGER NOT NULL DEFAULT 0,  -- 1 = o CNPJ da empresa sai no cabeçalho deste orçamento (migração 003)
+  empresa_cnpj      TEXT,                      -- cópia (snapshot) do CNPJ usado, só dígitos, quando mostrar_cnpj = 1
   observacoes       TEXT,                      -- sai impresso no orçamento
   subtotal_centavos INTEGER NOT NULL,
   desconto_tipo     TEXT,                      -- NULL (sem desconto) | VALOR | PERCENTUAL
@@ -170,6 +173,12 @@ CREATE INDEX ix_orcamentos_clid   ON orcamentos(cliente_id);
 
 Migrações numeradas em `src\PontoDoGesso\Dados\Migracoes\` (embutidas no exe), aplicadas automaticamente na abertura, **sempre com backup do banco antes**.
 
+| Migração | O que faz |
+|---|---|
+| `001_inicial.sql` | Esquema completo |
+| `002_preco_atualizado_em.sql` | Data da última mudança de preço do produto |
+| `003_cnpj_empresa.sql` | `orcamentos.mostrar_cnpj` e `orcamentos.empresa_cnpj`; chave `loja.cnpj`. Os dados da empresa continuam nas mesmas chaves `loja.*` (só passaram a ser editados na tela Empresa, em vez de Configurações): nada é apagado nem copiado |
+
 ### Configurações (chaves)
 
 | Chave | Padrão |
@@ -180,6 +189,7 @@ Migrações numeradas em `src\PontoDoGesso\Dados\Migracoes\` (embutidas no exe),
 | `loja.endereco_linha1` | `Rua do Cardoso, 104 – Alto do` |
 | `loja.endereco_linha2` | `Cardoso - Pindamonhangaba - SP` |
 | `loja.rodape` | `As entregas são realizadas apenas até o térreo.` |
+| `loja.cnpj` | vazio — só os 14 dígitos, editado na tela Empresa; sai no cabeçalho só dos orçamentos com "Mostrar CNPJ" marcado |
 | `orcamento.validade_sugerida_dias` | `7` — só sugere o número quando a validade é ligada no orçamento |
 | `orcamento.perguntar_cadastro_avulso` | `1` — ao salvar orçamento de cliente avulso pela primeira vez, pergunta se quer cadastrar (`0` = não perguntar; tela na Fase 9) |
 | `cliente.ddd_padrao` | `12` (só pré-preenche o campo; sempre editável) |
@@ -217,16 +227,41 @@ Orçamento, cliente e produto têm **número próprio**, sequencial, começando 
 - Quantidade aceita vírgula (`2,5`). Linhas com descrição vazia são ignoradas ao salvar; quantidade 0 bloqueia o salvamento com aviso.
 - Número do orçamento atribuído ao **salvar pela primeira vez**, numa transação; nunca é reaproveitado (nem se o orçamento for excluído).
 
-## Telas
+- Data do orçamento (`Servicos\DataOrcamento.cs`): orçamento **novo** (ainda sem número) usa a data de hoje do Windows ao criar e ao duplicar, e passa sozinho para hoje ao salvar, exportar ou voltar para a tela se o dia virou — a não ser que a data tenha sido mudada à mão (aparece "data alterada manualmente"). Orçamento **já salvo** nunca muda de data sozinho. A data é lida do relógio a cada vez, nunca guardada em campo estático.
+- Botões − e + da quantidade (`Servicos\PassoQuantidade.cs`): passo de 1, mínimo 1; fracionado só digitando (2,5 + 1 = 3,5).
+- CNPJ (`Servicos\Cnpj.cs`): 14 dígitos com os dois dígitos verificadores conferidos; todos iguais (00.000.000/0000-00) é recusado.
 
-| Tela | Função |
+## Telas e navegação
+
+O app tem **uma janela só** (`Forms\FormPrincipal.cs`): menu lateral fixo à esquerda (`Controles\MenuLateral.cs`, ícones desenhados em código por `Controles\Icones.cs`) e, à direita, a tela escolhida. Cada tela é um `UserControl` que herda de `Forms\Telas\TelaBase.cs`:
+
+- `INavegacao` (implementada pela janela principal) troca a tela: menu lateral, "Abrir"/"Duplicar" do histórico, "Novo orçamento para este cliente", "Orçamentos deste cliente", atalhos da tela inicial.
+- Antes de trocar de tela ou fechar o app, `TelaBase.PodeSair()` pergunta Salvar / Não salvar / Cancelar se houver alterações (Orçamento, Empresa, Configurações). Cancelar fica na tela.
+- `IDialogos` (também da janela principal) mostra as mensagens das telas; nos testes ela é trocada por uma que responde sozinha.
+- Só diálogos pequenos abrem janela por cima: confirmar, editar cliente/produto, reajuste de preços, pré-visualização de impressão, arquivo salvo, Verificar atualizações, Diagnóstico e Sobre.
+- A janela abre maximizada; tudo cabe sem barra de rolagem em 1024×768 e 1366×768 (teste `AjusteTelaTestes.TodasAsTelasCabemSemCortarNada`). Se a janela ficar menor que o mínimo da tela, a área da direita ganha barras de rolagem em vez de cortar.
+- Atalhos: Ctrl+N (orçamento novo, em qualquer tela), Ctrl+F (busca da tela; onde não há busca, abre o Histórico), Ctrl+S, Ctrl+P, Ctrl+E e Ctrl+Shift+C na tela de orçamento, Ctrl+S na tela Empresa, F1 (manual).
+
+| Tela (menu lateral) | Função |
 |---|---|
-| Principal | Botões grandes: **Novo orçamento**, Histórico, Clientes, Produtos, Configurações; versão e **Verificar atualizações** no rodapé |
-| Orçamento | Cliente (buscar cadastrado ou avulso), entrega/retirada, grade de itens, desconto opcional, frete, validade opcional, observações, totais; Salvar, Copiar imagem, PNG, PDF, Imprimir, Duplicar |
-| Clientes | Lista com busca por nome/telefone; novo, editar, inativar; "Novo orçamento para este cliente" |
-| Produtos | Lista com busca; novo, editar, inativar |
-| Histórico | Filtros: período, tipo de cliente (todos/cadastrado/avulso), cliente específico, com/sem frete, com/sem desconto, texto (nº/nome/telefone); abrir, duplicar, exportar |
-| Configurações | Dados da loja, validade sugerida, pasta de exportação, impressora, backup/restauração |
+| Início | Atalhos grandes (Novo orçamento, Histórico, Clientes, Produtos) e os últimos 5 orçamentos mexidos (Enter ou clique duplo abre) |
+| Novo orçamento | Cliente (buscar cadastrado ou avulso), entrega/retirada, barra "Adicionar item" + lista de itens, desconto opcional, frete, validade opcional, observações, "Mostrar CNPJ da empresa neste orçamento", totais; Salvar, Copiar imagem, PNG, PDF, Imprimir, WhatsApp, Duplicar |
+| Histórico | Filtros: período, tipo de cliente (todos/cadastrado/avulso), cliente específico, com/sem frete, com/sem desconto, texto (nº/nome/telefone); abrir e duplicar (na área principal), exportar, excluir |
+| Clientes | Lista com busca por nome/telefone; novo, editar, inativar; "Novo orçamento para este cliente" e "Orçamentos deste cliente" trocam a tela |
+| Produtos | Lista com busca; novo, editar, inativar; preço editável na lista; reajuste |
+| Empresa | Nome, subtítulo, telefone (com DDD, mesma validação dos clientes), endereço (2 linhas), CNPJ (máscara e dígitos verificadores, opcional), rodapé; pré-visualização ao vivo do cabeçalho |
+| Configurações | Validade sugerida, cidade e DDD padrão, pasta de exportação, impressora, backup/restauração |
+
+### Entrada de itens
+
+Barra `Controles\BarraItem.cs` acima da lista: **[Produto] [− Qtd +] [Un] [Unitário] [Adicionar]**.
+
+- Produto: busca no catálogo por nome ou código enquanto se digita; ↑/↓ e Enter ou o clique escolhem; unidade e preço são preenchidos e o cursor vai para a quantidade. Texto fora do catálogo vale como descrição livre. Esc fecha a lista; sem lista aberta, limpa a barra.
+- Quantidade (`Controles\CampoQuantidade.cs`): botões − e +, teclas + e − (ou ↑/↓); aceita digitar 2,5.
+- Enter avança (Produto → Qtd → Un, ou direto para o Unitário se veio do catálogo → Unitário) e no Unitário adiciona; o botão Adicionar faz o mesmo. Depois de adicionar, a barra é limpa e o cursor volta para o Produto.
+- Salvar com algo digitado na barra adiciona o item antes (ou avisa o que falta).
+- Lista (`Controles\GradeItens.cs`): cada linha com − e + na quantidade e a lixeira; quantidade, unidade, descrição e preço editáveis na própria lista (F2 ou digitando). Teclas + e − mudam a quantidade da linha (tratadas no caractere traduzido pelo Windows, então valem em qualquer layout de teclado e no numérico), Delete remove, Ctrl+↑/↓ ou arrastar com o mouse mudam a ordem. Mudar a descrição tira o item do catálogo (o código some).
+- Cronômetro: `EntradaItensTestes.CincoItensDoCatalogoEmMenosDeUmMinuto` lança 5 itens do catálogo só pelo teclado (teclas enviadas como mensagens do Windows) e grava o resultado em `C:\dev\orcamentos-ponto-do-gesso\.tmp\cronometro-itens.txt`.
 
 ## Atualização
 

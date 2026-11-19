@@ -4,6 +4,36 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/); 
 
 ## [Não lançado]
 
+Melhorias pedidas depois do uso real na loja (Windows 7): uma janela só, tela Empresa com CNPJ opcional no orçamento, data do orçamento sempre certa e itens mais rápidos de lançar. O banco ganha a migração 003 (com backup antes); os dados da loja continuam onde estavam.
+
+### Adicionado
+- **Janela única com menu lateral:** Início, Novo orçamento, Histórico, Clientes, Produtos, Empresa e Configurações, com ícones; embaixo, Abrir pasta de orçamentos e Verificar atualizações. O item da tela atual fica em laranja e a tela troca na área da direita, sem abrir janelas novas (só os diálogos pequenos continuam como janelas). A janela abre maximizada e cabe sem cortar nada em 1024×768 e 1366×768.
+- **Tela inicial:** atalhos grandes e os últimos 5 orçamentos (Enter ou clique duplo abre).
+- **Tela Empresa:** nome, subtítulo, telefone (com DDD, mesma validação dos clientes), endereço em 2 linhas, CNPJ (máscara `00.000.000/0000-00`, dígitos verificadores conferidos, opcional) e rodapé, com a pré-visualização do cabeçalho ao vivo e `Ctrl+S`.
+- **"Mostrar CNPJ da empresa neste orçamento"** na tela de orçamento: desmarcada em todo orçamento novo e ao duplicar; desligada com a dica "Cadastre o CNPJ na tela Empresa" quando não há CNPJ. Marcada, o CNPJ sai no cabeçalho do PNG/PDF/impressão, abaixo do endereço, no mesmo estilo. O orçamento guarda se mostrou e qual CNPJ usou, então reabrir ou reexportar um orçamento antigo sai igual. Desmarcada, o orçamento sai exatamente como antes. Comparação em `docs\referencia\comparacoes\cnpj\`.
+- **Barra "Adicionar item"** acima da lista: Produto (busca por nome ou código com sugestões; setas, Enter ou clique escolhem e preenchem unidade e preço) · Qtd com − e + (teclas + e − ou ↑/↓; aceita 2,5) · Un · Unitário · Adicionar. Enter no último campo adiciona, limpa a barra e volta para o Produto. Descrição livre continua valendo.
+- **Lista de itens:** − e + na quantidade e lixeira em cada linha; teclas + e − na linha selecionada, Delete remove, Ctrl+↑/↓ ou arrastar muda a ordem; quantidade, descrição e preço editáveis na lista.
+- Aviso **"data alterada manualmente"** ao lado da data quando ela é escolhida à mão.
+- Migração `003_cnpj_empresa.sql`: colunas `mostrar_cnpj` e `empresa_cnpj` nos orçamentos e a chave `loja.cnpj`.
+- Testes: navegação, tela Empresa, CNPJ, data do orçamento, entrada de itens pelo teclado e pelo mouse (mensagens do Windows de verdade) e o cronômetro de um orçamento de 5 itens do catálogo (57 teclas; estimativa de 37 s para uma pessoa; meta de 1 minuto).
+
+### Alterado
+- Os dados da loja saem de **Configurações** (que fica com Orçamento, Exportação e Backup) e vão para a tela **Empresa**. Ficam nas mesmas chaves do banco: nada é perdido.
+- "Abrir" e "Duplicar" no histórico, "Novo orçamento para este cliente" e "Orçamentos deste cliente" trocam a tela em vez de abrir outra janela.
+- Trocar de tela ou fechar o app com alterações não salvas pergunta **Salvar / Não salvar / Cancelar**.
+- Escolher o cliente pelo teclado leva o cursor direto para o Produto.
+- Salvar com um item digitado na barra (sem clicar em Adicionar) adiciona o item antes ou avisa o que falta.
+- Tela de orçamento mais compacta (títulos na mesma linha dos campos) para sobrar altura para a lista de itens.
+- Manual do usuário (`docs\MANUAL.md`), `docs\ARQUITETURA.md` e `docs\LAYOUT-ORCAMENTO.md` atualizados.
+
+### Removido
+- Botão **← Voltar ao menu** e o `Esc` que fechava as janelas (o menu lateral substitui).
+- Busca do catálogo dentro da coluna Descrição da lista (passou para a barra "Adicionar item").
+
+### Corrigido
+- **Orçamento com a data de ontem:** a tela gravava a data uma vez só, ao abrir. Agora o orçamento novo (não salvo) usa a data de hoje do Windows ao criar, ao duplicar e, se o dia virou com a tela aberta, ao salvar, exportar ou voltar para a tela — a não ser que a data tenha sido mudada à mão. Orçamento já salvo mantém a data dele.
+- Campos de texto que pareciam vazios ao abrir uma tela (o texto ficava rolado para fora da vista quando o campo era alargado depois de criado).
+
 ## [0.9.3] - 2026-11-18
 
 Depois do primeiro teste no PC da loja: instalador, pasta do app organizada (DLLs em `lib\`), botão **Voltar ao menu** e o orçamento mais parecido com a folha em papel. Os dados não mudam de formato: quem está na v0.9.2 atualiza pelo botão **Verificar atualizações** e continua com os mesmos clientes, produtos e orçamentos.

@@ -77,6 +77,23 @@ Sem a Calibri (Windows 7 sem Office) tudo que é Calibri sai em Arial.
 - **Frete:** sem frete, imprime `—` na célula (mantém a linha, como na folha).
 - **Validade:** só imprime se foi ligada naquele orçamento, com a data final calculada.
 - Ícone ao lado do telefone: arquivo `assets\icone-whatsapp.png`, recortado da própria folha atual (`folha-orcamento-atual.pdf`). Se o arquivo não existir, desenha só o telefone.
+- Dados da empresa (nome, subtítulo, telefone, endereço, rodapé e CNPJ) vêm da tela **Empresa** do app.
+
+### CNPJ da empresa (opcional, por orçamento)
+
+Na tela de orçamento há a caixa **"Mostrar CNPJ da empresa neste orçamento"**, **desmarcada** em todo orçamento novo e também ao duplicar. Sem CNPJ cadastrado na tela Empresa, a caixa fica desligada com a dica "Cadastre o CNPJ na tela Empresa".
+
+- **Desmarcada:** o cabeçalho sai exatamente como antes (o teste `CnpjTestes.SemMarcarOCabecalhoFicaExatamenteComoAntes` compara os pixels).
+- **Marcada:** `CNPJ: 00.000.000/0000-00` sai no cabeçalho, abaixo do endereço, na mesma fonte e cor do endereço (Calibri 17 pt laranja, diminui junto com o endereço se não couber). As três linhas dividem o espaço que o endereço ocupava: linhas de base a 39,0 / 46,7 / 54,4 mm do topo da moldura (sem CNPJ: endereço a 43,7 e 54,4 mm, na altura do telefone, como na folha).
+
+```
+│ (12) 99244-5402 [ícone]   Rua do Cardoso, 104 – Alto do  │
+│                           Cardoso - Pindamonhangaba - SP │
+│                           CNPJ: 11.222.333/0001-81       │  ← só com a caixa marcada
+```
+
+- O orçamento guarda se o CNPJ foi mostrado e **uma cópia do CNPJ usado** (`orcamentos.mostrar_cnpj` e `orcamentos.empresa_cnpj`): reabrir ou exportar de novo um orçamento antigo sai igual, mesmo que o CNPJ da empresa mude ou seja apagado depois.
+- Comparação com e sem CNPJ (CNPJ fictício 11.222.333/0001-81): `docs\referencia\comparacoes\cnpj\` — `sem-cnpj.png`, `com-cnpj.png`, `com-cnpj.pdf` e `sem-e-com-cnpj.png` (lado a lado).
 
 ## Opções de exportação
 
@@ -93,7 +110,7 @@ Após salvar: botão para **abrir o arquivo** e outro para **abrir a pasta com o
 
 Na Fase 7, gerar orçamentos de teste com 3, 15 e 35 itens (este último força 2 páginas) e comparar com a folha em papel. As imagens de comparação ficam em `docs\referencia\comparacoes\`.
 
-Para gerar de novo (só dados fictícios): `$env:PONTODOGESSO_COMPARACOES = "1"; dotnet test C:\dev\orcamentos-ponto-do-gesso\PontoDoGesso.sln --filter GerarComparacoes`. Além das imagens soltas, o teste monta `docs\referencia\comparacoes\lado-a-lado\` com a primeira via da folha em papel (`docs\referencia\folha-orcamento-atual-via1.png`, ampliada de A5 para A4) à esquerda e o PNG novo à direita, para 3, 15 e 35 itens e um caso com desconto, validade e observação.
+Para gerar de novo (só dados fictícios): `$env:PONTODOGESSO_COMPARACOES = "1"; dotnet test C:\dev\orcamentos-ponto-do-gesso\PontoDoGesso.sln --filter GerarComparacoes`. Além das imagens soltas, o teste monta `docs\referencia\comparacoes\lado-a-lado\` com a primeira via da folha em papel (`docs\referencia\folha-orcamento-atual-via1.png`, ampliada de A5 para A4) à esquerda e o PNG novo à direita, para 3, 15 e 35 itens e um caso com desconto, validade e observação. O mesmo teste gera `docs\referencia\comparacoes\cnpj\` (orçamento sem e com o CNPJ).
 
 ## Revisão visual (18/11/2026)
 

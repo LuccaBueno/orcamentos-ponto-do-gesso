@@ -162,7 +162,7 @@ namespace PontoDoGesso.Testes
                         form.Barra.Sugestoes.Teclar(Keys.Enter);
                         Quadro(500);
                         Digitar(form.Barra.CampoQuantidade.Campo, quantidade);
-                        Quadro(500);
+                        Quadro(300);
                         form.Barra.Adicionar();
                         Quadro(900);
                     }

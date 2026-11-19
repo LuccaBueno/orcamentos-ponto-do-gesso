@@ -1,3 +1,85 @@
+# Relatório da sessão — 19/11/2026 (melhorias depois do uso real na loja)
+
+Sessão sem acompanhamento, a partir do pedido feito depois do uso real na loja (Windows 7): janela única, tela Empresa com CNPJ, data do orçamento e itens mais rápidos de lançar. **Nenhuma versão, tag ou release foi criada**: tudo está no `main` (commits com `build`, `test` e `push` a cada etapa) e entra em [Não lançado] no `C:\dev\orcamentos-ponto-do-gesso\CHANGELOG.md`. A versão em `C:\dev\orcamentos-ponto-do-gesso\src\Directory.Build.props` continua 0.9.3.
+
+Ao final: **506 testes passando** (eram 442 no início da sessão).
+
+## O que mudou
+
+| Item | O que foi feito | Onde |
+|---|---|---|
+| Data do orçamento | **Causa do orçamento com a data de ontem:** a tela de orçamento gravava a data uma vez só, ao abrir, e nunca mais conferia; com a tela aberta de um dia para o outro (ou aberta antes da meia-noite e exportada depois), saía a data de ontem. Não havia data guardada em campo estático nem cache em outro lugar (conferido em todo o código: o histórico, a demonstração e os backups leem o relógio a cada vez). Agora o orçamento **novo** (sem número) usa a data de hoje do Windows ao criar, ao duplicar e, se o dia virou, ao salvar, exportar e voltar para a tela, sem perguntar. Mudando a data à mão no calendário aparece **"data alterada manualmente"** e o app não mexe mais. Orçamento **já salvo** mantém a data dele ao reabrir e reexportar. | `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\Servicos\DataOrcamento.cs`, `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\Forms\Telas\TelaOrcamento.cs` |
+| CNPJ | Validação dos dígitos verificadores e máscara `00.000.000/0000-00`. Caixa **"Mostrar CNPJ da empresa neste orçamento"** na tela de orçamento: desmarcada em todo orçamento novo, no Ctrl+N e ao duplicar; sem CNPJ cadastrado fica desligada com "Cadastre o CNPJ na tela Empresa" ao lado. Marcada, `CNPJ: 11.222.333/0001-81` sai no cabeçalho, abaixo do endereço, na mesma fonte e cor (as três linhas dividem o espaço do endereço). Desmarcada, o cabeçalho é **pixel a pixel igual** ao de antes (há teste comparando). O orçamento guarda se mostrou e o CNPJ usado: reabrir ou reexportar um antigo sai igual mesmo se o CNPJ da empresa mudar. | `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\Servicos\Cnpj.cs`, `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\Exportacao\DesenhoOrcamento.cs` |
+| Migração 003 | `orcamentos.mostrar_cnpj` (0 nos orçamentos antigos) e `orcamentos.empresa_cnpj`; chave `loja.cnpj` vazia. Backup automático antes (`%APPDATA%\PontoDoGesso\backups\dados_AAAA-MM-DD_HHmm.db`), como em toda migração. Os dados da loja **não foram movidos**: continuam nas mesmas chaves `loja.*` da tabela `configuracoes`, só passaram a ser editados na tela Empresa. Teste com um banco na versão 2 com dados da loja alterados e um orçamento: tudo continua igual depois da migração e o backup é criado. | `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\Dados\Migracoes\003_cnpj_empresa.sql` |
+| Janela única | Menu lateral fixo à esquerda com ícones (desenhados em código; não dependem de fonte de símbolos, que o Windows 7 não tem completa): Início, Novo orçamento, Histórico, Clientes, Produtos, Empresa, Configurações e, embaixo, Abrir pasta de orçamentos, Verificar atualizações e a versão. O item da tela atual fica em laranja. Cada tela virou um `UserControl` na área da direita. Trocar de tela ou fechar o app com alterações não salvas pergunta **Salvar / Não salvar / Cancelar** (orçamento, Empresa, Configurações). "Abrir" e "Duplicar" do histórico, "Novo orçamento para este cliente" e "Orçamentos deste cliente" trocam a tela. Continuam como janelas por cima só os diálogos pequenos: confirmar, editar cliente/produto, reajuste, pré-visualização de impressão, arquivo salvo, Verificar atualizações, Diagnóstico e Sobre. O botão **Voltar ao menu** e o `Esc` que fechava as janelas saíram. A janela abre **maximizada**. | `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\Forms\FormPrincipal.cs`, `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\Forms\Telas\`, `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\Controles\MenuLateral.cs`, `Icones.cs` |
+| Tela inicial | Atalhos grandes (Novo orçamento, Histórico, Clientes, Produtos) e os **últimos 5 orçamentos** mexidos (Enter ou clique duplo abre); sem orçamentos, mostra uma dica. | `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\Forms\Telas\TelaInicio.cs` |
+| Tela Empresa | Nome, subtítulo, telefone com DDD (mesmo campo e validação dos clientes; grava `(12) 99244-5402`), endereço em 2 linhas, CNPJ (opcional, com "CNPJ válido" / "CNPJ não existe" ao lado enquanto digita) e rodapé; pré-visualização ao vivo do cabeçalho (com o CNPJ, se válido); Salvar e `Ctrl+S`. A aba Loja saiu de Configurações (que ficou com Orçamento, Exportação e Backup). | `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\Forms\Telas\TelaEmpresa.cs` |
+| Barra "Adicionar item" | Acima da lista: **Itens · Produto · Qtd [− 1 +] · Un · Unitário · Adicionar**. No Produto a lista do catálogo aparece enquanto se digita (nome ou código); ↑/↓ + Enter ou o clique escolhem, unidade e preço são preenchidos e o cursor vai para a quantidade. Quantidade com − e + (passo 1, mínimo 1; teclas + e − ou ↑/↓; aceita 2,5). Enter vai para o Unitário e, de novo, adiciona; a barra limpa e o cursor volta ao Produto. Descrição livre continua valendo. Esc fecha a lista; sem lista, limpa a barra. Salvar com algo na barra adiciona antes (ou avisa o que falta). Escolher o cliente pelo teclado já leva o cursor para o Produto. | `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\Controles\BarraItem.cs`, `CampoQuantidade.cs`, `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\Servicos\PassoQuantidade.cs` |
+| Lista de itens | Cada linha com **−** e **+** na quantidade e a **lixeira**; preço, quantidade, unidade e descrição editáveis na lista (F2 ou digitando). Teclas + e − na linha selecionada (valem no teclado numérico e no principal, em qualquer layout), Delete remove, Ctrl+↑/↓ ou **arrastar** com o mouse mudam a ordem. | `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\Controles\GradeItens.cs` |
+| Tela de orçamento mais compacta | Títulos Cliente/Entrega/Itens na mesma linha dos primeiros campos e a dica da lista numa linha só: em 1024×768 a lista de itens mostra ~6 linhas (no primeiro desenho com a barra mostrava só 2). | `TelaOrcamento.cs` |
+| Documentação | `ARQUITETURA.md` (telas, navegação, entrada de itens, migração 003, chave `loja.cnpj`, regras de data/quantidade/CNPJ), `LAYOUT-ORCAMENTO.md` (CNPJ no cabeçalho), `MANUAL.md` (janela única, barra de itens, data, CNPJ, Empresa, atalhos), `docs\fases\README.md` e CHANGELOG. Imagens de comparação com e sem CNPJ (CNPJ fictício 11.222.333/0001-81) e os prints do README/manual regenerados só com o modo de demonstração. | `C:\dev\orcamentos-ponto-do-gesso\docs\`, `C:\dev\orcamentos-ponto-do-gesso\docs\referencia\comparacoes\cnpj\`, `C:\dev\orcamentos-ponto-do-gesso\docs\imagens\` |
+
+## Cronômetro: 5 itens do catálogo
+
+Teste `EntradaItensTestes.CincoItensDoCatalogoEmMenosDeUmMinuto`: lança 5 produtos do catálogo **só pelo teclado** (as teclas são enviadas como mensagens do Windows ao campo com o cursor, o mesmo caminho do teclado de verdade), um por vez: parte do nome, `Enter`, a quantidade, `Enter`, `Enter`.
+
+- **57 teclas** (11,4 por item), nenhum clique.
+- Tempo do teste automático: **0,37 s** (o computador não "pensa"; serve para provar que o caminho funciona sem passos escondidos).
+- Estimativa para uma pessoa: **37 s** = 57 teclas × 0,3 s + 5 itens × 4 s para achar o produto na lista e conferir. Meta: menos de 60 s.
+- Registro em `C:\dev\orcamentos-ponto-do-gesso\.tmp\cronometro-itens.txt` (regravado a cada execução).
+- O mesmo orçamento **só com o mouse** (fora digitar o nome do produto) também tem teste: clique na sugestão, cliques no + e em Adicionar.
+
+**O tempo de verdade só você pode medir** — ver "O que testar".
+
+## Testes novos
+
+- Data: virada de dia ao salvar e ao exportar, data manual, orçamento salvo reaberto e reexportado, duplicar (e as regras em `DataOrcamentoTestes`).
+- CNPJ: validação e máscara, cabeçalho igual sem a caixa, cabeçalho com o CNPJ, cópia guardada no orçamento, migração a partir de um banco na versão 2 com backup.
+- Navegação: cada botão do menu troca a tela na mesma janela e fica destacado; Salvar/Não salvar/Cancelar ao trocar de tela e ao fechar o app; Abrir/Duplicar do histórico; ações do cliente; tela inicial com os últimos 5; nenhuma tela com o Voltar ao menu.
+- Tamanho: com a janela do tamanho de um monitor **1024×768 e 1366×768** (menos a barra de tarefas), cada tela cabe sem barra de rolagem, nenhum controle visível passa da borda e nenhum campo fica com o texto rolado para fora da vista (esse último pegou um problema real: a busca do cliente e o nome da empresa pareciam vazios).
+- Ordem do Tab de todas as telas, incluindo a barra de itens e a tela Empresa.
+- Entrada de itens pelo teclado e pelo mouse (15 testes, com mensagens do Windows de verdade). Esses rodam numa coleção sem paralelismo, porque dependem do foco do teclado e outra janela de teste abrindo ao mesmo tempo roubava o foco.
+- Os testes de tela continuam falhando com a mensagem em vez de abrir janela de erro do .NET; as perguntas das telas passam pela janela principal, que nos testes responde sozinha.
+
+## Problemas no caminho
+
+- A busca do cliente e o nome na tela Empresa apareciam vazios: o campo era criado estreito e alargado depois, e o Windows deixava o texto rolado para a esquerda. Corrigido para todas as telas e coberto por teste.
+- As teclas + e − na lista começavam a editar a descrição (a lista abre a edição já no aperto da tecla) e o "+" ia parar no texto. Corrigido olhando o caractere que o Windows traduziu para a tecla.
+- Com a barra nova, a lista de itens ficou com 2 linhas em 1024×768; a tela foi compactada (ver acima).
+- O teste de tamanho em 1024 falhou 1 vez em ~10 execuções da suíte: media o rótulo do subtotal antes de o layout terminar. O teste passou a esperar o layout assentar; depois disso, 4 execuções seguidas sem falha.
+- O GIF do README passou 0,24 s do limite de 30 s com a barra nova; um quadro foi encurtado.
+
+## Pendências e limites
+
+- Nada disso foi testado num **Windows 7 de verdade**, nem em monitor físico 1024×768: o tamanho foi conferido no Windows 11 com a janela do tamanho dessas telas.
+- A pergunta Salvar/Não salvar/Cancelar ao **fechar o app** tem teste automático, mas convém ver na tela.
+- Arrastar com o mouse para mudar a ordem foi testado chamando o "soltar" direto (o arrastar do Windows não dá para simular em teste automático).
+- Os ícones do menu são desenhos simples feitos em código; se você tiver ícones melhores, dá para trocar em `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\Controles\Icones.cs`.
+- "Verificar atualizações", "Diagnóstico" e "Sobre" continuam abrindo uma janela por cima (diálogos), como antes.
+
+## O que o Lucca precisa testar
+
+Antes de qualquer teste com os dados reais, o app vai aplicar a migração 003 e guardar um backup em `%APPDATA%\PontoDoGesso\backups\`. Para testar sem os dados reais, use **Ajuda → Dados de demonstração**.
+
+### No seu PC
+
+1. Compilar e abrir: `cd C:\dev\orcamentos-ponto-do-gesso` e `dotnet build PontoDoGesso.sln -c Debug`, depois abrir `C:\dev\orcamentos-ponto-do-gesso\src\PontoDoGesso\bin\x86\Debug\net48\PontoDoGesso.exe`.
+2. **Janela única:** clicar em cada item do menu lateral e conferir que a tela troca sem abrir janela nova e o item fica laranja. Num orçamento com algo digitado, clicar em outro item e conferir **Salvar / Não salvar / Cancelar**; fazer o mesmo fechando o app pelo X.
+3. **Histórico:** Abrir e Duplicar um orçamento (devem aparecer na área principal). **Clientes:** "Novo orçamento para este cliente" e "Orçamentos deste cliente".
+4. **Tela inicial:** os últimos 5 orçamentos aparecem e abrem com Enter ou clique duplo.
+5. **Empresa:** conferir que nome, telefone, endereço e rodapé vieram iguais aos de antes. Digitar um CNPJ errado (ex.: `11.222.333/0001-82`) e ver o aviso; digitar o CNPJ certo da loja, ver a pré-visualização e Salvar.
+6. **CNPJ no orçamento:** num orçamento novo a caixa vem desmarcada; marcar, exportar PNG e PDF e conferir o CNPJ abaixo do endereço; Duplicar e ver a caixa desmarcada; desmarcar num orçamento e conferir que o PNG sai igual a antes.
+7. **Data:** escolher outra data no calendário e ver "data alterada manualmente". Para a virada do dia: abrir um orçamento novo à noite, deixar a tela aberta e exportar no dia seguinte — deve sair a data do dia seguinte (ou mudar a data do Windows para amanhã com a tela aberta, exportar e voltar o relógio).
+8. **Itens:** **cronometrar** um orçamento de 5 itens do catálogo só pelo teclado (parte do nome, Enter, quantidade, Enter, Enter) e depois só com o mouse. Testar + e − (botões e teclas, inclusive o teclado numérico), a lixeira, Delete, arrastar uma linha e Ctrl+↑/↓.
+9. Diminuir a janela (tirar do maximizado) e conferir que aparecem barras de rolagem em vez de cortar.
+
+### Na loja (Windows 7)
+
+1. Depois que você publicar uma versão com estas mudanças: atualizar pelo botão e conferir que os dados (inclusive os da loja, agora na tela Empresa) continuam iguais.
+2. Conferir no monitor da loja que nada fica cortado com a janela maximizada (a resolução da loja ainda não foi anotada na tabela "PC da loja" do `C:\dev\orcamentos-ponto-do-gesso\docs\fases\README.md`).
+3. Conferir os ícones do menu lateral e os botões − e + no Windows 7 (fontes e desenho).
+4. Cronometrar um orçamento de 5 itens com quem usa o app no balcão.
+
 # Relatório da sessão — 18/11/2026 (depois do primeiro teste na loja: instalador, pasta lib\ e Voltar ao menu)
 
 Sessão sem acompanhamento, a partir do primeiro teste real no PC da loja (Windows 7 SP1, 64 bits): o app só abriu depois do .NET Framework 4.8, cuja instalação foi difícil; a pasta do app tinha dezenas de DLLs; e não ficou óbvio como sair da tela de orçamento. Isso ficou registrado na tabela "PC da loja" de `C:\dev\orcamentos-ponto-do-gesso\docs\fases\README.md`.
