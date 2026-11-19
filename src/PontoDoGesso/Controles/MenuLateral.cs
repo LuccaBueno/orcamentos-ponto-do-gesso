@@ -75,10 +75,31 @@ namespace PontoDoGesso.Controles
             botao.FlatAppearance.MouseDownBackColor = FundoPassando;
             botao.Click += (s, e) => aoClicar();
 
+            QuebrarSeNaoCouber(botao, texto);
             _icones[botao] = icone;
             Pintar(botao, false);
             (embaixo ? _baixo : _cima).Controls.Add(botao);
             return botao;
+        }
+
+        /// <summary>Texto que não cabe ao lado do ícone (ex.: "Abrir pasta de orçamentos") vai para duas linhas, com o botão mais alto.</summary>
+        private static void QuebrarSeNaoCouber(Button botao, string texto)
+        {
+            var disponivel = botao.Width - botao.Padding.Horizontal - TamanhoIcone - 16;
+            var espaco = texto.LastIndexOf(' ');
+
+            if (espaco < 0 || TextRenderer.MeasureText(botao.Text, botao.Font).Width <= disponivel)
+                return;
+
+            // Quebra no último espaço que deixa a primeira linha caber
+            while (espaco > 0 && TextRenderer.MeasureText("  " + texto.Substring(0, espaco), botao.Font).Width > disponivel)
+                espaco = texto.LastIndexOf(' ', espaco - 1);
+
+            if (espaco <= 0)
+                return;
+
+            botao.Text = "  " + texto.Substring(0, espaco) + "\n  " + texto.Substring(espaco + 1);
+            botao.Height += botao.Font.Height;
         }
 
         public void AdicionarEmbaixo(Control controle) => _baixo.Controls.Add(controle);
