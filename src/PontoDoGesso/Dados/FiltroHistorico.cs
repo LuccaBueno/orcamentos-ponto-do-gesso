@@ -63,7 +63,7 @@ namespace PontoDoGesso.Dados
         public PresencaHistorico Frete { get; set; } = PresencaHistorico.Todos;
         public PresencaHistorico Desconto { get; set; } = PresencaHistorico.Todos;
 
-        /// <summary>Nº do orçamento, código do cliente, nome (sem acento) ou telefone.</summary>
+        /// <summary>Nº do orçamento, código do cliente, nome (sem acento), telefone ou endereço/bairro de entrega.</summary>
         public string Texto { get; set; }
 
         public ColunaHistorico OrdenarPor { get; set; } = ColunaHistorico.Data;

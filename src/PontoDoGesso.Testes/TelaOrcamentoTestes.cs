@@ -98,7 +98,9 @@ namespace PontoDoGesso.Testes
                 Tela.Capturar(form, "orcamento-vazio");
                 Assert.Equal("Orçamento Nº — (novo)", form.Text);
                 Assert.Equal("João Silva", Texto(form, "nome"));
-                Assert.Equal("Rua A", Texto(form, "endereco"));
+                // A entrega começa vazia: o endereço do cadastro só entra pelo botão
+                Assert.Equal("", Texto(form, "endereco"));
+                Assert.True(Tela.Achar<Button>(form, "usarCadastro").Enabled);
                 Assert.Equal("Atenção: Pede tudo discriminado", Texto(form, "avisoCliente"));
                 Assert.True(Tela.Achar<Label>(form, "avisoCliente").Visible);
 
@@ -256,7 +258,7 @@ namespace PontoDoGesso.Testes
 
                 Tela.Achar<RadioButton>(form, "entrega").Checked = true;
                 Assert.True(Tela.Achar<Control>(form, "painelEntrega").Visible);
-                Assert.Equal("Rua A", Texto(form, "endereco"));
+                Assert.Equal("", Texto(form, "endereco"));
             }, cliente);
 
             var salvo = _orcamentos.ObterPorId(1);

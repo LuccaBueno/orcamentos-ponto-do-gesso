@@ -148,9 +148,57 @@ namespace PontoDoGesso.Dados
                   AND (@desconto = 0 OR (@desconto = 1 AND desconto_centavos > 0) OR (@desconto = 2 AND desconto_centavos = 0))
                   AND (@semTexto OR numero = @codigo OR cliente_id = @codigo
                        OR remover_acentos(cli_nome) LIKE @padrao ESCAPE '\'
+                       OR remover_acentos(ent_endereco) LIKE @padrao ESCAPE '\'
+                       OR remover_acentos(ent_bairro) LIKE @padrao ESCAPE '\'
                        OR somente_digitos(cli_telefone) LIKE @padraoTelefone)";
 
             return (condicao, parametros);
+        }
+
+        /// <summary>
+        /// Endereços de entrega distintos dos orçamentos do cliente, do uso mais recente para o mais antigo (até <paramref name="limite"/>).
+        /// Iguais sem diferença de maiúsculas, acentos e espaços nas pontas contam como um só; os dados vêm do orçamento mais recente.
+        /// </summary>
+        public List<EnderecoEntrega> EnderecosUsados(long clienteId, int limite = 10)
+        {
+            using (var conexao = _banco.Abrir())
+            {
+                // Com max() o SQLite devolve as outras colunas da mesma linha do maior valor (o orçamento mais recente do grupo)
+                var linhas = conexao.Query<LinhaEndereco>(
+                    @"SELECT ent_endereco AS Endereco, ent_numero AS Numero, ent_bairro AS Bairro, ent_cidade AS Cidade, ent_referencia AS Referencia,
+                             ent_receber_com AS ReceberCom, ent_telefone_local AS TelefoneLocal, max(data || printf('%010d', numero)) AS Ordem
+                      FROM orcamentos
+                      WHERE cliente_id = @clienteId AND tipo_entrega = 'ENTREGA' AND trim(coalesce(ent_endereco, '')) <> ''
+                      GROUP BY remover_acentos(trim(ent_endereco)), remover_acentos(trim(coalesce(ent_numero, ''))),
+                               remover_acentos(trim(coalesce(ent_bairro, ''))), remover_acentos(trim(coalesce(ent_cidade, '')))
+                      ORDER BY Ordem DESC
+                      LIMIT @limite",
+                    new { clienteId, limite });
+
+                return linhas.Select(linha => new EnderecoEntrega
+                {
+                    Endereco = linha.Endereco,
+                    Numero = linha.Numero,
+                    Bairro = linha.Bairro,
+                    Cidade = linha.Cidade,
+                    Referencia = linha.Referencia,
+                    ReceberCom = linha.ReceberCom,
+                    TelefoneLocal = linha.TelefoneLocal,
+                    UltimoUso = DateTime.ParseExact(linha.Ordem.Substring(0, 10), "yyyy-MM-dd", CultureInfo.InvariantCulture)
+                }).ToList();
+            }
+        }
+
+        private class LinhaEndereco
+        {
+            public string Endereco { get; set; }
+            public string Numero { get; set; }
+            public string Bairro { get; set; }
+            public string Cidade { get; set; }
+            public string Referencia { get; set; }
+            public string ReceberCom { get; set; }
+            public string TelefoneLocal { get; set; }
+            public string Ordem { get; set; }
         }
 
         public void Excluir(long id)
@@ -173,6 +221,8 @@ namespace PontoDoGesso.Dados
                 orcamento.EntBairro,
                 orcamento.EntCidade,
                 orcamento.EntReferencia,
+                orcamento.EntReceberCom,
+                orcamento.EntTelefoneLocal,
                 TipoEntrega = orcamento.TipoEntrega.ToString().ToUpperInvariant(),
                 orcamento.Observacoes,
                 orcamento.MostrarCnpj,
@@ -189,10 +239,10 @@ namespace PontoDoGesso.Dados
         private static long Inserir(IDbConnection conexao, IDbTransaction transacao, object parametros) =>
             // sqlite_sequence guarda o maior id já usado: o número segue o id e não volta atrás nem quando um orçamento é excluído
             conexao.ExecuteScalar<long>(
-                @"INSERT INTO orcamentos (numero, data, validade_dias, cliente_id, cli_nome, cli_telefone, ent_endereco, ent_numero, ent_bairro, ent_cidade, ent_referencia,
+                @"INSERT INTO orcamentos (numero, data, validade_dias, cliente_id, cli_nome, cli_telefone, ent_endereco, ent_numero, ent_bairro, ent_cidade, ent_referencia, ent_receber_com, ent_telefone_local,
                                           tipo_entrega, observacoes, mostrar_cnpj, empresa_cnpj, subtotal_centavos, desconto_tipo, desconto_valor, desconto_centavos, frete_centavos, total_centavos, criado_em, atualizado_em)
                   VALUES (coalesce((SELECT seq FROM sqlite_sequence WHERE name = 'orcamentos'), 0) + 1,
-                          @Data, @ValidadeDias, @ClienteId, @CliNome, @CliTelefone, @EntEndereco, @EntNumero, @EntBairro, @EntCidade, @EntReferencia,
+                          @Data, @ValidadeDias, @ClienteId, @CliNome, @CliTelefone, @EntEndereco, @EntNumero, @EntBairro, @EntCidade, @EntReferencia, @EntReceberCom, @EntTelefoneLocal,
                           @TipoEntrega, @Observacoes, @MostrarCnpj, @EmpresaCnpj, @SubtotalCentavos, @DescontoTipo, @DescontoValor, @DescontoCentavos, @FreteCentavos, @TotalCentavos, @Agora, @Agora);
                   SELECT last_insert_rowid();",
                 parametros, transacao);
@@ -202,7 +252,7 @@ namespace PontoDoGesso.Dados
             var alterados = conexao.Execute(
                 @"UPDATE orcamentos
                   SET data = @Data, validade_dias = @ValidadeDias, cliente_id = @ClienteId, cli_nome = @CliNome, cli_telefone = @CliTelefone,
-                      ent_endereco = @EntEndereco, ent_numero = @EntNumero, ent_bairro = @EntBairro, ent_cidade = @EntCidade, ent_referencia = @EntReferencia,
+                      ent_endereco = @EntEndereco, ent_numero = @EntNumero, ent_bairro = @EntBairro, ent_cidade = @EntCidade, ent_referencia = @EntReferencia, ent_receber_com = @EntReceberCom, ent_telefone_local = @EntTelefoneLocal,
                       tipo_entrega = @TipoEntrega, observacoes = @Observacoes, mostrar_cnpj = @MostrarCnpj, empresa_cnpj = @EmpresaCnpj, subtotal_centavos = @SubtotalCentavos, desconto_tipo = @DescontoTipo,
                       desconto_valor = @DescontoValor, desconto_centavos = @DescontoCentavos, frete_centavos = @FreteCentavos, total_centavos = @TotalCentavos,
                       atualizado_em = @Agora

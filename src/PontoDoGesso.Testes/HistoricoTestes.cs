@@ -212,5 +212,41 @@ namespace PontoDoGesso.Testes
             // Meta no Windows 7: menos de 1 s. Aqui fica bem abaixo; folga para o CI.
             Assert.True(relogio.ElapsedMilliseconds < 1500, "Busca levou " + relogio.ElapsedMilliseconds + " ms");
         }
+
+        private void Entrega(Cliente cliente, DateTime data, string endereco, string numero = "10", string bairro = "Centro", TipoEntrega tipo = TipoEntrega.Entrega)
+        {
+            var orcamento = Novo(cliente.Nome, data, cliente);
+            orcamento.TipoEntrega = tipo;
+            orcamento.EntEndereco = endereco;
+            orcamento.EntNumero = numero;
+            orcamento.EntBairro = bairro;
+            orcamento.EntCidade = "Taubaté";
+            orcamento.EntReceberCom = "Mestre " + endereco;
+            _orcamentos.Salvar(orcamento);
+        }
+
+        [Fact]
+        public void EnderecosUsadosSaoDistintosDoMaisRecenteParaOMaisAntigoAteDez()
+        {
+            var cliente = NovoCliente("Construtora");
+            var outro = NovoCliente("Outro");
+
+            for (var i = 1; i <= 12; i++)
+                Entrega(cliente, Hoje.AddDays(-20 + i), "Rua " + i);
+
+            // Mesmo endereço com outra grafia conta uma vez só, com a data e os dados do uso mais recente
+            Entrega(cliente, Hoje.AddDays(-30), "Rua Obra");
+            Entrega(cliente, Hoje, "  RUA OBRA ");
+            Entrega(cliente, Hoje.AddDays(1), "Rua Retirada", tipo: TipoEntrega.Retirada);
+            Entrega(outro, Hoje.AddDays(2), "Rua do Outro");
+
+            var enderecos = _orcamentos.EnderecosUsados(cliente.Id);
+
+            Assert.Equal(10, enderecos.Count);
+            Assert.Equal("RUA OBRA", enderecos[0].Endereco.Trim());
+            Assert.Equal(Hoje, enderecos[0].UltimoUso);
+            Assert.Equal("Mestre   RUA OBRA ", enderecos[0].ReceberCom);
+            Assert.Equal(new[] { "Rua 12", "Rua 11", "Rua 10", "Rua 9", "Rua 8", "Rua 7", "Rua 6", "Rua 5", "Rua 4" }, enderecos.Skip(1).Select(e => e.Endereco));
+        }
     }
 }

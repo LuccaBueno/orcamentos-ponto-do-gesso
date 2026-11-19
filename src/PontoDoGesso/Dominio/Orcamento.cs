@@ -39,6 +39,12 @@ namespace PontoDoGesso.Dominio
         public string EntCidade { get; set; }
         public string EntReferencia { get; set; }
 
+        /// <summary>Quem recebe no local da entrega (opcional).</summary>
+        public string EntReceberCom { get; set; }
+
+        /// <summary>Telefone de quem recebe, só dígitos com DDD (opcional).</summary>
+        public string EntTelefoneLocal { get; set; }
+
         public TipoEntrega TipoEntrega { get; set; } = TipoEntrega.Entrega;
 
         /// <summary>O CNPJ da empresa sai no cabeçalho deste orçamento (desligado por padrão).</summary>

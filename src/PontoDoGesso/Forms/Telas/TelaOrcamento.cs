@@ -68,6 +68,11 @@ namespace PontoDoGesso.Forms
         private readonly TextBox _bairro = new TextBox { Name = "bairro", Dock = DockStyle.Fill };
         private readonly TextBox _cidade = new TextBox { Name = "cidade", Dock = DockStyle.Fill };
         private readonly TextBox _referencia = new TextBox { Name = "referencia", Dock = DockStyle.Fill };
+        private readonly TextBox _receberCom = new TextBox { Name = "receberCom", Dock = DockStyle.Fill, MaxLength = 120 };
+        private readonly CampoTelefone _telefoneLocal = new CampoTelefone { Name = "telefoneLocal", Anchor = AnchorStyles.Left };
+        private readonly Button _usarCadastro = Estilo.CriarBotao("Usar endereço do cadastro", null);
+        private readonly Button _enderecosUsados = Estilo.CriarBotao("Endereços usados antes ▾", null);
+        private readonly ContextMenuStrip _menuEnderecos = new ContextMenuStrip { Name = "menuEnderecos" };
 
         private readonly GradeItens _grade;
 
@@ -113,6 +118,7 @@ namespace PontoDoGesso.Forms
             // O layout fica parado durante a montagem (ver Suspenso)
             SuspendLayout();
             _telefone.DddPadrao = _configuracoes.Obter("cliente.ddd_padrao") ?? "12";
+            _telefoneLocal.DddPadrao = _telefone.DddPadrao;
             _cidadePadrao = _configuracoes.Obter("cliente.cidade_padrao") ?? new Cliente().Cidade;
             _validadeDias.Value = LerValidadeSugerida();
             _cnpjEmpresa = Formatacao.SomenteDigitos(_configuracoes.Obter("loja.cnpj"));
@@ -291,6 +297,16 @@ namespace PontoDoGesso.Forms
             tipos.Controls.Add(Titulo("Entrega"));
             tipos.Controls.Add(_entrega);
             tipos.Controls.Add(_retirada);
+
+            // Ajudas para preencher a entrega (somem junto com os campos na retirada)
+            _usarCadastro.Name = "usarCadastro";
+            _usarCadastro.Margin = new Padding(16, 0, 3, 0);
+            _usarCadastro.Click += (s, e) => UsarEnderecoDoCadastro();
+            _enderecosUsados.Name = "enderecosUsados";
+            _enderecosUsados.Margin = new Padding(3, 0, 3, 0);
+            _enderecosUsados.Click += (s, e) => MostrarEnderecosUsados();
+            tipos.Controls.Add(_usarCadastro);
+            tipos.Controls.Add(_enderecosUsados);
             tabela.Controls.Add(tipos, 0, 0);
             tabela.Controls.Add(_painelEntrega, 0, 1);
 
@@ -320,6 +336,12 @@ namespace PontoDoGesso.Forms
             painel.Controls.Add(Rotulo("Ponto de referência"), 2, 1);
             painel.SetColumnSpan(painel.GetControlFromPosition(2, 1), 3);
             painel.Controls.Add(_referencia, 5, 1);
+
+            painel.Controls.Add(Rotulo("Receber com"), 0, 2);
+            painel.Controls.Add(_receberCom, 1, 2);
+            painel.Controls.Add(Rotulo("Telefone no local"), 2, 2);
+            painel.SetColumnSpan(painel.GetControlFromPosition(2, 2), 3);
+            painel.Controls.Add(_telefoneLocal, 5, 2);
 
             return painel;
         }
@@ -510,7 +532,7 @@ namespace PontoDoGesso.Forms
 
         private void LigarAlteracoes()
         {
-            foreach (var campo in new Control[] { _nome, _endereco, _numero, _bairro, _cidade, _referencia, _observacoes, _descontoValor, _frete })
+            foreach (var campo in new Control[] { _nome, _endereco, _numero, _bairro, _cidade, _referencia, _receberCom, _observacoes, _descontoValor, _frete })
                 campo.TextChanged += (s, e) => MarcarAlterado();
 
             foreach (var opcao in new[] { _cadastrado, _entrega, _descontoReais })
@@ -520,6 +542,7 @@ namespace PontoDoGesso.Forms
                 caixa.CheckedChanged += (s, e) => MarcarAlterado();
 
             _telefone.Alterado += (s, e) => MarcarAlterado();
+            _telefoneLocal.Alterado += (s, e) => MarcarAlterado();
             _telefone.Alterado += (s, e) => AtualizarWhatsApp();
             _validadeDias.ValueChanged += (s, e) => MarcarAlterado();
             _data.ValueChanged += (s, e) => MarcarAlterado();
@@ -589,12 +612,15 @@ namespace PontoDoGesso.Forms
 
                 _retirada.Checked = orcamento.TipoEntrega == TipoEntrega.Retirada;
                 _entrega.Checked = !_retirada.Checked;
-                _painelEntrega.Visible = _entrega.Checked;
+                MostrarCamposEntrega();
                 _endereco.Text = orcamento.EntEndereco;
                 _numero.Text = orcamento.EntNumero;
                 _bairro.Text = orcamento.EntBairro;
                 _cidade.Text = orcamento.Id == 0 && orcamento.EntCidade == null ? _cidadePadrao : orcamento.EntCidade;
                 _referencia.Text = orcamento.EntReferencia;
+                _receberCom.Text = orcamento.EntReceberCom;
+                _telefoneLocal.Exibir(orcamento.EntTelefoneLocal);
+                AtualizarAjudasEntrega(cliente);
 
                 _grade.Rows.Clear();
                 foreach (var item in orcamento.Itens.OrderBy(item => item.Ordem))
@@ -691,20 +717,88 @@ namespace PontoDoGesso.Forms
             _nome.Text = cliente.Nome;
             _telefone.Exibir(cliente.Telefone);
 
+            // Quase toda entrega vai para uma obra, não para o endereço do cadastro: a entrega começa vazia
             if (_entrega.Checked)
-                PreencherEntrega(cliente);
+                LimparEntrega(_cidadePadrao);
 
             MostrarAviso(cliente);
+            AtualizarAjudasEntrega(cliente);
             MarcarAlterado();
         }
 
-        private void PreencherEntrega(Cliente cliente)
+        private void LimparEntrega(string cidade)
         {
-            _endereco.Text = cliente.Endereco;
-            _numero.Text = cliente.Numero;
-            _bairro.Text = cliente.Bairro;
-            _cidade.Text = cliente.Cidade;
-            _referencia.Text = cliente.PontoReferencia;
+            foreach (var campo in new[] { _endereco, _numero, _bairro, _referencia, _receberCom })
+                campo.Text = "";
+            _cidade.Text = cidade;
+            _telefoneLocal.Exibir(null);
+        }
+
+        private void PreencherEntrega(string endereco, string numero, string bairro, string cidade, string referencia)
+        {
+            _endereco.Text = endereco;
+            _numero.Text = numero;
+            _bairro.Text = bairro;
+            _cidade.Text = string.IsNullOrEmpty(cidade) ? _cidadePadrao : cidade;
+            _referencia.Text = referencia;
+            _endereco.Focus();
+            _endereco.SelectAll();
+        }
+
+        private void MostrarCamposEntrega()
+        {
+            _painelEntrega.Visible = _entrega.Checked;
+            _usarCadastro.Visible = _entrega.Checked;
+            _enderecosUsados.Visible = _entrega.Checked;
+        }
+
+        /// <summary>"Usar endereço do cadastro" só com cliente cadastrado que tem endereço; "Endereços usados antes" com qualquer cadastrado.</summary>
+        private void AtualizarAjudasEntrega(Cliente cliente)
+        {
+            var cadastrado = _cadastrado.Checked && cliente != null;
+            _usarCadastro.Enabled = cadastrado && !string.IsNullOrWhiteSpace(cliente.Endereco);
+            _enderecosUsados.Enabled = cadastrado;
+        }
+
+        private Cliente ClienteAtual() =>
+            _cadastrado.Checked && _clienteId != null ? _clientes.ObterPorId(_clienteId.Value) : null;
+
+        private void UsarEnderecoDoCadastro()
+        {
+            var cliente = ClienteAtual();
+            if (cliente != null)
+                PreencherEntrega(cliente.Endereco, cliente.Numero, cliente.Bairro, cliente.Cidade, cliente.PontoReferencia);
+        }
+
+        /// <summary>Lista dos endereços de entrega dos orçamentos anteriores deste cliente; ↑/↓ e Enter, ou clique.</summary>
+        private void MostrarEnderecosUsados()
+        {
+            if (_clienteId == null || !_cadastrado.Checked)
+                return;
+
+            _menuEnderecos.Items.Clear();
+            foreach (var endereco in _orcamentos.EnderecosUsados(_clienteId.Value))
+            {
+                var usado = endereco;
+                var opcao = new ToolStripMenuItem(usado.Descricao.Replace("&", "&&"));
+                opcao.Click += (s, e) => UsarEnderecoAnterior(usado);
+                _menuEnderecos.Items.Add(opcao);
+            }
+
+            if (_menuEnderecos.Items.Count == 0)
+                _menuEnderecos.Items.Add(new ToolStripMenuItem("Nenhum endereço de entrega em orçamentos anteriores deste cliente") { Enabled = false });
+
+            _menuEnderecos.Show(_enderecosUsados, new Point(0, _enderecosUsados.Height));
+
+            if (_menuEnderecos.Items[0].Enabled)
+                _menuEnderecos.Items[0].Select();
+        }
+
+        private void UsarEnderecoAnterior(EnderecoEntrega endereco)
+        {
+            PreencherEntrega(endereco.Endereco, endereco.Numero, endereco.Bairro, endereco.Cidade, endereco.Referencia);
+            _receberCom.Text = endereco.ReceberCom;
+            _telefoneLocal.Exibir(endereco.TelefoneLocal);
         }
 
         private void MostrarAviso(Cliente cliente)
@@ -727,6 +821,7 @@ namespace PontoDoGesso.Forms
                 _clienteId = null;
                 _sugestoesClientes.DefinirTextoSemBuscar("");
                 MostrarAviso(null);
+                AtualizarAjudasEntrega(null);
                 _nome.Focus();
             }
             else
@@ -757,21 +852,9 @@ namespace PontoDoGesso.Forms
             if (_carregando)
                 return;
 
-            _painelEntrega.Visible = _entrega.Checked;
+            MostrarCamposEntrega();
 
-            if (_retirada.Checked)
-            {
-                foreach (var campo in new[] { _endereco, _numero, _bairro, _cidade, _referencia })
-                    campo.Text = "";
-            }
-            else
-            {
-                var cliente = _clienteId == null ? null : _clientes.ObterPorId(_clienteId.Value);
-                if (cliente != null)
-                    PreencherEntrega(cliente);
-                else
-                    _cidade.Text = _cidadePadrao;
-            }
+            LimparEntrega(_retirada.Checked ? "" : _cidadePadrao);
         }
 
         // ---------- itens ----------
@@ -1019,6 +1102,14 @@ namespace PontoDoGesso.Forms
                 return false;
             }
 
+            string telefoneLocal = null;
+            if (_entrega.Checked && !_telefoneLocal.TentarLer(out telefoneLocal, out var erroTelefoneLocal))
+            {
+                Avisar("Telefone no local: " + erroTelefoneLocal);
+                _telefoneLocal.FocarErro();
+                return false;
+            }
+
             var itens = new List<ItemOrcamento>();
             foreach (var linha in LinhasPreenchidas())
             {
@@ -1059,6 +1150,8 @@ namespace PontoDoGesso.Forms
             orcamento.EntBairro = _retirada.Checked ? null : Estilo.Limpo(_bairro.Text);
             orcamento.EntCidade = _retirada.Checked ? null : Estilo.Limpo(_cidade.Text);
             orcamento.EntReferencia = _retirada.Checked ? null : Estilo.Limpo(_referencia.Text);
+            orcamento.EntReceberCom = _retirada.Checked ? null : Estilo.Limpo(_receberCom.Text);
+            orcamento.EntTelefoneLocal = _retirada.Checked ? null : telefoneLocal;
             orcamento.Observacoes = Estilo.Limpo(_observacoes.Text);
             orcamento.MostrarCnpj = _mostrarCnpj.Checked;
             orcamento.EmpresaCnpj = _mostrarCnpj.Checked ? CnpjDoOrcamento : null;
@@ -1104,6 +1197,7 @@ namespace PontoDoGesso.Forms
                 _cadastrado.Checked = true;
                 _buscaCliente.Enabled = true;
                 _sugestoesClientes.DefinirTextoSemBuscar(ResumoCliente(cliente));
+                AtualizarAjudasEntrega(cliente);
             }
             finally
             {

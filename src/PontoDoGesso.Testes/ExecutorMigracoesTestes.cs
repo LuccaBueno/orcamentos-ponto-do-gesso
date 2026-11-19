@@ -115,6 +115,20 @@ namespace PontoDoGesso.Testes
         }
 
         [Fact]
+        public void Migracao4AcrescentaRecebedorDaEntregaSemPerderOrcamentosEFazBackup()
+        {
+            var migracoes = Migracao.Embutidas();
+            ExecutorMigracoes.Aplicar(Banco, migracoes.Where(migracao => migracao.Versao <= 3).ToList());
+            Executar(@"INSERT INTO orcamentos (numero, data, cli_nome, ent_endereco, subtotal_centavos, total_centavos, criado_em, atualizado_em)
+                       VALUES (1, '2026-11-01', 'Maria', 'Rua A', 1000, 1000, '2026-11-01', '2026-11-01')");
+
+            ExecutorMigracoes.Aplicar(Banco, migracoes);
+
+            Assert.Equal(1, Contar("SELECT count(*) FROM orcamentos WHERE cli_nome = 'Maria' AND ent_endereco = 'Rua A' AND ent_receber_com IS NULL AND ent_telefone_local IS NULL"));
+            Assert.Single(Backups());
+        }
+
+        [Fact]
         public void NomeDoBackupNaoSobrescreveOutroDoMesmoMinuto()
         {
             Directory.CreateDirectory(Banco.PastaBackups);

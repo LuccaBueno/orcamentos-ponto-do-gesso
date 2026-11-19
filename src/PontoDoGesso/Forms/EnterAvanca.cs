@@ -68,7 +68,7 @@ namespace PontoDoGesso.Forms
 
         /// <summary>Controles compostos tratados como um campo só.</summary>
         private static bool Folha(Control controle) =>
-            controle is CampoTelefone || controle is CampoQuantidade || controle is UpDownBase;
+            controle is UpDownBase;
 
         private static bool TemSugestoes(Control dono, TextBox campo)
         {

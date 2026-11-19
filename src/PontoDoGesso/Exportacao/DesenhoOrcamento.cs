@@ -344,7 +344,19 @@ namespace PontoDoGesso.Exportacao
 
             y += EspacoCampos;
             var xOpcao = Opcao(grafico, "Entrega", !retirada, inicio, y);
-            Opcao(grafico, "Retirada na loja", retirada, xOpcao + 6, y);
+            var xFimOpcoes = Opcao(grafico, "Retirada na loja", retirada, xOpcao + 6, y);
+
+            // Quem recebe e telefone no local: só saem quando preenchidos, no resto da linha das opções
+            var recebedor = retirada ? null : o.EntReceberCom;
+            var telefoneLocal = retirada || string.IsNullOrEmpty(o.EntTelefoneLocal) ? null : Formatacao.Telefone(o.EntTelefoneLocal);
+            var xRecebedor = xFimOpcoes + 6;
+            var xTelefoneLocal = string.IsNullOrEmpty(recebedor) ? xRecebedor : fim - 52;
+
+            if (!string.IsNullOrEmpty(recebedor))
+                Campo(grafico, "Receber com:", recebedor, xRecebedor, y, telefoneLocal == null ? fim : xTelefoneLocal - 2);
+
+            if (telefoneLocal != null)
+                Campo(grafico, "Tel. no local:", telefoneLocal, xTelefoneLocal, y, fim);
         }
 
         /// <summary>Rótulo laranja, valor em preto sobre a linha (como na folha preenchida à mão); a linha vai até <paramref name="fim"/>.</summary>
