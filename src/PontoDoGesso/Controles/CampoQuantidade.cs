@@ -14,6 +14,7 @@ namespace PontoDoGesso.Controles
         private readonly TextBox _campo = new TextBox { Name = "campoQuantidade", Width = 52, TextAlign = HorizontalAlignment.Right, MaxLength = 12, Text = "1" };
         private readonly Button _menos;
         private readonly Button _mais;
+        private readonly ToolTip _dicas = new ToolTip();
 
         public event EventHandler Alterado;
 
@@ -32,6 +33,9 @@ namespace PontoDoGesso.Controles
             linha.Controls.Add(_campo);
             linha.Controls.Add(_mais);
             Controls.Add(linha);
+
+            _dicas.SetToolTip(_menos, "Diminui a quantidade em 1 (tecla −).");
+            _dicas.SetToolTip(_mais, "Aumenta a quantidade em 1 (tecla +).");
 
             _campo.TextChanged += (s, e) => Alterado?.Invoke(this, EventArgs.Empty);
             _campo.KeyDown += AoTeclar;

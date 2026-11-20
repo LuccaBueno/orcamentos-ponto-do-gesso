@@ -156,12 +156,12 @@ namespace PontoDoGesso.Testes
         }
 
         [Fact]
-        public void PngNaLarguraDoA4A150Dpi()
+        public void PngNaLarguraDoA4A150DpiTerminandoLogoAbaixoDoConteudo()
         {
             using (var imagem = ExportadorPng.CriarImagem(Exemplo(3), DadosLoja.Padrao))
             {
                 Assert.Equal(1240, imagem.Width);
-                Assert.Equal(1754, imagem.Height);
+                Assert.InRange(imagem.Height, 800, 1200);
                 Assert.Equal(Color.White.ToArgb(), imagem.GetPixel(2, 2).ToArgb());
             }
         }

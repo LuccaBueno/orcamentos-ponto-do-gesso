@@ -27,7 +27,7 @@ namespace PontoDoGesso.Exportacao
         public static string NomeArquivo(Orcamento orcamento, string extensao)
         {
             var nome = SemAcentosNemEspacos(orcamento.CliNome);
-            return "Orc-" + Formatacao.Codigo(orcamento.Numero)
+            return "Orc-" + orcamento.NumeroExibido
                 + (nome.Length == 0 ? "" : "_" + nome)
                 + "_" + orcamento.Data.ToString("dd-MM-yyyy", CultureInfo.InvariantCulture)
                 + extensao;

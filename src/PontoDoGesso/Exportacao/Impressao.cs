@@ -21,7 +21,7 @@ namespace PontoDoGesso.Exportacao
         {
             _desenho = new DesenhoOrcamento(orcamento, loja);
 
-            Documento = new PrintDocument { DocumentName = "Orçamento Nº " + Formatacao.Codigo(orcamento.Numero) };
+            Documento = new PrintDocument { DocumentName = "Orçamento Nº " + orcamento.NumeroExibido };
             Documento.BeginPrint += (s, e) => _pagina = 0;
             Documento.PrintPage += ImprimirPagina;
 

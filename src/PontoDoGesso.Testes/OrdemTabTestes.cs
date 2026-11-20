@@ -61,13 +61,13 @@ namespace PontoDoGesso.Testes
             ConferirTela(() => new TelaOrcamento(_temporario.Banco), "buscaCliente",
                 "data", "cadastrado", "buscaCliente", "novoCliente", "nome", "telefone",
                 "entrega", "endereco", "numero", "bairro", "cidade", "referencia", "receberCom", "telefoneLocal",
-                "barraProduto", "barraQuantidade", "barraUnidade", "barraUnitario", "adicionarItem", "itens", "observacoes", "validade", "desconto", "frete",
+                "barraProduto", "barraQuantidade", "barraUnidade", "barraUnitario", "adicionarItem", "itens", "controlarSaidas", "observacoes", "validade", "desconto", "frete",
                 "salvar", "copiarImagem", "png", "pdf", "imprimir", "duplicar");
 
         [Fact]
         public void Historico() =>
             ConferirTela(() => new TelaHistorico(_temporario.Banco, new FiltroHistorico()), "lista",
-                "periodo", "tipoCliente", "clienteEspecifico", "frete", "desconto", "texto", "limpar", "lista");
+                "periodo", "tipoCliente", "clienteEspecifico", "frete", "desconto", "saidas", "texto", "limpar", "lista");
 
         [Fact]
         public void Clientes() =>

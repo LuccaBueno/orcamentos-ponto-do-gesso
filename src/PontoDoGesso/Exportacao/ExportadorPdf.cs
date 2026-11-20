@@ -15,7 +15,7 @@ namespace PontoDoGesso.Exportacao
 
             using (var documento = new PdfDocument())
             {
-                documento.Info.Title = "Orçamento Nº " + Formatacao.Codigo(orcamento.Numero) + " – " + orcamento.CliNome;
+                documento.Info.Title = "Orçamento Nº " + orcamento.NumeroExibido + " – " + orcamento.CliNome;
                 documento.Info.Author = loja.Nome;
                 documento.Info.Creator = "Ponto do Gesso " + Diagnostico.VersaoApp;
 

@@ -102,6 +102,18 @@ namespace PontoDoGesso.Forms
         private readonly Label _total = new Label { Name = "total", AutoSize = true, Anchor = AnchorStyles.Right, Font = new Font("Segoe UI", 12F, FontStyle.Bold) };
         private readonly Label _erroTotais = new Label { Name = "erroTotais", AutoSize = true, MaximumSize = new Size(360, 0), ForeColor = Color.Firebrick, Anchor = AnchorStyles.Right };
 
+        // Observação do cadastro do cliente: só na faixa amarela; o botão copia para as observações do orçamento
+        private readonly FlowLayoutPanel _faixaAviso = new FlowLayoutPanel { Name = "faixaAviso", AutoSize = true, WrapContents = false, Visible = false, Margin = new Padding(0) };
+        private readonly Button _adicionarObservacao = Estilo.CriarBotao("Adicionar ao orçamento", null);
+        private string _observacaoCadastro;
+
+        // Controle de saídas (só no app, nunca sai no orçamento)
+        private readonly CheckBox _controlarSaidas = new CheckBox { Name = "controlarSaidas", Text = "Controlar saídas", AutoSize = true, Margin = new Padding(3, 3, 3, 0) };
+        private readonly Button _saiuTudo = Estilo.CriarBotao("Saiu tudo", null);
+        private readonly Label _resumoSaidas = new Label { Name = "resumoSaidas", AutoSize = true, Visible = false, Margin = new Padding(3, 6, 3, 0), Font = new Font("Segoe UI", 9F, FontStyle.Bold) };
+        private bool _ajustandoSaida;
+        private Button _versoes;
+
         private readonly ToolTip _dicas = new ToolTip();
         private readonly AcoesExportacao _acoes;
         private Button _whatsapp;
@@ -130,6 +142,7 @@ namespace PontoDoGesso.Forms
 
             _novoCliente = Estilo.CriarBotao("+ Novo", (s, e) => CadastrarCliente());
             _novoCliente.Name = "novoCliente";
+            _dicas.SetToolTip(_novoCliente, "Cadastra um cliente novo e já o escolhe para este orçamento.");
 
             _painelEntrega = CriarPainelEntrega();
             _grade = CriarGrade();
@@ -141,7 +154,7 @@ namespace PontoDoGesso.Forms
             AdicionarLinha(layout, CriarEntrega(), SizeType.AutoSize);
             AdicionarLinha(layout, CriarItens(), SizeType.AutoSize);
             AdicionarLinha(layout, _grade, SizeType.Percent);
-            AdicionarLinha(layout, new Label
+            AdicionarLinha(layout, CriarLinhaSaidas(new Label
             {
                 Name = "dicaItens",
                 Text = "Na lista: − e + (botões ou teclas) mudam a quantidade · lixeira ou Delete remove · arrastar ou Ctrl+↑/↓ muda a ordem · F2 corrige a célula",
@@ -150,8 +163,9 @@ namespace PontoDoGesso.Forms
                 Dock = DockStyle.Fill,
                 Height = 17,
                 Font = new Font("Segoe UI", 8.25F),
-                ForeColor = Color.DimGray
-            }, SizeType.AutoSize);
+                ForeColor = Color.DimGray,
+                Anchor = AnchorStyles.Left | AnchorStyles.Right
+            }), SizeType.AutoSize);
             AdicionarLinha(layout, CriarRodape(), SizeType.AutoSize);
 
             Controls.Add(layout);
@@ -285,8 +299,14 @@ namespace PontoDoGesso.Forms
             tabela.Controls.Add(nome, 0, 1);
             tabela.SetColumnSpan(nome, 4);
 
-            tabela.Controls.Add(_avisoCliente, 0, 2);
-            tabela.SetColumnSpan(_avisoCliente, 4);
+            _adicionarObservacao.Name = "adicionarObservacao";
+            _adicionarObservacao.Margin = new Padding(6, 2, 3, 2);
+            _adicionarObservacao.Click += (s, e) => AdicionarObservacaoDoCadastro();
+            _dicas.SetToolTip(_adicionarObservacao, "Copia esta observação do cadastro para as observações que saem no orçamento.");
+            _faixaAviso.Controls.Add(_avisoCliente);
+            _faixaAviso.Controls.Add(_adicionarObservacao);
+            tabela.Controls.Add(_faixaAviso, 0, 2);
+            tabela.SetColumnSpan(_faixaAviso, 4);
 
             _cadastrado.CheckedChanged += (s, e) => AoMudarTipoCliente();
             return tabela;
@@ -309,6 +329,8 @@ namespace PontoDoGesso.Forms
             _enderecosUsados.Name = "enderecosUsados";
             _enderecosUsados.Margin = new Padding(3, 0, 3, 0);
             _enderecosUsados.Click += (s, e) => MostrarEnderecosUsados();
+            _dicas.SetToolTip(_usarCadastro, "Preenche a entrega com o endereço do cadastro do cliente (dá para editar depois).");
+            _dicas.SetToolTip(_enderecosUsados, "Mostra os endereços de entrega dos orçamentos anteriores deste cliente para escolher um.");
             tipos.Controls.Add(_usarCadastro);
             tipos.Controls.Add(_enderecosUsados);
             tabela.Controls.Add(tipos, 0, 0);
@@ -392,6 +414,22 @@ namespace PontoDoGesso.Forms
                 Resizable = DataGridViewTriState.False
             });
 
+            // Controle de saídas: colunas escondidas até marcar "Controlar saídas"
+            grade.Columns.Add(BotaoDaLinha(GradeItens.ColunaSaiuMenos, "−", "Diminuir o que já saiu"));
+            grade.Columns.Add(Estilo.CriarColuna(GradeItens.ColunaSaiu, "Já saiu", 8));
+            grade.Columns.Add(BotaoDaLinha(GradeItens.ColunaSaiuMais, "+", "Aumentar o que já saiu (até a quantidade do item)"));
+            grade.Columns.Add(Estilo.CriarColuna("falta", "Falta", 8));
+            var saiuTudo = BotaoDaLinha(GradeItens.ColunaSaiuTudo, "Saiu tudo", "Marca que toda a quantidade deste item já saiu");
+            saiuTudo.Width = 70;
+            saiuTudo.DefaultCellStyle.Font = new Font("Segoe UI", 8.25F);
+            grade.Columns.Add(saiuTudo);
+            foreach (var nome in new[] { GradeItens.ColunaSaiuMenos, GradeItens.ColunaSaiu, GradeItens.ColunaSaiuMais, "falta", GradeItens.ColunaSaiuTudo })
+                grade.Columns[nome].Visible = false;
+            grade.Columns["falta"].ReadOnly = true;
+            grade.Columns["falta"].DefaultCellStyle.BackColor = Color.FromArgb(0xF4, 0xF4, 0xF4);
+            grade.Columns["falta"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+            grade.Columns[GradeItens.ColunaSaiu].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+
             grade.Columns["codigo"].ReadOnly = true;
             grade.Columns["total"].ReadOnly = true;
             grade.Columns["codigo"].DefaultCellStyle.ForeColor = Color.DimGray;
@@ -406,11 +444,21 @@ namespace PontoDoGesso.Forms
             grade.CellValueChanged += (s, e) =>
             {
                 var coluna = grade.Columns[e.ColumnIndex].Name;
-                if (e.RowIndex >= 0 && coluna != "total" && coluna != "codigo")
+                if (e.RowIndex < 0 || coluna == "total" || coluna == "codigo" || coluna == "falta")
+                    return;
+
+                if (coluna == GradeItens.ColunaSaiu)
+                    AoMudarSaida(grade.Rows[e.RowIndex]);
+                else
                     Recalcular();
             };
             grade.RowsRemoved += (s, e) => Recalcular();
-            grade.OrdemMudou += (s, e) => MarcarAlterado();
+            // Mudar a ordem tira a linha e põe de volta: sem recalcular, o subtotal ficava sem ela (o RowsRemoved recalcula sem a linha)
+            grade.OrdemMudou += (s, e) =>
+            {
+                Recalcular();
+                MarcarAlterado();
+            };
             return grade;
         }
 
@@ -504,15 +552,16 @@ namespace PontoDoGesso.Forms
             var salvar = Estilo.CriarBotao("Salvar (Ctrl+S)", (s, e) => Salvar());
             salvar.Name = "salvar";
             salvar.Font = new Font(Font, FontStyle.Bold);
+            _dicas.SetToolTip(salvar, "Grava o orçamento (o número sai no primeiro salvamento). Atalho: Ctrl+S");
             botoes.Controls.Add(salvar);
 
             // Exportar exige o orçamento salvo: se houver alterações, salva antes e avisa
-            var exportacoes = new (string Nome, string Texto, string Atalho, Action<string> Exportar)[]
+            var exportacoes = new (string Nome, string Texto, string Dica, Action<string> Exportar)[]
             {
-                ("copiarImagem", "Copiar imagem", "Ctrl+Shift+C", aviso => _acoes.CopiarImagem(_orcamento, aviso)),
-                ("png", "PNG", null, aviso => _acoes.Png(_orcamento, aviso)),
-                ("pdf", "PDF", "Ctrl+E", aviso => _acoes.Pdf(_orcamento, aviso)),
-                ("imprimir", "Imprimir", "Ctrl+P", aviso => _acoes.Imprimir(_orcamento)),
+                ("copiarImagem", "Copiar imagem", "Copia a imagem do orçamento para colar no WhatsApp Web com Ctrl+V. Atalho: Ctrl+Shift+C", aviso => _acoes.CopiarImagem(_orcamento, aviso)),
+                ("png", "PNG", "Salva a imagem do orçamento (PNG) na pasta de orçamentos.", aviso => _acoes.Png(_orcamento, aviso)),
+                ("pdf", "PDF", "Salva o orçamento em PDF (A4) na pasta de orçamentos. Atalho: Ctrl+E", aviso => _acoes.Pdf(_orcamento, aviso)),
+                ("imprimir", "Imprimir", "Mostra a prévia e imprime o orçamento em A4. Atalho: Ctrl+P", aviso => _acoes.Imprimir(_orcamento)),
                 ("whatsapp", "WhatsApp", null, aviso => _acoes.WhatsApp(_orcamento, aviso))
             };
 
@@ -520,8 +569,8 @@ namespace PontoDoGesso.Forms
             {
                 var botao = Estilo.CriarBotao(exportacao.Texto, (s, e) => Exportar(exportacao.Exportar));
                 botao.Name = exportacao.Nome;
-                if (exportacao.Atalho != null)
-                    _dicas.SetToolTip(botao, "Atalho: " + exportacao.Atalho);
+                if (exportacao.Dica != null)
+                    _dicas.SetToolTip(botao, exportacao.Dica);
                 botoes.Controls.Add(botao);
             }
 
@@ -529,9 +578,42 @@ namespace PontoDoGesso.Forms
 
             var duplicar = Estilo.CriarBotao("Duplicar", (s, e) => Duplicar());
             duplicar.Name = "duplicar";
+            _dicas.SetToolTip(duplicar, DicaDuplicar);
             botoes.Controls.Add(duplicar);
 
+            _versoes = Estilo.CriarBotao("Versões", (s, e) => AbrirVersoes());
+            _versoes.Name = "versoes";
+            _dicas.SetToolTip(_versoes, DicaVersoes);
+            botoes.Controls.Add(_versoes);
+
             return botoes;
+        }
+
+        public const string DicaDuplicar = "Cria um orçamento novo com os mesmos cliente, entrega e itens, com a data de hoje. O original não muda.";
+        public const string DicaVersoes = "Mostra as versões já enviadas deste orçamento, só para ver e exportar de novo.";
+
+        /// <summary>Dica da lista à esquerda; à direita, "Controlar saídas" (desmarcado por padrão), "Saiu tudo" e o resumo.</summary>
+        private Control CriarLinhaSaidas(Label dica)
+        {
+            var linha = Suspenso(new TableLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, ColumnCount = 2, Margin = new Padding(0) });
+            linha.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            linha.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+
+            var saidas = Suspenso(new FlowLayoutPanel { AutoSize = true, WrapContents = false, Margin = new Padding(0) });
+            _saiuTudo.Name = "saiuTudoGeral";
+            _saiuTudo.Visible = false;
+            _saiuTudo.Margin = new Padding(3, 0, 3, 0);
+            _saiuTudo.Click += (s, e) => SaiuTudo();
+            _dicas.SetToolTip(_controlarSaidas, "Mostra na lista o que já saiu da loja e o que falta. Fica só no app: não sai no orçamento.");
+            _dicas.SetToolTip(_saiuTudo, "Marca que todos os itens já saíram por completo.");
+            _controlarSaidas.CheckedChanged += (s, e) => AoMudarControleSaidas();
+            saidas.Controls.Add(_resumoSaidas);
+            saidas.Controls.Add(_saiuTudo);
+            saidas.Controls.Add(_controlarSaidas);
+
+            linha.Controls.Add(dica, 0, 0);
+            linha.Controls.Add(saidas, 1, 0);
+            return linha;
         }
 
         private void LigarAlteracoes()
@@ -648,6 +730,8 @@ namespace PontoDoGesso.Forms
                     : orcamento.DescontoTipo == TipoDesconto.Valor ? Formatacao.Valor((long)orcamento.DescontoValor)
                     : Formatacao.Quantidade(orcamento.DescontoValor);
                 _frete.Centavos = orcamento.FreteCentavos == 0 ? (long?)null : orcamento.FreteCentavos;
+                _controlarSaidas.Checked = orcamento.ControlarSaidas;
+                MostrarSaidas();
             }
             finally
             {
@@ -668,13 +752,16 @@ namespace PontoDoGesso.Forms
 
             var valido = _telefone.TentarLer(out var telefone, out var erro);
             _whatsapp.Enabled = !string.IsNullOrWhiteSpace(_telefone.Numero);
-            _dicas.SetToolTip(_whatsapp, !valido ? erro : telefone == null ? "Informe o telefone do cliente" : WhatsApp.Dica(telefone));
+            _dicas.SetToolTip(_whatsapp, "Salva a imagem e abre a conversa no WhatsApp Web: é só arrastar a imagem.\n"
+                + (!valido ? erro : telefone == null ? "Informe o telefone do cliente" : WhatsApp.Dica(telefone)));
         }
 
         private void AtualizarTitulo()
         {
-            Text = _orcamento.Numero == 0 ? "Orçamento Nº — (novo)" : "Orçamento Nº " + Formatacao.Codigo(_orcamento.Numero);
+            Text = _orcamento.Numero == 0 ? "Orçamento Nº — (novo)" : "Orçamento Nº " + _orcamento.NumeroExibido;
             _titulo.Text = Text;
+            if (_versoes != null)
+                _versoes.Enabled = _orcamento.Id != 0;
         }
 
         /// <summary>CNPJ que este orçamento usa: o guardado nele (orçamento antigo sai igual) ou, se ainda não tem, o da tela Empresa.</summary>
@@ -839,8 +926,32 @@ namespace PontoDoGesso.Forms
         {
             var observacoes = cliente?.Observacoes;
             var temAviso = !string.IsNullOrWhiteSpace(observacoes);
+            _observacaoCadastro = temAviso ? observacoes.Trim() : null;
+            _faixaAviso.Visible = temAviso;
             _avisoCliente.Visible = temAviso;
             _avisoCliente.Text = temAviso ? "Atenção: " + observacoes.Replace("\r\n", " · ").Replace("\n", " · ") : "";
+        }
+
+        /// <summary>A observação do cadastro nunca vai sozinha para o orçamento: só por este botão, acrescentada às observações (limite de 300).</summary>
+        public void AdicionarObservacaoDoCadastro()
+        {
+            if (string.IsNullOrEmpty(_observacaoCadastro))
+                return;
+
+            var atual = _observacoes.Text.TrimEnd();
+            if (atual.Contains(_observacaoCadastro))
+                return;
+
+            var novo = atual.Length == 0 ? _observacaoCadastro : atual + Environment.NewLine + _observacaoCadastro;
+            if (novo.Length > LimiteObservacoes)
+            {
+                novo = novo.Substring(0, LimiteObservacoes);
+                Avisar("As observações têm limite de " + LimiteObservacoes + " caracteres: o fim da observação do cadastro ficou de fora.");
+            }
+
+            _observacoes.Text = novo;
+            _observacoes.Focus();
+            _observacoes.SelectionStart = _observacoes.TextLength;
         }
 
         private void AoMudarTipoCliente()
@@ -944,7 +1055,92 @@ namespace PontoDoGesso.Forms
             linha.Cells["unidade"].Value = item.Unidade;
             linha.Cells["descricao"].Value = item.Descricao;
             linha.Cells["unitario"].Value = Formatacao.Valor(item.UnitarioCentavos);
+            _ajustandoSaida = true;
+            linha.Cells[GradeItens.ColunaSaiu].Value = Formatacao.Quantidade(item.Saiu);
+            _ajustandoSaida = false;
+            AtualizarFalta(linha);
             return linha;
+        }
+
+        // ---------- saídas de material (só no app) ----------
+
+        private static decimal LerQuantidade(DataGridViewRow linha, string coluna) =>
+            Formatacao.TentarLerQuantidade(Texto(linha, coluna), out var valor) ? valor : 0;
+
+        private void AtualizarFalta(DataGridViewRow linha) =>
+            linha.Cells["falta"].Value = Formatacao.Quantidade(SaidaMaterial.Falta(LerQuantidade(linha, "quantidade"), LerQuantidade(linha, GradeItens.ColunaSaiu)));
+
+        private void MostrarSaidas()
+        {
+            var ligado = _controlarSaidas.Checked;
+            foreach (var nome in new[] { GradeItens.ColunaSaiuMenos, GradeItens.ColunaSaiu, GradeItens.ColunaSaiuMais, "falta", GradeItens.ColunaSaiuTudo })
+                _grade.Columns[nome].Visible = ligado;
+            _saiuTudo.Visible = ligado;
+            _resumoSaidas.Visible = ligado;
+            AtualizarResumoSaidas();
+        }
+
+        private void AtualizarResumoSaidas()
+        {
+            var linhas = LinhasPreenchidas().ToList();
+            var completos = linhas.Count(linha => SaidaMaterial.Completo(LerQuantidade(linha, "quantidade"), LerQuantidade(linha, GradeItens.ColunaSaiu)));
+            _resumoSaidas.Text = SaidaMaterial.Resumo(completos, linhas.Count);
+        }
+
+        private void AoMudarControleSaidas()
+        {
+            if (_carregando)
+                return;
+
+            MostrarSaidas();
+            SalvarSaidas();
+        }
+
+        /// <summary>O "Já saiu" digitado fica entre 0 e a quantidade; atualiza o "Falta" e grava sem criar versão.</summary>
+        private void AoMudarSaida(DataGridViewRow linha)
+        {
+            if (_ajustandoSaida)
+                return;
+
+            var quantidade = LerQuantidade(linha, "quantidade");
+            var limitado = Formatacao.Quantidade(SaidaMaterial.Limitar(LerQuantidade(linha, GradeItens.ColunaSaiu), quantidade));
+            if (Texto(linha, GradeItens.ColunaSaiu) != limitado)
+            {
+                _ajustandoSaida = true;
+                linha.Cells[GradeItens.ColunaSaiu].Value = limitado;
+                _ajustandoSaida = false;
+            }
+
+            AtualizarFalta(linha);
+            AtualizarResumoSaidas();
+            SalvarSaidas();
+        }
+
+        public void SaiuTudo()
+        {
+            foreach (var linha in LinhasPreenchidas().ToList())
+                _grade.MudarSaida(linha, 0);
+        }
+
+        /// <summary>
+        /// Saídas gravam na hora, sem criar versão nem contar como alteração. Com outras alterações ainda não salvas
+        /// (ou orçamento novo), vão junto no próximo Salvar.
+        /// </summary>
+        private void SalvarSaidas()
+        {
+            if (_carregando || _orcamento.Id == 0 || Alterado)
+                return;
+
+            // Sem alterações, as linhas preenchidas são os itens gravados, na mesma ordem
+            var saidas = new Orcamento { Id = _orcamento.Id, ControlarSaidas = _controlarSaidas.Checked };
+            var ordem = 1;
+            foreach (var linha in LinhasPreenchidas())
+                saidas.Itens.Add(new ItemOrcamento { Ordem = ordem++, Quantidade = LerQuantidade(linha, "quantidade"), Saiu = LerQuantidade(linha, GradeItens.ColunaSaiu) });
+
+            _orcamentos.SalvarSaidas(saidas);
+            _orcamento.ControlarSaidas = saidas.ControlarSaidas;
+            for (var i = 0; i < _orcamento.Itens.Count && i < saidas.Itens.Count; i++)
+                _orcamento.Itens[i].Saiu = saidas.Itens[i].Saiu;
         }
 
         public BarraItem Barra => _barra;
@@ -992,7 +1188,8 @@ namespace PontoDoGesso.Forms
                 Unidade = Estilo.Limpo(Texto(linha, "unidade")),
                 Descricao = descricao,
                 UnitarioCentavos = unitario,
-                ProdutoId = (linha.Tag as Produto)?.Id
+                ProdutoId = (linha.Tag as Produto)?.Id,
+                Saiu = SaidaMaterial.Limitar(LerQuantidade(linha, GradeItens.ColunaSaiu), quantidade)
             };
             return true;
         }
@@ -1039,7 +1236,9 @@ namespace PontoDoGesso.Forms
                 linha.Cells["total"].Value = total == null ? null : Formatacao.Valor(total.Value);
                 if (total != null && Texto(linha, "descricao").Length > 0)
                     subtotal += total.Value;
+                AtualizarFalta(linha);
             }
+            AtualizarResumoSaidas();
 
             var erros = new List<string>();
             long desconto = 0;
@@ -1112,10 +1311,33 @@ namespace PontoDoGesso.Forms
             _buscaCliente.SelectAll();
         }
 
+        /// <summary>Termina a edição pendente da lista (célula aberta) e recalcula; falso se o valor digitado não pôde entrar.</summary>
+        private bool ConfirmarEdicaoDaLista()
+        {
+            if (_grade.IsCurrentCellInEditMode && !_grade.EndEdit())
+                return false;
+
+            // Recalcular não é alteração (exportar sem mudar nada não pode salvar nem criar versão)
+            var alterado = _alterado;
+            Recalcular();
+            _alterado = alterado;
+            return true;
+        }
+
+        /// <summary>Versões já enviadas deste orçamento: só para ver e exportar de novo.</summary>
+        protected virtual void AbrirVersoes()
+        {
+            if (_orcamento.Id == 0)
+                return;
+
+            using (var form = new FormVersoes(_banco, _orcamento.Id))
+                form.ShowDialog(this);
+        }
+
         /// <summary>Confere tudo, grava (o número sai no primeiro salvamento) e devolve falso se algo impediu.</summary>
         public bool Salvar()
         {
-            if (_grade.IsCurrentCellInEditMode && !_grade.EndEdit())
+            if (!ConfirmarEdicaoDaLista())
                 return false;
 
             AtualizarData();
@@ -1194,7 +1416,13 @@ namespace PontoDoGesso.Forms
             orcamento.DescontoTipo = tipoDesconto;
             orcamento.DescontoValor = valorDesconto;
             orcamento.FreteCentavos = _frete.Centavos ?? 0;
+            orcamento.ControlarSaidas = _controlarSaidas.Checked;
             orcamento.Itens = itens;
+
+            // Já enviado: as alterações viram a próxima versão (a enviada fica guardada)
+            orcamento.EnviadoEm = orcamento.Id == 0 ? null : _orcamentos.ObterPorId(orcamento.Id)?.EnviadoEm;
+            if (VersaoOrcamento.CriaNovaVersao(orcamento))
+                Avisar(VersaoOrcamento.AvisoNovaVersao(orcamento));
 
             try
             {
@@ -1257,12 +1485,16 @@ namespace PontoDoGesso.Forms
         {
             string aviso = null;
 
+            // A célula em edição entra antes: o que sai no arquivo é o que está na tela
+            if (!ConfirmarEdicaoDaLista())
+                return;
+
             if (Alterado || _orcamento.Id == 0)
             {
                 if (!Salvar())
                     return;
 
-                aviso = "O orçamento foi salvo (Nº " + Formatacao.Codigo(_orcamento.Numero) + ") antes de exportar.";
+                aviso = "O orçamento foi salvo (Nº " + _orcamento.NumeroExibido + ") antes de exportar.";
             }
 
             exportar(aviso);
@@ -1299,7 +1531,7 @@ namespace PontoDoGesso.Forms
         {
             if (Alterado && _orcamento.Id != 0)
             {
-                var resposta = PerguntarSalvar("Salvar as alterações do orçamento Nº " + Formatacao.Codigo(_orcamento.Numero) + " antes de duplicar?");
+                var resposta = PerguntarSalvar("Salvar as alterações do orçamento Nº " + _orcamento.NumeroExibido + " antes de duplicar?");
                 if (resposta == DialogResult.Cancel || (resposta == DialogResult.Yes && !Salvar()))
                     return false;
             }
@@ -1310,6 +1542,16 @@ namespace PontoDoGesso.Forms
             {
                 _mostrarCnpj.Checked = false;
                 AtualizarCnpj();
+                // Duplicar não copia as saídas
+                _controlarSaidas.Checked = false;
+                _ajustandoSaida = true;
+                foreach (DataGridViewRow linha in _grade.Rows)
+                {
+                    linha.Cells[GradeItens.ColunaSaiu].Value = Formatacao.Quantidade(0);
+                    AtualizarFalta(linha);
+                }
+                _ajustandoSaida = false;
+                MostrarSaidas();
             }
             finally
             {

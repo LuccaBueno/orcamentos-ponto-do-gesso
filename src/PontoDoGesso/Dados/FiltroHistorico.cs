@@ -28,6 +28,15 @@ namespace PontoDoGesso.Dados
         Sem
     }
 
+    /// <summary>Filtro do controle de saídas de material.</summary>
+    public enum SaidasHistorico
+    {
+        Todos,
+        Faltando,
+        TudoSaiu,
+        SemControle
+    }
+
     public enum ColunaHistorico
     {
         Numero,
@@ -39,7 +48,8 @@ namespace PontoDoGesso.Dados
         Desconto,
         Total,
         Entrega,
-        Validade
+        Validade,
+        Saidas
     }
 
     /// <summary>Filtros do histórico; todos se combinam entre si.</summary>
@@ -62,6 +72,8 @@ namespace PontoDoGesso.Dados
 
         public PresencaHistorico Frete { get; set; } = PresencaHistorico.Todos;
         public PresencaHistorico Desconto { get; set; } = PresencaHistorico.Todos;
+
+        public SaidasHistorico Saidas { get; set; } = SaidasHistorico.Todos;
 
         /// <summary>Nº do orçamento, código do cliente, nome (sem acento), telefone ou endereço/bairro de entrega.</summary>
         public string Texto { get; set; }

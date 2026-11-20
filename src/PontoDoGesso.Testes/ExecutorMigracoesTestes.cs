@@ -129,6 +129,28 @@ namespace PontoDoGesso.Testes
         }
 
         [Fact]
+        public void Migracao5DeixaOsOrcamentosComoVersao1SemEnvioNemSaidasEFazBackup()
+        {
+            var migracoes = Migracao.Embutidas();
+            ExecutorMigracoes.Aplicar(Banco, migracoes.Where(migracao => migracao.Versao <= 4).ToList());
+            Executar(@"INSERT INTO orcamentos (numero, data, cli_nome, subtotal_centavos, total_centavos, criado_em, atualizado_em)
+                       VALUES (1, '2026-11-01', 'Maria', 1000, 1000, '2026-11-01', '2026-11-01');
+                       INSERT INTO itens_orcamento (orcamento_id, ordem, quantidade, descricao, unitario_centavos, total_centavos)
+                       VALUES (1, 1, '2', 'Placa', 500, 1000)");
+
+            ExecutorMigracoes.Aplicar(Banco, migracoes);
+
+            var orcamento = new OrcamentoRepositorio(Banco).ObterPorId(1);
+            Assert.Equal(1, orcamento.Versao);
+            Assert.Equal("0001", orcamento.NumeroExibido);
+            Assert.Null(orcamento.EnviadoEm);
+            Assert.False(orcamento.ControlarSaidas);
+            Assert.Equal(0m, orcamento.Itens.Single().Saiu);
+            Assert.Equal(0, Contar("SELECT count(*) FROM versoes_orcamento"));
+            Assert.Single(Backups());
+        }
+
+        [Fact]
         public void NomeDoBackupNaoSobrescreveOutroDoMesmoMinuto()
         {
             Directory.CreateDirectory(Banco.PastaBackups);

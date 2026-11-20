@@ -10,6 +10,9 @@ namespace PontoDoGesso.Dominio
         public long UnitarioCentavos { get; set; }
         public long TotalCentavos { get; set; }
 
+        /// <summary>Quantidade que já saiu da loja (controle de saídas, só no app).</summary>
+        public decimal Saiu { get; set; }
+
         /// <summary>Só referência; descrição e preço ficam copiados no item. Nulo = item digitado à mão.</summary>
         public long? ProdutoId { get; set; }
 

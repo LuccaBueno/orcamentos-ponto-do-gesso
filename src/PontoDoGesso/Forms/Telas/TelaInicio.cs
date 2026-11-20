@@ -113,7 +113,7 @@ namespace PontoDoGesso.Forms
             foreach (var orcamento in _orcamentos.Ultimos(QuantidadeUltimos))
             {
                 var linha = _ultimos.Rows[_ultimos.Rows.Add(
-                    Formatacao.Codigo(orcamento.Numero),
+                    orcamento.NumeroExibido,
                     orcamento.Data.ToString("dd/MM/yyyy"),
                     orcamento.CliNome,
                     Formatacao.Moeda(orcamento.TotalCentavos))];

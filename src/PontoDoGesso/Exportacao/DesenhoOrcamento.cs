@@ -65,6 +65,8 @@ namespace PontoDoGesso.Exportacao
         private static readonly XBrush PincelLaranja = new XSolidBrush(Laranja);
         private static readonly XBrush PincelFundo = new XSolidBrush(FundoClaro);
         private static readonly XBrush PincelNumero = new XSolidBrush(CinzaNumero);
+        /// <summary>OBS e validade num cinza escuro, ainda legível, para o rodapé da loja e o TOTAL se destacarem.</summary>
+        private static readonly XBrush PincelTextoSecundario = new XSolidBrush(XColor.FromArgb(0x59, 0x59, 0x59));
 
         /// <summary>Calibri não vem no Windows 7 sem o Office: nesse caso usa Arial.</summary>
         public static readonly string FonteTabela = FonteInstalada("Calibri") ? "Calibri" : "Arial";
@@ -131,7 +133,7 @@ namespace PontoDoGesso.Exportacao
 
             var observacoes = (orcamento.Observacoes ?? "").Trim();
             if (observacoes.Length > 0)
-                AdicionarFecho(Quebrar(medida, "OBS: " + observacoes, FonteValidade, larguraFecho, 12), FonteValidade, XBrushes.Black);
+                AdicionarFecho(Quebrar(medida, "OBS: " + observacoes, FonteValidade, larguraFecho, 12), FonteValidade, PincelTextoSecundario);
 
             if (!string.IsNullOrWhiteSpace(loja.Rodape))
                 AdicionarFecho(Quebrar(medida, loja.Rodape.Trim(), FonteRodape, larguraFecho, 3), FonteRodape, PincelLaranja);
@@ -140,7 +142,7 @@ namespace PontoDoGesso.Exportacao
             if (validade != null)
             {
                 var dias = orcamento.ValidadeDias.Value;
-                AdicionarFecho(new[] { "Orçamento válido por " + dias + (dias == 1 ? " dia" : " dias") + " (até " + validade.Value.ToString("dd/MM/yyyy") + ")." }, FonteValidade, XBrushes.Black);
+                AdicionarFecho(new[] { "Orçamento válido por " + dias + (dias == 1 ? " dia" : " dias") + " (até " + validade.Value.ToString("dd/MM/yyyy") + ")." }, FonteValidade, PincelTextoSecundario);
             }
 
             medida.Dispose();
@@ -155,6 +157,10 @@ namespace PontoDoGesso.Exportacao
 
         /// <summary>Altura da página em mm: A4 no PDF e na impressão; no PNG, cresce com a quantidade de itens.</summary>
         public double AlturaPaginaMm { get; private set; }
+
+        private const double AlturaNumero = 3;
+        private const double MargemInferiorImagem = 4;
+        private double _margemInferior = Margem;
 
         public static double Pt(double mm) => mm * 72 / 25.4;
 
@@ -179,7 +185,9 @@ namespace PontoDoGesso.Exportacao
                 paginas.Add(Tuple.Create(0, _alturas.Count));
                 Paginas = paginas;
                 var fim = TopoTabela + AlturaCabecalhoTabela + _alturas.Sum() + AlturaFinal;
-                AlturaPaginaMm = Math.Max(AlturaMm, fim + (AlturaMm - LimiteConteudo));
+                // A imagem termina logo abaixo do conteúdo (com o número), sem o branco até o fim do A4
+                _margemInferior = MargemInferiorImagem;
+                AlturaPaginaMm = fim + 2 + AlturaNumero + _margemInferior;
                 return;
             }
 
@@ -257,8 +265,9 @@ namespace PontoDoGesso.Exportacao
             Texto(grafico, _loja.Nome, FonteTitulo, PincelLaranja, Esquerda, Margem + 5.5, Largura, 20, XStringFormats.Center);
             Texto(grafico, _loja.Subtitulo, FonteSubtitulo, PincelLaranja, Esquerda, Margem + 23.6, Largura, 10, XStringFormats.Center);
 
-            // Telefone como na folha: DDD pequeno e número grande na mesma linha de base, com o ícone do WhatsApp ao lado
-            var linhaBase = Pt(Margem + 43.7);
+            // Telefone como na folha: DDD pequeno e número grande na mesma linha de base, com o ícone do WhatsApp ao lado.
+            // O número (25 pt) desce 1 mm para ficar centrado na altura da 1ª linha do endereço (17 pt), não só na mesma linha de base
+            var linhaBase = Pt(Margem + 44.7);
             var x = Pt(Esquerda + 8);
             var (ddd, numero) = SepararDdd(_loja.Telefone ?? "");
             if (ddd.Length > 0)
@@ -402,7 +411,7 @@ namespace PontoDoGesso.Exportacao
         private void DesenharCabecalhoContinuacao(XGraphics grafico)
         {
             Texto(grafico, _loja.Nome, FonteContinuacaoTitulo, PincelLaranja, Esquerda, Margem, Largura, 8, XStringFormats.CenterLeft);
-            Texto(grafico, "Orçamento Nº " + Formatacao.Codigo(_orcamento.Numero) + " — continuação", FonteRotulo, PincelLaranja, Esquerda, Margem, Largura, 8, XStringFormats.CenterRight);
+            Texto(grafico, "Orçamento Nº " + _orcamento.NumeroExibido + " — continuação", FonteRotulo, PincelLaranja, Esquerda, Margem, Largura, 8, XStringFormats.CenterRight);
             grafico.DrawLine(Linha, Pt(Esquerda), Pt(Margem + 9.5), Pt(Direita), Pt(Margem + 9.5));
         }
 
@@ -502,12 +511,12 @@ namespace PontoDoGesso.Exportacao
         /// <summary>Número discreto no canto inferior direito; com mais de uma página, junto de "Página X de Y".</summary>
         private void DesenharNumero(XGraphics grafico, int pagina)
         {
-            var texto = _orcamento.Numero > 0 ? "Nº " + Formatacao.Codigo(_orcamento.Numero) : "";
+            var texto = _orcamento.Numero > 0 ? "Nº " + _orcamento.NumeroExibido : "";
             if (Paginas.Count > 1)
                 texto = (texto.Length > 0 ? texto + " · " : "") + "Página " + (pagina + 1) + " de " + Paginas.Count;
 
             if (texto.Length > 0)
-                Texto(grafico, texto, FonteNumero, PincelNumero, Esquerda, AlturaPaginaMm - Margem - 3, Largura, 3, XStringFormats.BottomRight);
+                Texto(grafico, texto, FonteNumero, PincelNumero, Esquerda, AlturaPaginaMm - _margemInferior - AlturaNumero, Largura, AlturaNumero, XStringFormats.BottomRight);
         }
 
         // ---------- utilidades ----------

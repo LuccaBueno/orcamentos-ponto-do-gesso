@@ -17,21 +17,32 @@ namespace PontoDoGesso.Forms
     {
         private readonly IWin32Window _dono;
         private readonly ExportacaoOrcamento _exportacao;
+        private readonly OrcamentoRepositorio _orcamentos;
 
         public AcoesExportacao(Banco banco, IWin32Window dono)
         {
             _dono = dono;
             _exportacao = new ExportacaoOrcamento(banco);
+            _orcamentos = new OrcamentoRepositorio(banco);
         }
 
         public string PastaBase => _exportacao.PastaBase;
 
         /// <param name="aviso">Texto extra no início da mensagem (ex.: "o orçamento foi salvo antes de exportar").</param>
         public string Png(Orcamento orcamento, string aviso = null) =>
-            Salvar(() => _exportacao.SalvarPng(orcamento), "Imagem (PNG) salva.", aviso);
+            Enviado(orcamento, Salvar(() => _exportacao.SalvarPng(orcamento), "Imagem (PNG) salva.", aviso));
 
         public string Pdf(Orcamento orcamento, string aviso = null) =>
-            Salvar(() => _exportacao.SalvarPdf(orcamento), "PDF salvo.", aviso);
+            Enviado(orcamento, Salvar(() => _exportacao.SalvarPdf(orcamento), "PDF salvo.", aviso));
+
+        /// <summary>Exportar, copiar, imprimir ou mandar pelo WhatsApp conta como envio: alterar depois cria uma versão nova.</summary>
+        private T Enviado<T>(Orcamento orcamento, T resultado)
+        {
+            if (resultado != null && !(resultado is bool ok && !ok))
+                _orcamentos.MarcarEnviado(orcamento);
+
+            return resultado;
+        }
 
         public bool CopiarImagem(Orcamento orcamento, string aviso = null)
         {
@@ -47,14 +58,16 @@ namespace PontoDoGesso.Forms
                 return false;
             }
 
-            Informar(Juntar(aviso, "Imagem do orçamento Nº " + Formatacao.Codigo(orcamento.Numero) + " copiada.\n\nNo WhatsApp Web, abra a conversa e aperte Ctrl+V."));
+            Enviado(orcamento, true);
+            Informar(Juntar(aviso, "Imagem do orçamento Nº " + orcamento.NumeroExibido + " copiada.\n\nNo WhatsApp Web, abra a conversa e aperte Ctrl+V."));
             return true;
         }
 
         public void Imprimir(Orcamento orcamento)
         {
             using (var impressao = _exportacao.CriarImpressao(orcamento))
-                MostrarImpressao(impressao, "Orçamento Nº " + Formatacao.Codigo(orcamento.Numero));
+                MostrarImpressao(impressao, "Orçamento Nº " + orcamento.NumeroExibido);
+            Enviado(orcamento, true);
         }
 
         /// <summary>Salva o PNG, mostra o arquivo na pasta e abre a conversa no navegador: é só arrastar a imagem.</summary>
@@ -69,6 +82,8 @@ namespace PontoDoGesso.Forms
             var arquivo = Salvar(() => _exportacao.SalvarPng(orcamento), null, null);
             if (arquivo == null)
                 return false;
+
+            Enviado(orcamento, arquivo);
 
             try
             {

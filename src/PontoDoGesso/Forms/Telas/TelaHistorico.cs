@@ -19,6 +19,7 @@ namespace PontoDoGesso.Forms
         private static readonly string[] TiposCliente = { "Todos", "Só cadastrados", "Só avulsos" };
         private static readonly string[] Fretes = { "Todos", "Com frete", "Sem frete" };
         private static readonly string[] Descontos = { "Todos", "Com desconto", "Sem desconto" };
+        private static readonly string[] Saidas = { "Todos", "Com material faltando", "Tudo saiu", "Sem controle" };
 
         private static readonly (string Nome, string Titulo, int Peso, ColunaHistorico Coluna)[] Colunas =
         {
@@ -31,7 +32,8 @@ namespace PontoDoGesso.Forms
             ("desconto", "Desconto", 9, ColunaHistorico.Desconto),
             ("total", "Total", 11, ColunaHistorico.Total),
             ("entrega", "Entrega", 10, ColunaHistorico.Entrega),
-            ("validade", "Validade", 17, ColunaHistorico.Validade)
+            ("validade", "Validade", 15, ColunaHistorico.Validade),
+            ("saidas", "Saídas", 10, ColunaHistorico.Saidas)
         };
 
         /// <summary>Filtros da última vez que o histórico foi aberto; valem enquanto o app estiver aberto.</summary>
@@ -55,6 +57,8 @@ namespace PontoDoGesso.Forms
         private readonly TextBox _clienteEspecifico = new TextBox { Name = "clienteEspecifico", Width = 220 };
         private readonly ComboBox _frete = Combo("frete", Fretes, 110);
         private readonly ComboBox _desconto = Combo("desconto", Descontos, 120);
+        private readonly ComboBox _saidas = Combo("saidas", Saidas, 150);
+        private readonly ToolTip _dicas = new ToolTip();
         private readonly TextBox _texto = new TextBox { Name = "texto", Width = 220 };
         private readonly DataGridView _lista;
         private readonly Label _resumo = new Label { Name = "resumo", AutoSize = true, Anchor = AnchorStyles.Left, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold) };
@@ -147,7 +151,7 @@ namespace PontoDoGesso.Forms
             Grupo(Rotulo("Período"), _periodo, Rotulo("de"), _de, Rotulo("até"), _ate);
             Grupo(Rotulo("Cliente"), _tipoCliente, Rotulo("Cliente específico"), _clienteEspecifico);
             painel.SetFlowBreak(painel.Controls[painel.Controls.Count - 1], true);
-            Grupo(Rotulo("Frete"), _frete, Rotulo("Desconto"), _desconto);
+            Grupo(Rotulo("Frete"), _frete, Rotulo("Desconto"), _desconto, Rotulo("Saídas"), _saidas);
             Grupo(Rotulo("Buscar (nº, código do cliente, nome ou telefone)"), _texto, limpar);
 
             _periodo.SelectedIndexChanged += (s, e) => AoMudarFiltro();
@@ -156,6 +160,7 @@ namespace PontoDoGesso.Forms
             _tipoCliente.SelectedIndexChanged += (s, e) => AoMudarFiltro();
             _frete.SelectedIndexChanged += (s, e) => AoMudarFiltro();
             _desconto.SelectedIndexChanged += (s, e) => AoMudarFiltro();
+            _saidas.SelectedIndexChanged += (s, e) => AoMudarFiltro();
             _texto.TextChanged += (s, e) => AoMudarFiltro();
             LigarBusca(_texto);
             _clienteEspecifico.TextChanged += (s, e) =>
@@ -217,21 +222,23 @@ namespace PontoDoGesso.Forms
         {
             var botoes = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, Padding = new Padding(6) };
 
-            void Adicionar(string nome, string texto, Action acao)
+            void Adicionar(string nome, string texto, Action acao, string dica)
             {
                 var botao = Estilo.CriarBotao(texto, (s, e) => acao());
                 botao.Name = nome;
+                _dicas.SetToolTip(botao, dica);
                 botoes.Controls.Add(botao);
                 _botoesDoSelecionado.Add(botao);
             }
 
-            Adicionar("abrir", "Abrir", () => Abrir(false));
-            Adicionar("duplicar", "Duplicar", () => Abrir(true));
-            Adicionar("copiarImagem", "Copiar imagem", () => Exportar(o => _acoes.CopiarImagem(o)));
-            Adicionar("png", "PNG", () => Exportar(o => _acoes.Png(o)));
-            Adicionar("pdf", "PDF", () => Exportar(o => _acoes.Pdf(o)));
-            Adicionar("imprimir", "Imprimir", () => Exportar(o => _acoes.Imprimir(o)));
-            Adicionar("excluir", "Excluir", Excluir);
+            Adicionar("abrir", "Abrir", () => Abrir(false), "Abre o orçamento selecionado para ver ou alterar (Enter ou duplo clique).");
+            Adicionar("duplicar", "Duplicar", () => Abrir(true), TelaOrcamento.DicaDuplicar);
+            Adicionar("versoes", "Versões", AbrirVersoes, TelaOrcamento.DicaVersoes);
+            Adicionar("copiarImagem", "Copiar imagem", () => Exportar(o => _acoes.CopiarImagem(o)), "Copia a imagem do orçamento para colar no WhatsApp Web com Ctrl+V.");
+            Adicionar("png", "PNG", () => Exportar(o => _acoes.Png(o)), "Salva a imagem do orçamento (PNG) na pasta de orçamentos.");
+            Adicionar("pdf", "PDF", () => Exportar(o => _acoes.Pdf(o)), "Salva o orçamento em PDF (A4) na pasta de orçamentos.");
+            Adicionar("imprimir", "Imprimir", () => Exportar(o => _acoes.Imprimir(o)), "Mostra a prévia e imprime o orçamento em A4.");
+            Adicionar("excluir", "Excluir", Excluir, "Apaga o orçamento selecionado (com as versões). O número não é usado de novo.");
 
             return botoes;
         }
@@ -250,6 +257,7 @@ namespace PontoDoGesso.Forms
                 _sugestoesClientes.DefinirTextoSemBuscar(_filtro.ClienteId == null ? "" : _filtro.ClienteDescricao ?? Formatacao.Codigo(_filtro.ClienteId.Value));
                 _frete.SelectedIndex = (int)_filtro.Frete;
                 _desconto.SelectedIndex = (int)_filtro.Desconto;
+                _saidas.SelectedIndex = (int)_filtro.Saidas;
                 _texto.Text = _filtro.Texto ?? "";
                 AtualizarHabilitados();
             }
@@ -279,6 +287,7 @@ namespace PontoDoGesso.Forms
             _filtro.TipoCliente = (TipoClienteHistorico)_tipoCliente.SelectedIndex;
             _filtro.Frete = (PresencaHistorico)_frete.SelectedIndex;
             _filtro.Desconto = (PresencaHistorico)_desconto.SelectedIndex;
+            _filtro.Saidas = (SaidasHistorico)_saidas.SelectedIndex;
             _filtro.Texto = _texto.Text;
             Carregar();
         }
@@ -382,7 +391,7 @@ namespace PontoDoGesso.Forms
             var vencida = validade != null && validade.Value < Hoje;
 
             var linha = _lista.Rows[_lista.Rows.Add(
-                Formatacao.Codigo(orcamento.Numero),
+                orcamento.NumeroExibido,
                 orcamento.Data.ToString("dd/MM/yyyy"),
                 orcamento.CliNome,
                 orcamento.ClienteId == null ? "Avulso" : "Cadastrado",
@@ -391,11 +400,22 @@ namespace PontoDoGesso.Forms
                 orcamento.DescontoCentavos > 0 ? Formatacao.Valor(orcamento.DescontoCentavos) : "—",
                 Formatacao.Valor(orcamento.TotalCentavos),
                 orcamento.TipoEntrega == TipoEntrega.Retirada ? "Retirada" : "Entrega",
-                validade == null ? "—" : validade.Value.ToString("dd/MM/yyyy") + (vencida ? " (vencida)" : ""))];
+                validade == null ? "—" : validade.Value.ToString("dd/MM/yyyy") + (vencida ? " (vencida)" : ""),
+                TextoSaidas(orcamento))];
             linha.Tag = orcamento;
 
             if (vencida)
                 linha.Cells["validade"].Style.ForeColor = Color.Firebrick;
+        }
+
+        private static string TextoSaidas(Orcamento orcamento)
+        {
+            switch (SaidaMaterial.Situacao(orcamento.ControlarSaidas, orcamento.SaidasCompletas, orcamento.SaidasItens))
+            {
+                case SituacaoSaidas.SemControle: return "—";
+                case SituacaoSaidas.TudoSaiu: return "Tudo saiu";
+                default: return orcamento.SaidasCompletas + " de " + orcamento.SaidasItens;
+            }
         }
 
         private Orcamento Selecionado => _lista.CurrentRow?.Tag as Orcamento;
@@ -451,6 +471,18 @@ namespace PontoDoGesso.Forms
                 Carregar();
         }
 
+        /// <summary>Versões já enviadas do orçamento selecionado: só para ver e exportar de novo.</summary>
+        protected virtual void AbrirVersoes()
+        {
+            var orcamento = LerSelecionado();
+            if (orcamento == null)
+                return;
+
+            using (var form = new FormVersoes(_banco, orcamento.Id))
+                form.ShowDialog(this);
+            Carregar();
+        }
+
         /// <summary>O orçamento abre na área principal, no lugar do histórico.</summary>
         protected virtual void AbrirOrcamento(Orcamento orcamento, bool duplicar) => Navegacao?.AbrirOrcamento(orcamento, duplicar);
 
@@ -460,7 +492,7 @@ namespace PontoDoGesso.Forms
             if (orcamento == null)
                 return;
 
-            var numero = Formatacao.Codigo(orcamento.Numero);
+            var numero = orcamento.NumeroExibido;
             if (!Confirmar("Excluir o orçamento Nº " + numero + " (" + orcamento.CliNome + ")?\n\nO número " + numero + " não será usado de novo."))
                 return;
 

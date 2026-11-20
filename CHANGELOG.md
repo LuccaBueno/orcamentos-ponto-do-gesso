@@ -4,6 +4,24 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/); 
 
 ## [Não lançado]
 
+## [0.9.8] - 2026-11-20
+
+Correções e melhorias pedidas no uso real da v0.9.7. O banco recebe a migração 005 (com backup antes); os orçamentos existentes viram a versão 1, sem sufixo.
+
+### Adicionado
+- **Versões do orçamento:** o orçamento conta como "enviado" ao ser exportado em PNG/PDF, copiado, impresso ou mandado pelo WhatsApp. Alterar e salvar um orçamento já enviado cria a versão seguinte com o mesmo número ("0001" → "0001-2" → "0001-3"), com o aviso "Este orçamento já foi enviado; as alterações viram a versão 0001-2.". Antes de enviar, salvar só sobrescreve. As versões antigas ficam guardadas e abrem só para leitura (prévia) e para exportar de novo pelo botão **Versões** (tela de orçamento e histórico). O histórico mostra uma linha por orçamento, com o Nº da versão mais recente; o número no PNG/PDF e o nome dos arquivos usam a versão (Orc-0001-2_...). Duplicar cria um número novo.
+- **Saída de material** (opcional, só no app): caixa **Controlar saídas** (desmarcada por padrão) mostra na lista as colunas **Já saiu** (com − e +, sem passar da quantidade) e **Falta**, um **Saiu tudo** por item e um geral, e o resumo "Saídas: 2 de 5 itens completos" / "Tudo saiu". Grava na hora, sem criar versão; não sai no PNG/PDF/impressão; Duplicar zera. Histórico com filtro **Saídas** (Todos / Com material faltando / Tudo saiu / Sem controle) e coluna **Saídas**.
+- Observação do cadastro do cliente: botão **Adicionar ao orçamento** na faixa amarela, que acrescenta o texto às Observações (limite de 300). Sem o botão, ela continua nunca indo para o orçamento.
+- Dicas (ao passar o mouse) em todos os botões de ação da tela de orçamento e do histórico.
+
+### Alterado
+- PNG e Copiar imagem terminam logo abaixo do conteúdo, com margem pequena (sem o branco até o fim do A4). PDF e impressão continuam em A4.
+- Cabeçalho: o telefone fica centrado na altura da 1ª linha do endereço; o CNPJ continua alinhado com a 2ª.
+- OBS e linha da validade em cinza (#595959) no PNG/PDF/impressão; o rodapé "As entregas…" não muda.
+
+### Corrigido
+- **Subtotal sem uma linha:** mudar a ordem de um item (arrastar ou Ctrl+↑/↓) tirava a linha e a punha de volta, e o recálculo feito na remoção ficava sem ela (ex.: 5 itens de R$ 810,00 mostrando subtotal R$ 750,00). Agora recalcula depois de mudar a ordem. Salvar, PNG, PDF, Imprimir, Copiar imagem e WhatsApp confirmam a célula em edição antes de calcular e gravar (o valor gravado já era recalculado ao salvar).
+
 ## [0.9.7] - 2026-11-19
 
 ### Alterado

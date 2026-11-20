@@ -68,6 +68,7 @@ namespace PontoDoGesso.Controles
                 controle.TabIndex = ordem++;
 
             _adicionar.Click += (s, e) => Adicionar();
+            new ToolTip().SetToolTip(_adicionar, "Põe o item no fim da lista e limpa a barra para o próximo (Enter no Unitário faz o mesmo).");
             _produto.TextChanged += (s, e) =>
             {
                 // Mudou o texto depois de escolher do catálogo: vira descrição livre

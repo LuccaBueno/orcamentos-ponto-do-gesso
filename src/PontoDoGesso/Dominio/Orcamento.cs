@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Xml.Serialization;
+using PontoDoGesso.Servicos;
 
 namespace PontoDoGesso.Dominio
 {
@@ -21,6 +23,32 @@ namespace PontoDoGesso.Dominio
 
         /// <summary>Atribuído ao salvar pela primeira vez; 0 = ainda não salvo.</summary>
         public long Numero { get; set; }
+
+        /// <summary>1 = primeira versão (sem sufixo); alterar e salvar depois de enviado cria a próxima.</summary>
+        public int Versao { get; set; } = 1;
+
+        /// <summary>Quando esta versão foi exportada, copiada, impressa ou mandada pelo WhatsApp; nulo = ainda não enviada.</summary>
+        public DateTime? EnviadoEm { get; set; }
+
+        /// <summary>Só no app: a lista de itens mostra o que já saiu da loja e o que falta (nunca sai no orçamento).</summary>
+        public bool ControlarSaidas { get; set; }
+
+        /// <summary>Versão antiga guardada: abre só para leitura e, exportada de novo, não conta como envio.</summary>
+        [XmlIgnore]
+        public bool VersaoAntiga { get; set; }
+
+        /// <summary>Lidos no histórico: itens com tudo já saído e total de itens.</summary>
+        [XmlIgnore]
+        public int SaidasCompletas { get; set; }
+
+        [XmlIgnore]
+        public int SaidasItens { get; set; }
+
+        /// <summary>"0001" na primeira versão, "0001-2" na segunda...</summary>
+        public string NumeroExibido => NumeroComVersao(Numero, Versao);
+
+        public static string NumeroComVersao(long numero, int versao) =>
+            Formatacao.Codigo(numero) + (versao > 1 ? "-" + versao : "");
 
         public DateTime Data { get; set; }
 

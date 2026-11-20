@@ -8,7 +8,7 @@ O orçamento gerado deve **parecer a folha em papel**, para o cliente reconhecer
 
 Tamanho: **A4 retrato (210 × 297 mm)**, margens de 12 mm. Foco é o uso **digital** (PNG/WhatsApp), com impressão como opção. Desenhada uma única vez em `Exportacao\DesenhoOrcamento.cs` usando `XGraphics` (PDFsharp):
 - PDF: desenha numa página PDF.
-- PNG: desenha num `Bitmap` via `XGraphics.FromGraphics(...)` a **150 dpi** (≈ 1240 × 1754 px, legível no celular e leve para o WhatsApp), fundo branco.
+- PNG: desenha num `Bitmap` via `XGraphics.FromGraphics(...)` a **150 dpi** (1240 px de largura, legível no celular e leve para o WhatsApp), fundo branco. Desde a v0.9.8 a imagem termina logo abaixo do conteúdo (4 mm abaixo do número discreto), sem o branco até o fim do A4; PDF e impressão continuam em A4.
 - Impressão: desenha no `Graphics` do `PrintDocument` via `XGraphics.FromGraphics(...)`.
 
 ```
@@ -98,7 +98,7 @@ Na tela de orçamento há a caixa **"Mostrar CNPJ da empresa neste orçamento"**
 
 | Opção | Saída |
 |---|---|
-| **PNG** | A4 retrato, 150 dpi, fundo branco — salvo na pasta de exportação |
+| **PNG** | Largura do A4, 150 dpi, altura até o fim do conteúdo, fundo branco — salvo na pasta de exportação |
 | **Copiar imagem** | Mesmo PNG na área de transferência, para colar no WhatsApp Web com `Ctrl+V` |
 | **PDF** | A4 retrato — para e-mail ou guardar |
 | **Imprimir** | Abre a janela de impressão do Windows (escolher impressora e cópias), com **pré-visualização** antes |
@@ -121,7 +121,7 @@ A primeira via da folha em papel foi convertida em imagem e medida (posições, 
 |---|---|---|
 | Moldura do cabeçalho | 40 mm de altura, laranja escuro `#C55A11`, cantos de 4,5 mm | 60 mm, laranja vivo `#ED7D31`, cantos de 7 mm |
 | Título / subtítulo | Times 30 pt / Arial 14 pt | Times 43 pt (68% da largura, igual à folha) / Arial 23 pt |
-| Telefone e endereço | Arial 11–15 pt | Calibri, como na folha: DDD 15,5 pt, número 25 pt, endereço 17 pt; telefone e 1ª linha do endereço na mesma linha de base |
+| Telefone e endereço | Arial 11–15 pt | Calibri, como na folha: DDD 15,5 pt, número 25 pt, endereço 17 pt; telefone centrado na altura da 1ª linha do endereço (linha de base 1 mm abaixo, v0.9.8); OBS e validade em cinza #595959 |
 | Ícone do WhatsApp | não saía (arquivo não existia) | recortado da própria folha em papel (`assets\icone-whatsapp.png`), 6,8 mm |
 | Campos do cliente | Nome/Data, Tel/Entrega, End/Nº, Bairro/Cidade, P.Ref | ordem da folha: Nome/Tel, End/Nº, (Bairro/Cidade), P.Ref/Data, (Entrega/Retirada); Calibri 12 pt; a linha de cada campo vai até o rótulo seguinte |
 | Colunas da tabela | 14/52/17/17 % | 16/52/18/14 % (medidas na folha) |

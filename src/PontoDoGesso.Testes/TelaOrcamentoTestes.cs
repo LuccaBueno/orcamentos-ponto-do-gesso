@@ -295,6 +295,41 @@ namespace PontoDoGesso.Testes
             Assert.Equal(9595, salvo.TotalCentavos);
         }
 
+        /// <summary>
+        /// Caso real da v0.9.7: 5 itens somando R$ 810,00 e o subtotal mostrando R$ 750,00. Mudar a ordem (arrastar ou Ctrl+↑/↓)
+        /// tira a linha e põe de volta; o recálculo do RowsRemoved ficava sem ela.
+        /// </summary>
+        [Fact]
+        public void SubtotalSempreSomaTodosOsItensMesmoDepoisDeMudarAOrdemEComCelulaEmEdicao()
+        {
+            Rodar(_temporario.Banco, form =>
+            {
+                Avulso(form, "Ana");
+                foreach (var (descricao, valor) in new[] { ("Placa", "150,00"), ("Perfil", "200,00"), ("Massa", "250,00"), ("F530", "60,00"), ("Parafuso", "150,00") })
+                    AdicionarItem(form, "1", "un", descricao, valor);
+                Tela.Achar<TextBox>(form, "frete").Text = "73";
+                var grade = Grade(form);
+
+                grade.Focus();
+                grade.CurrentCell = grade.Rows[3].Cells["descricao"];
+                grade.MoverLinhaAtual(1);
+                grade.BeginEdit(true);
+
+                Assert.Equal("F530", grade.Rows[4].Cells["descricao"].Value);
+                Assert.Equal("R$ 810,00", Texto(form, "subtotal"));
+                Assert.Equal("R$ 883,00", Texto(form, "total"));
+
+                // A edição pendente entra antes de salvar
+                grade.EditingControl.Text = "F530 branca";
+                Assert.True(form.Salvar(), form.UltimoAviso);
+            });
+
+            var salvo = _orcamentos.ObterPorId(1);
+            Assert.Equal(81000, salvo.SubtotalCentavos);
+            Assert.Equal(88300, salvo.TotalCentavos);
+            Assert.Equal("F530 branca", salvo.Itens[4].Descricao);
+        }
+
         [Fact]
         public void SemFreteQuandoVazioOuZero()
         {
@@ -813,7 +848,7 @@ namespace PontoDoGesso.Testes
 
                 Assert.True(form.Teclar(Keys.Control | Keys.Shift | Keys.C));
                 Assert.Single(form.Acoes.Copias);
-                Assert.Equal("Atalho: Ctrl+E", form.DicaDe(Tela.Achar<Button>(form, "pdf")));
+                Assert.EndsWith("Atalho: Ctrl+E", form.DicaDe(Tela.Achar<Button>(form, "pdf")));
             });
         }
 
@@ -921,7 +956,8 @@ namespace PontoDoGesso.Testes
                 AdicionarItem(form, "2", "m²", "Placa", "12,50");
 
                 Tela.Achar<Button>(form, "copiarImagem").PerformClick();
-                Assert.Equal(new System.Drawing.Size(1240, 1754), Assert.Single(form.Acoes.Copias));
+                Assert.Equal(1240, Assert.Single(form.Acoes.Copias).Width);
+                Assert.True(form.Acoes.Copias[0].Height < 1754, "A imagem termina logo abaixo do conteúdo, não no fim do A4");
                 Assert.Contains("Ctrl+V", form.Acoes.Informacoes.Single());
 
                 Tela.Achar<Button>(form, "imprimir").PerformClick();
@@ -944,7 +980,7 @@ namespace PontoDoGesso.Testes
                 Tela.Achar<CampoTelefone>(form, "telefone").Ddd = "11";
                 Tela.Achar<CampoTelefone>(form, "telefone").Numero = "987654321";
                 Assert.True(whatsapp.Enabled);
-                Assert.Equal("Abrir conversa com (11) 98765-4321", form.DicaDe(whatsapp));
+                Assert.EndsWith("Abrir conversa com (11) 98765-4321", form.DicaDe(whatsapp));
 
                 whatsapp.PerformClick();
 

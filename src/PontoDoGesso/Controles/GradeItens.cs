@@ -18,6 +18,10 @@ namespace PontoDoGesso.Controles
         public const string ColunaMais = "mais";
         public const string ColunaRemover = "remover";
         public const string ColunaQuantidade = "quantidade";
+        public const string ColunaSaiuMenos = "saiuMenos";
+        public const string ColunaSaiuMais = "saiuMais";
+        public const string ColunaSaiuTudo = "saiuTudo";
+        public const string ColunaSaiu = "saiu";
 
         private Rectangle _inicioArraste = Rectangle.Empty;
         private int _linhaArrastada = -1;
@@ -126,6 +130,15 @@ namespace PontoDoGesso.Controles
                 case ColunaRemover:
                     Rows.RemoveAt(e.RowIndex);
                     break;
+                case ColunaSaiuMenos:
+                    MudarSaida(Rows[e.RowIndex], -1);
+                    break;
+                case ColunaSaiuMais:
+                    MudarSaida(Rows[e.RowIndex], 1);
+                    break;
+                case ColunaSaiuTudo:
+                    MudarSaida(Rows[e.RowIndex], 0);
+                    break;
             }
         }
 
@@ -136,6 +149,17 @@ namespace PontoDoGesso.Controles
 
             var celula = linha.Cells[ColunaQuantidade];
             celula.Value = PassoQuantidade.Aplicar(Convert.ToString(celula.Value), sentido);
+        }
+
+        /// <summary>Controle de saídas: − e + no "Já saiu" (passo de 1); <paramref name="sentido"/> 0 = saiu tudo. Nunca passa da quantidade do item.</summary>
+        public void MudarSaida(DataGridViewRow linha, int sentido)
+        {
+            if (linha == null || linha.IsNewRow || (IsCurrentCellInEditMode && !EndEdit()))
+                return;
+
+            var quantidade = Formatacao.TentarLerQuantidade(Convert.ToString(linha.Cells[ColunaQuantidade].Value), out var q) ? q : 0;
+            var saiu = Formatacao.TentarLerQuantidade(Convert.ToString(linha.Cells[ColunaSaiu].Value), out var s) ? s : 0;
+            linha.Cells[ColunaSaiu].Value = Formatacao.Quantidade(sentido == 0 ? quantidade : SaidaMaterial.Passo(saiu, quantidade, sentido));
         }
 
         /// <summary>Vai para a próxima coluna editável; depois da última, para a primeira da linha de baixo.</summary>
