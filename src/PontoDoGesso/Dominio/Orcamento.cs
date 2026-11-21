@@ -44,6 +44,10 @@ namespace PontoDoGesso.Dominio
         [XmlIgnore]
         public int SaidasItens { get; set; }
 
+        /// <summary>Lido no histórico: quantas versões antigas estão guardadas.</summary>
+        [XmlIgnore]
+        public int QuantidadeVersoesAntigas { get; set; }
+
         /// <summary>"0001" na primeira versão, "0001-2" na segunda...</summary>
         public string NumeroExibido => NumeroComVersao(Numero, Versao);
 
@@ -83,6 +87,15 @@ namespace PontoDoGesso.Dominio
 
         /// <summary>Sai impresso no orçamento.</summary>
         public string Observacoes { get; set; }
+
+        /// <summary>A observação do cadastro do cliente sai no orçamento, logo abaixo das observações (desligado por padrão).</summary>
+        public bool IncluirObsCliente { get; set; }
+
+        /// <summary>Cópia (snapshot) da observação do cadastro usada quando <see cref="IncluirObsCliente"/> está ligado.</summary>
+        public string ObsCliente { get; set; }
+
+        /// <summary>Observação do cliente que sai no orçamento; nulo se não foi incluída.</summary>
+        public string ObsClienteImpressa => IncluirObsCliente && !string.IsNullOrWhiteSpace(ObsCliente) ? ObsCliente.Trim() : null;
 
         public long SubtotalCentavos { get; set; }
 

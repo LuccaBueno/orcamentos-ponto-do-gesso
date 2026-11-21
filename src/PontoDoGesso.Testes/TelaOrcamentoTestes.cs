@@ -11,7 +11,7 @@ using Xunit;
 
 namespace PontoDoGesso.Testes
 {
-    public class TelaOrcamentoTestes : IDisposable
+    public partial class TelaOrcamentoTestes : IDisposable
     {
         private readonly BancoTemporario _temporario = new BancoTemporario();
         private readonly ClienteRepositorio _clientes;

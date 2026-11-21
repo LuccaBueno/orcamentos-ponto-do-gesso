@@ -19,7 +19,7 @@ namespace PontoDoGesso.Forms
         private static readonly string[] TiposCliente = { "Todos", "Só cadastrados", "Só avulsos" };
         private static readonly string[] Fretes = { "Todos", "Com frete", "Sem frete" };
         private static readonly string[] Descontos = { "Todos", "Com desconto", "Sem desconto" };
-        private static readonly string[] Saidas = { "Todos", "Com material faltando", "Tudo saiu", "Sem controle" };
+        private static readonly string[] Saidas = { "Todos", "Com material faltando", "Tudo saiu/entregue", "Sem controle" };
 
         private static readonly (string Nome, string Titulo, int Peso, ColunaHistorico Coluna)[] Colunas =
         {
@@ -48,7 +48,6 @@ namespace PontoDoGesso.Forms
         private bool _montando;
         private int _carregados;
         private int _encontrados;
-        private string _totalTexto;
 
         private readonly ComboBox _periodo = Combo("periodo", Periodos, 130);
         private readonly DateTimePicker _de = Data("de");
@@ -191,6 +190,12 @@ namespace PontoDoGesso.Forms
             lista.ColumnHeaderMouseClick += (s, e) => Ordenar(Colunas[e.ColumnIndex].Coluna);
             lista.SelectionChanged += (s, e) => AtualizarBotoes();
             lista.CurrentCellChanged += (s, e) => AtualizarBotoes();
+            lista.CellMouseClick += (s, e) =>
+            {
+                // O "▸" fica no começo do número: clicar ali mostra ou esconde as versões antigas
+                if (e.RowIndex >= 0 && e.ColumnIndex == 0 && e.Button == MouseButtons.Left && e.X < 20)
+                    AlternarVersoes(lista.Rows[e.RowIndex]);
+            };
             lista.CellDoubleClick += (s, e) =>
             {
                 if (e.RowIndex >= 0)
@@ -233,7 +238,6 @@ namespace PontoDoGesso.Forms
 
             Adicionar("abrir", "Abrir", () => Abrir(false), "Abre o orçamento selecionado para ver ou alterar (Enter ou duplo clique).");
             Adicionar("duplicar", "Duplicar", () => Abrir(true), TelaOrcamento.DicaDuplicar);
-            Adicionar("versoes", "Versões", AbrirVersoes, TelaOrcamento.DicaVersoes);
             Adicionar("copiarImagem", "Copiar imagem", () => Exportar(o => _acoes.CopiarImagem(o)), "Copia a imagem do orçamento para colar no WhatsApp Web com Ctrl+V.");
             Adicionar("png", "PNG", () => Exportar(o => _acoes.Png(o)), "Salva a imagem do orçamento (PNG) na pasta de orçamentos.");
             Adicionar("pdf", "PDF", () => Exportar(o => _acoes.Pdf(o)), "Salva o orçamento em PDF (A4) na pasta de orçamentos.");
@@ -347,11 +351,9 @@ namespace PontoDoGesso.Forms
             if (_lembrar)
                 FiltroLembrado = _filtro.Copiar();
 
-            var (quantidade, total) = _orcamentos.Somar(_filtro, Hoje);
-            _encontrados = quantidade;
+            _encontrados = _orcamentos.Somar(_filtro, Hoje).Quantidade;
             _carregados = 0;
             _lista.Rows.Clear();
-            _totalTexto = Formatacao.Moeda(total);
 
             foreach (DataGridViewColumn coluna in _lista.Columns)
                 coluna.HeaderCell.SortGlyphDirection = Colunas[coluna.Index].Coluna != _filtro.OrdenarPor ? SortOrder.None
@@ -359,7 +361,7 @@ namespace PontoDoGesso.Forms
 
             CarregarMais();
 
-            var linha = _lista.Rows.Cast<DataGridViewRow>().FirstOrDefault(l => ((Orcamento)l.Tag).Id == selecionado);
+            var linha = Linhas().FirstOrDefault(l => ((Orcamento)l.Tag).Id == selecionado);
             if (linha != null)
                 _lista.CurrentCell = linha.Cells[0];
 
@@ -381,17 +383,78 @@ namespace PontoDoGesso.Forms
             _carregarMais.Visible = _carregados < _encontrados;
 
             _resumo.Text = (_encontrados == 1 ? "1 orçamento" : _encontrados.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("pt-BR")) + " orçamentos")
-                + " · Total " + _totalTexto
                 + (_carregados < _encontrados ? " · mostrando " + _carregados : "");
         }
 
+        /// <summary>Linha da versão atual; com versões antigas, "▸" antes do número (clicar expande). Expandida antes, expande de novo.</summary>
         private void AdicionarLinha(Orcamento orcamento)
+        {
+            var linha = _lista.Rows[_lista.Rows.Add(ValoresDaLinha(orcamento, orcamento.QuantidadeVersoesAntigas == 0 ? "" : "▸ "))];
+            FormatarLinha(linha, orcamento);
+
+            if (orcamento.QuantidadeVersoesAntigas > 0 && _expandidos.Contains(orcamento.Id))
+                Expandir(linha);
+        }
+
+        private void FormatarLinha(DataGridViewRow linha, Orcamento orcamento)
+        {
+            linha.Tag = orcamento;
+            var validade = CalculoOrcamento.DataValidade(orcamento.Data, orcamento.ValidadeDias);
+            if (validade != null && validade.Value < Hoje)
+                linha.Cells["validade"].Style.ForeColor = Color.Firebrick;
+            if (orcamento.VersaoAntiga)
+                linha.DefaultCellStyle.ForeColor = Color.Gray;
+        }
+
+        /// <summary>Orçamentos já expandidos (versões antigas à mostra); continuam assim ao recarregar.</summary>
+        private readonly HashSet<long> _expandidos = new HashSet<long>();
+
+        private IEnumerable<DataGridViewRow> Linhas() =>
+            _lista.Rows.Cast<DataGridViewRow>().Where(l => !((Orcamento)l.Tag).VersaoAntiga);
+
+        /// <summary>Clicar no "▸" (ou "▾") do número mostra ou esconde as versões antigas logo abaixo.</summary>
+        public void AlternarVersoes(DataGridViewRow linha)
+        {
+            var orcamento = (Orcamento)linha.Tag;
+            if (orcamento.VersaoAntiga || orcamento.QuantidadeVersoesAntigas == 0)
+                return;
+
+            if (_expandidos.Remove(orcamento.Id))
+            {
+                linha.Cells["numero"].Value = "▸ " + orcamento.NumeroExibido;
+                while (linha.Index + 1 < _lista.Rows.Count && ((Orcamento)_lista.Rows[linha.Index + 1].Tag).VersaoAntiga)
+                    _lista.Rows.RemoveAt(linha.Index + 1);
+                return;
+            }
+
+            _expandidos.Add(orcamento.Id);
+            Expandir(linha);
+        }
+
+        private void Expandir(DataGridViewRow linha)
+        {
+            var orcamento = (Orcamento)linha.Tag;
+            linha.Cells["numero"].Value = "▾ " + orcamento.NumeroExibido;
+            var posicao = linha.Index + 1;
+            foreach (var antiga in _orcamentos.VersoesAntigas(orcamento.Id))
+            {
+                // A versão guardada tem os itens: as saídas saem deles
+                antiga.SaidasItens = antiga.Itens.Count;
+                antiga.SaidasCompletas = antiga.Itens.Count(item => SaidaMaterial.Completo(item.Quantidade, item.Saiu));
+                _lista.Rows.Insert(posicao, ValoresDaLinha(antiga, "      "));
+                FormatarLinha(_lista.Rows[posicao], antiga);
+                posicao++;
+            }
+        }
+
+        private object[] ValoresDaLinha(Orcamento orcamento, string prefixo)
         {
             var validade = CalculoOrcamento.DataValidade(orcamento.Data, orcamento.ValidadeDias);
             var vencida = validade != null && validade.Value < Hoje;
 
-            var linha = _lista.Rows[_lista.Rows.Add(
-                orcamento.NumeroExibido,
+            return new object[]
+            {
+                prefixo + orcamento.NumeroExibido,
                 orcamento.Data.ToString("dd/MM/yyyy"),
                 orcamento.CliNome,
                 orcamento.ClienteId == null ? "Avulso" : "Cadastrado",
@@ -401,11 +464,8 @@ namespace PontoDoGesso.Forms
                 Formatacao.Valor(orcamento.TotalCentavos),
                 orcamento.TipoEntrega == TipoEntrega.Retirada ? "Retirada" : "Entrega",
                 validade == null ? "—" : validade.Value.ToString("dd/MM/yyyy") + (vencida ? " (vencida)" : ""),
-                TextoSaidas(orcamento))];
-            linha.Tag = orcamento;
-
-            if (vencida)
-                linha.Cells["validade"].Style.ForeColor = Color.Firebrick;
+                TextoSaidas(orcamento)
+            };
         }
 
         private static string TextoSaidas(Orcamento orcamento)
@@ -424,11 +484,14 @@ namespace PontoDoGesso.Forms
         {
             foreach (var botao in _botoesDoSelecionado)
                 botao.Enabled = Selecionado != null;
+            // Excluir apaga o orçamento inteiro: só na linha da versão atual
+            if (Selecionado?.VersaoAntiga == true)
+                _botoesDoSelecionado.First(b => b.Name == "excluir").Enabled = false;
         }
 
         public void Selecionar(long numero)
         {
-            var linha = _lista.Rows.Cast<DataGridViewRow>().First(l => ((Orcamento)l.Tag).Numero == numero);
+            var linha = Linhas().First(l => ((Orcamento)l.Tag).Numero == numero);
             _lista.CurrentCell = linha.Cells[0];
         }
 
@@ -442,6 +505,10 @@ namespace PontoDoGesso.Forms
             var selecionado = Selecionado;
             if (selecionado == null)
                 return null;
+
+            // Versão antiga: a linha já tem a cópia inteira (com os itens); abre só para leitura
+            if (selecionado.VersaoAntiga)
+                return selecionado;
 
             var orcamento = _orcamentos.ObterPorId(selecionado.Id);
             if (orcamento == null)
@@ -469,18 +536,6 @@ namespace PontoDoGesso.Forms
             AbrirOrcamento(orcamento, duplicar);
             if (!IsDisposed)
                 Carregar();
-        }
-
-        /// <summary>Versões já enviadas do orçamento selecionado: só para ver e exportar de novo.</summary>
-        protected virtual void AbrirVersoes()
-        {
-            var orcamento = LerSelecionado();
-            if (orcamento == null)
-                return;
-
-            using (var form = new FormVersoes(_banco, orcamento.Id))
-                form.ShowDialog(this);
-            Carregar();
         }
 
         /// <summary>O orçamento abre na área principal, no lugar do histórico.</summary>

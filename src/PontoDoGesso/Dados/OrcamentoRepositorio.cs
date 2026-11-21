@@ -171,7 +171,8 @@ namespace PontoDoGesso.Dados
 
         private const string ColunasSaidas =
             "(SELECT count(*) FROM itens_orcamento i WHERE i.orcamento_id = orcamentos.id AND " + ItemCompleto + ") AS saidas_completas, "
-            + "(SELECT count(*) FROM itens_orcamento i WHERE i.orcamento_id = orcamentos.id) AS saidas_itens";
+            + "(SELECT count(*) FROM itens_orcamento i WHERE i.orcamento_id = orcamentos.id) AS saidas_itens, "
+            + "(SELECT count(*) FROM versoes_orcamento v WHERE v.orcamento_id = orcamentos.id) AS quantidade_versoes_antigas";
 
         /// <summary>Os últimos orçamentos mexidos (criados ou alterados), sem os itens, para a tela inicial.</summary>
         public List<Orcamento> Ultimos(int quantidade)
@@ -321,6 +322,8 @@ namespace PontoDoGesso.Dados
                 orcamento.EntTelefoneLocal,
                 TipoEntrega = orcamento.TipoEntrega.ToString().ToUpperInvariant(),
                 orcamento.Observacoes,
+                orcamento.IncluirObsCliente,
+                ObsCliente = orcamento.IncluirObsCliente ? orcamento.ObsCliente : null,
                 orcamento.MostrarCnpj,
                 EmpresaCnpj = orcamento.MostrarCnpj ? orcamento.EmpresaCnpj : null,
                 orcamento.SubtotalCentavos,
@@ -338,10 +341,10 @@ namespace PontoDoGesso.Dados
             // sqlite_sequence guarda o maior id já usado: o número segue o id e não volta atrás nem quando um orçamento é excluído
             conexao.ExecuteScalar<long>(
                 @"INSERT INTO orcamentos (numero, data, validade_dias, cliente_id, cli_nome, cli_telefone, ent_endereco, ent_numero, ent_bairro, ent_cidade, ent_referencia, ent_receber_com, ent_telefone_local,
-                                          tipo_entrega, observacoes, mostrar_cnpj, empresa_cnpj, subtotal_centavos, desconto_tipo, desconto_valor, desconto_centavos, frete_centavos, total_centavos, criado_em, atualizado_em, versao, controlar_saidas)
+                                          tipo_entrega, observacoes, incluir_obs_cliente, obs_cliente, mostrar_cnpj, empresa_cnpj, subtotal_centavos, desconto_tipo, desconto_valor, desconto_centavos, frete_centavos, total_centavos, criado_em, atualizado_em, versao, controlar_saidas)
                   VALUES (coalesce((SELECT seq FROM sqlite_sequence WHERE name = 'orcamentos'), 0) + 1,
                           @Data, @ValidadeDias, @ClienteId, @CliNome, @CliTelefone, @EntEndereco, @EntNumero, @EntBairro, @EntCidade, @EntReferencia, @EntReceberCom, @EntTelefoneLocal,
-                          @TipoEntrega, @Observacoes, @MostrarCnpj, @EmpresaCnpj, @SubtotalCentavos, @DescontoTipo, @DescontoValor, @DescontoCentavos, @FreteCentavos, @TotalCentavos, @Agora, @Agora, @Versao, @ControlarSaidas);
+                          @TipoEntrega, @Observacoes, @IncluirObsCliente, @ObsCliente, @MostrarCnpj, @EmpresaCnpj, @SubtotalCentavos, @DescontoTipo, @DescontoValor, @DescontoCentavos, @FreteCentavos, @TotalCentavos, @Agora, @Agora, @Versao, @ControlarSaidas);
                   SELECT last_insert_rowid();",
                 parametros, transacao);
 
@@ -351,7 +354,7 @@ namespace PontoDoGesso.Dados
                 @"UPDATE orcamentos
                   SET data = @Data, validade_dias = @ValidadeDias, cliente_id = @ClienteId, cli_nome = @CliNome, cli_telefone = @CliTelefone,
                       ent_endereco = @EntEndereco, ent_numero = @EntNumero, ent_bairro = @EntBairro, ent_cidade = @EntCidade, ent_referencia = @EntReferencia, ent_receber_com = @EntReceberCom, ent_telefone_local = @EntTelefoneLocal,
-                      tipo_entrega = @TipoEntrega, observacoes = @Observacoes, mostrar_cnpj = @MostrarCnpj, empresa_cnpj = @EmpresaCnpj, subtotal_centavos = @SubtotalCentavos, desconto_tipo = @DescontoTipo,
+                      tipo_entrega = @TipoEntrega, observacoes = @Observacoes, incluir_obs_cliente = @IncluirObsCliente, obs_cliente = @ObsCliente, mostrar_cnpj = @MostrarCnpj, empresa_cnpj = @EmpresaCnpj, subtotal_centavos = @SubtotalCentavos, desconto_tipo = @DescontoTipo,
                       desconto_valor = @DescontoValor, desconto_centavos = @DescontoCentavos, frete_centavos = @FreteCentavos, total_centavos = @TotalCentavos,
                       versao = @Versao, enviado_em = NULL, controlar_saidas = @ControlarSaidas, atualizado_em = @Agora
                   WHERE id = @Id",

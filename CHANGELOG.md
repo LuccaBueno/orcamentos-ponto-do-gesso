@@ -4,6 +4,15 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/); 
 
 ## [Não lançado]
 
+Melhorias pedidas no uso real da v0.9.8. O banco recebe a migração 006 (com backup antes).
+
+### Alterado
+- **Observação do cliente como caixa:** o botão "Adicionar ao orçamento" virou a caixa "Incluir observação do cliente: '…'", junto de Validade e Mostrar CNPJ, desmarcada por padrão (também ao duplicar) e só com observação no cadastro. Marcada, o texto sai no orçamento logo abaixo das Observações, sem mudar o campo Observações; o orçamento guarda se incluiu e o texto usado. A faixa amarela continua só no app.
+- **Controlar saídas** subiu para o lado do título "Itens", com a dica "Marque para registrar o que o cliente já retirou ou o que já foi entregue.". A coluna "Já saiu" virou **Saiu/Entregue** (também nas dicas e no filtro do histórico: "Tudo saiu/entregue").
+- **Versões mais simples:** saem o botão e a janela Versões. O orçamento abre na versão atual; com 2 ou mais versões aparece o seletor "Versão:" ao lado do título. Uma versão antiga abre na mesma tela, só para leitura (Copiar imagem, PNG, PDF e Imprimir continuam), com a faixa "Você está vendo a versão antiga …" e o botão **Voltar para a atual**. No histórico, quem tem versões antigas mostra "▸" antes do número: clicar expande as antigas logo abaixo, recuadas e em cinza.
+- **Histórico:** o rodapé mostra só "N orçamentos" (sem a soma).
+- **Layout do orçamento (PNG/PDF/impressão):** bloco abaixo dos itens em duas colunas, sem células vazias: à esquerda "Observações:", o texto, a observação do cliente e a validade; à direita Subtotal, Desconto (se houver), Frete e TOTAL destacado. "As entregas são realizadas apenas até o térreo." sai numa linha própria centralizada abaixo da tabela, sem negrito. "Receber com" e "Tel. no local" em posições fixas (o telefone na coluna do "Tel:"); cabeçalho 6 mm mais baixo.
+
 ## [0.9.8] - 2026-11-20
 
 Correções e melhorias pedidas no uso real da v0.9.7. O banco recebe a migração 005 (com backup antes); os orçamentos existentes viram a versão 1, sem sufixo.

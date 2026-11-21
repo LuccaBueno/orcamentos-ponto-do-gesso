@@ -28,6 +28,9 @@ namespace PontoDoGesso.Controles
 
         public event EventHandler OrdemMudou;
 
+        /// <summary>Versão antiga aberta só para ver: nada muda a lista (teclas, botões das linhas, arrastar).</summary>
+        public bool SomenteLeitura { get; set; }
+
         public GradeItens()
         {
             AllowDrop = true;
@@ -112,11 +115,18 @@ namespace PontoDoGesso.Controles
             return base.ProcessKeyEventArgs(ref m);
         }
 
+        protected override void OnCellBeginEdit(DataGridViewCellCancelEventArgs e)
+        {
+            if (SomenteLeitura)
+                e.Cancel = true;
+            base.OnCellBeginEdit(e);
+        }
+
         /// <summary>Botões −, + e lixeira de cada linha.</summary>
         protected override void OnCellContentClick(DataGridViewCellEventArgs e)
         {
             base.OnCellContentClick(e);
-            if (e.RowIndex < 0 || e.RowIndex >= Rows.Count)
+            if (SomenteLeitura || e.RowIndex < 0 || e.RowIndex >= Rows.Count)
                 return;
 
             switch (Columns[e.ColumnIndex].Name)
@@ -144,17 +154,17 @@ namespace PontoDoGesso.Controles
 
         public void MudarQuantidade(DataGridViewRow linha, int sentido)
         {
-            if (linha == null || linha.IsNewRow || (IsCurrentCellInEditMode && !EndEdit()))
+            if (SomenteLeitura || linha == null || linha.IsNewRow || (IsCurrentCellInEditMode && !EndEdit()))
                 return;
 
             var celula = linha.Cells[ColunaQuantidade];
             celula.Value = PassoQuantidade.Aplicar(Convert.ToString(celula.Value), sentido);
         }
 
-        /// <summary>Controle de saídas: − e + no "Já saiu" (passo de 1); <paramref name="sentido"/> 0 = saiu tudo. Nunca passa da quantidade do item.</summary>
+        /// <summary>Controle de saídas: − e + no "Saiu/Entregue" (passo de 1); <paramref name="sentido"/> 0 = saiu tudo. Nunca passa da quantidade do item.</summary>
         public void MudarSaida(DataGridViewRow linha, int sentido)
         {
-            if (linha == null || linha.IsNewRow || (IsCurrentCellInEditMode && !EndEdit()))
+            if (SomenteLeitura || linha == null || linha.IsNewRow || (IsCurrentCellInEditMode && !EndEdit()))
                 return;
 
             var quantidade = Formatacao.TentarLerQuantidade(Convert.ToString(linha.Cells[ColunaQuantidade].Value), out var q) ? q : 0;
@@ -189,7 +199,7 @@ namespace PontoDoGesso.Controles
         public void RemoverLinhaAtual()
         {
             var linha = CurrentRow;
-            if (linha == null || linha.IsNewRow)
+            if (SomenteLeitura || linha == null || linha.IsNewRow)
                 return;
 
             Rows.Remove(linha);
@@ -199,7 +209,7 @@ namespace PontoDoGesso.Controles
         public void MoverLinhaAtual(int deslocamento)
         {
             var linha = CurrentRow;
-            if (linha == null || linha.IsNewRow || (IsCurrentCellInEditMode && !EndEdit()))
+            if (SomenteLeitura || linha == null || linha.IsNewRow || (IsCurrentCellInEditMode && !EndEdit()))
                 return;
 
             MoverLinha(linha.Index, linha.Index + deslocamento);
@@ -209,7 +219,7 @@ namespace PontoDoGesso.Controles
         public void MoverLinha(int origem, int destino)
         {
             var ultimaPermitida = Rows.Count - 1 - (AllowUserToAddRows ? 1 : 0);
-            if (origem < 0 || origem > ultimaPermitida || destino < 0 || destino > ultimaPermitida || destino == origem)
+            if (SomenteLeitura || origem < 0 || origem > ultimaPermitida || destino < 0 || destino > ultimaPermitida || destino == origem)
                 return;
 
             var linha = Rows[origem];

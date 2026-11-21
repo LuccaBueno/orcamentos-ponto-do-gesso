@@ -93,7 +93,7 @@ namespace PontoDoGesso.Testes
                 Assert.Equal("14/11/2026", Coluna(form, "validade")[0]);
                 Assert.Equal("04/11/2026 (vencida)", Coluna(form, "validade")[1]);
                 Assert.Equal(System.Drawing.Color.Firebrick, Lista(form).Rows[1].Cells["validade"].Style.ForeColor);
-                Assert.Equal("2 orçamentos · Total R$ 220,00", Texto(form, "resumo"));
+                Assert.Equal("2 orçamentos", Texto(form, "resumo"));
             });
         }
 
@@ -112,7 +112,7 @@ namespace PontoDoGesso.Testes
                 Tela.Achar<ComboBox>(form, "frete").SelectedIndex = (int)PresencaHistorico.Com;
                 Tela.Achar<TextBox>(form, "texto").Text = "carla";
                 Assert.Equal(new[] { "Carla" }, Coluna(form, "cliente"));
-                Assert.Equal("1 orçamento · Total R$ 105,00", Texto(form, "resumo"));
+                Assert.Equal("1 orçamento", Texto(form, "resumo"));
 
                 Tela.Achar<Button>(form, "limpar").PerformClick();
                 Assert.Equal(3, Lista(form).Rows.Count);
@@ -208,13 +208,13 @@ namespace PontoDoGesso.Testes
             Rodar(form =>
             {
                 Assert.Equal(TelaHistorico.TamanhoPagina, Lista(form).Rows.Count);
-                Assert.Equal("205 orçamentos · Total R$ 205,00 · mostrando 200", Texto(form, "resumo"));
+                Assert.Equal("205 orçamentos · mostrando 200", Texto(form, "resumo"));
                 Assert.True(Tela.Achar<Button>(form, "carregarMais").Visible);
 
                 Tela.Achar<Button>(form, "carregarMais").PerformClick();
                 Assert.Equal(205, Lista(form).Rows.Count);
                 Assert.False(Tela.Achar<Button>(form, "carregarMais").Visible);
-                Assert.Equal("205 orçamentos · Total R$ 205,00", Texto(form, "resumo"));
+                Assert.Equal("205 orçamentos", Texto(form, "resumo"));
             });
         }
 
@@ -273,7 +273,7 @@ namespace PontoDoGesso.Testes
         {
             Rodar(form =>
             {
-                Assert.Equal("0 orçamentos · Total R$ 0,00", Texto(form, "resumo"));
+                Assert.Equal("0 orçamentos", Texto(form, "resumo"));
                 foreach (var botao in new[] { "abrir", "duplicar", "copiarImagem", "png", "pdf", "imprimir", "excluir" })
                     Assert.False(Tela.Achar<Button>(form, botao).Enabled, botao);
             });
