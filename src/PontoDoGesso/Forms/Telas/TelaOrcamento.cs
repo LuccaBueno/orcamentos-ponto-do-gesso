@@ -126,6 +126,7 @@ namespace PontoDoGesso.Forms
         private bool _somenteLeitura;
         private bool _mudandoVersao;
         private Button _salvar;
+        private FlowLayoutPanel _painelFrete;
 
         private readonly ToolTip _dicas = new ToolTip();
         private readonly AcoesExportacao _acoes;
@@ -553,7 +554,7 @@ namespace PontoDoGesso.Forms
             totais.Controls.Add(desconto, 0, 1);
             totais.Controls.Add(_descontoCalculado, 1, 1);
 
-            var frete = Suspenso(new FlowLayoutPanel { AutoSize = true, WrapContents = false, Margin = new Padding(0) });
+            var frete = _painelFrete = Suspenso(new FlowLayoutPanel { Name = "painelFrete", AutoSize = true, WrapContents = false, Margin = new Padding(0) });
             frete.Controls.Add(new Label { Text = "Frete (R$)", AutoSize = true, Margin = new Padding(3, 6, 3, 0) });
             frete.Controls.Add(_frete);
             totais.Controls.Add(frete, 0, 2);
@@ -772,6 +773,7 @@ namespace PontoDoGesso.Forms
                     : orcamento.DescontoTipo == TipoDesconto.Valor ? Formatacao.Valor((long)orcamento.DescontoValor)
                     : Formatacao.Quantidade(orcamento.DescontoValor);
                 _frete.Centavos = orcamento.FreteCentavos == 0 ? (long?)null : orcamento.FreteCentavos;
+                AtualizarFrete();
                 _controlarSaidas.Checked = orcamento.ControlarSaidas;
                 DefinirSomenteLeitura(orcamento.VersaoAntiga);
                 CarregarVersoes();
@@ -1117,12 +1119,28 @@ namespace PontoDoGesso.Forms
 
         // ---------- entrega ----------
 
+        /// <summary>Retirada na loja não tem frete: o campo zera e fica desligado; de volta à entrega, volta a valer.</summary>
+        private void AtualizarFrete()
+        {
+            var retirada = _retirada.Checked;
+            if (retirada)
+                _frete.Centavos = null;
+            _frete.Enabled = !retirada;
+            // Dica de controle desabilitado não aparece no Windows: vai também no painel em volta
+            var dica = retirada ? "Retirada na loja não tem frete" : null;
+            _dicas.SetToolTip(_frete, dica);
+            _dicas.SetToolTip(_painelFrete, dica);
+        }
+
+        public bool FreteHabilitado => _frete.Enabled;
+
         private void AoMudarTipoEntrega()
         {
             if (_carregando)
                 return;
 
             MostrarCamposEntrega();
+            AtualizarFrete();
 
             // Na retirada os campos só somem (não são gravados); de volta à entrega, o que foi digitado à mão continua
             if (_entrega.Checked)

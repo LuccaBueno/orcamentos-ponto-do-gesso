@@ -30,7 +30,10 @@ namespace PontoDoGesso.Exportacao
         /// <summary>Linha de base da primeira linha de campos (Nome/Tel).</summary>
         private const double BaseCampos = Margem + AlturaMoldura + 9.5;
         private const double EspacoCampos = 8;
-        private const double TopoTabela = BaseCampos + 4 * EspacoCampos + 3.8;
+        /// <summary>Na retirada só ficam Nome/Tel e a linha das opções com a Data: a tabela sobe.</summary>
+        private double TopoTabela => BaseCampos + (Retirada ? 1 : 4) * EspacoCampos + 3.8;
+
+        private bool Retirada => _orcamento.TipoEntrega == TipoEntrega.Retirada;
         /// <summary>Recuo dos campos em relação à tabela, como na folha.</summary>
         private const double RecuoCampos = 3.5;
         private const double TopoTabelaContinuacao = Margem + 12;
@@ -123,7 +126,9 @@ namespace PontoDoGesso.Exportacao
                 var rotulo = orcamento.DescontoTipo == TipoDesconto.Percentual ? "DESC. " + Formatacao.Quantidade(orcamento.DescontoValor) + "%:" : "DESC.:";
                 _totais.Add(Tuple.Create(rotulo, "-" + Formatacao.Valor(orcamento.DescontoCentavos)));
             }
-            _totais.Add(Tuple.Create("FRETE:", orcamento.FreteCentavos > 0 ? Formatacao.Valor(orcamento.FreteCentavos) : "—"));
+            // Retirada sem frete: a linha FRETE não sai
+            if (orcamento.FreteCentavos > 0 || orcamento.TipoEntrega != TipoEntrega.Retirada)
+                _totais.Add(Tuple.Create("FRETE:", orcamento.FreteCentavos > 0 ? Formatacao.Valor(orcamento.FreteCentavos) : "—"));
 
             // Coluna esquerda do bloco abaixo dos itens: "Observações:", o texto, a observação do cliente (se incluída) e a validade
             var larguraFecho = Largura * (Colunas[0] + Colunas[1]) - 2 * Folga;
@@ -143,7 +148,7 @@ namespace PontoDoGesso.Exportacao
                 AdicionarFecho(Quebrar(medida, obsCliente, FonteValidade, larguraFecho, 4), FonteValidade, PincelTextoSecundario);
 
             // Rodapé da loja ("As entregas...") numa linha própria, centralizada logo abaixo da tabela
-            if (!string.IsNullOrWhiteSpace(loja.Rodape))
+            if (!string.IsNullOrWhiteSpace(loja.Rodape) && orcamento.TipoEntrega != TipoEntrega.Retirada)
                 _linhasRodape = Quebrar(medida, loja.Rodape.Trim(), FonteRodape, Largura, 3);
 
             var validade = CalculoOrcamento.DataValidade(orcamento.Data, orcamento.ValidadeDias);
@@ -355,28 +360,39 @@ namespace PontoDoGesso.Exportacao
             Campo(grafico, "Nome:", o.CliNome, inicio, y, xTel);
             Campo(grafico, "Tel:", string.IsNullOrEmpty(o.CliTelefone) ? "" : Formatacao.Telefone(o.CliTelefone), xTel, y, fim);
 
+            var xData = Esquerda + Largura * 0.739;
+
+            // Retirada: sem endereço nem quem recebe; só a linha das opções, com a Data à direita
+            if (retirada)
+            {
+                y += EspacoCampos;
+                var xRetirada = Opcao(grafico, "Entrega", false, inicio, y);
+                Opcao(grafico, "Retirada na loja", true, xRetirada + 6, y);
+                Campo(grafico, "Data:", o.Data.ToString("dd/MM/yyyy"), xData, y, fim);
+                return;
+            }
+
             y += EspacoCampos;
             var xNumero = Esquerda + Largura * 0.82;
-            Campo(grafico, "End:", retirada ? "Retirada na loja" : o.EntEndereco, inicio, y, xNumero);
-            Campo(grafico, "Nº", retirada ? "" : o.EntNumero, xNumero, y, fim);
+            Campo(grafico, "End:", o.EntEndereco, inicio, y, xNumero);
+            Campo(grafico, "Nº", o.EntNumero, xNumero, y, fim);
 
             y += EspacoCampos;
             var xCidade = Esquerda + Largura * 0.5;
-            Campo(grafico, "Bairro:", retirada ? "" : o.EntBairro, inicio, y, xCidade);
-            Campo(grafico, "Cidade:", retirada ? "" : o.EntCidade, xCidade, y, fim);
+            Campo(grafico, "Bairro:", o.EntBairro, inicio, y, xCidade);
+            Campo(grafico, "Cidade:", o.EntCidade, xCidade, y, fim);
 
             y += EspacoCampos;
-            var xData = Esquerda + Largura * 0.739;
-            Campo(grafico, "P.Ref:", retirada ? "" : o.EntReferencia, inicio, y, xData);
+            Campo(grafico, "P.Ref:", o.EntReferencia, inicio, y, xData);
             Campo(grafico, "Data:", o.Data.ToString("dd/MM/yyyy"), xData, y, fim);
 
             y += EspacoCampos;
-            var xOpcao = Opcao(grafico, "Entrega", !retirada, inicio, y);
-            var xFimOpcoes = Opcao(grafico, "Retirada na loja", retirada, xOpcao + 6, y);
+            var xOpcao = Opcao(grafico, "Entrega", true, inicio, y);
+            var xFimOpcoes = Opcao(grafico, "Retirada na loja", false, xOpcao + 6, y);
 
             // Quem recebe e telefone no local: só saem quando preenchidos, no resto da linha das opções
-            var recebedor = retirada ? null : o.EntReceberCom;
-            var telefoneLocal = retirada || string.IsNullOrEmpty(o.EntTelefoneLocal) ? null : Formatacao.Telefone(o.EntTelefoneLocal);
+            var recebedor = o.EntReceberCom;
+            var telefoneLocal = string.IsNullOrEmpty(o.EntTelefoneLocal) ? null : Formatacao.Telefone(o.EntTelefoneLocal);
             // Posições fixas: "Receber com" logo depois das opções e o telefone no local na coluna do "Tel:" da primeira linha
             var xRecebedor = xFimOpcoes + 6;
             var xTelefoneLocal = xTel;

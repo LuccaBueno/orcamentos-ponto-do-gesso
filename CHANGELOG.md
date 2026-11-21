@@ -4,6 +4,8 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/); 
 
 ## [Não lançado]
 
+## [0.9.9] - 2026-11-21
+
 Melhorias pedidas no uso real da v0.9.8. O banco recebe a migração 006 (com backup antes).
 
 ### Alterado
@@ -12,6 +14,8 @@ Melhorias pedidas no uso real da v0.9.8. O banco recebe a migração 006 (com ba
 - **Versões mais simples:** saem o botão e a janela Versões. O orçamento abre na versão atual; com 2 ou mais versões aparece o seletor "Versão:" ao lado do título. Uma versão antiga abre na mesma tela, só para leitura (Copiar imagem, PNG, PDF e Imprimir continuam), com a faixa "Você está vendo a versão antiga …" e o botão **Voltar para a atual**. No histórico, quem tem versões antigas mostra "▸" antes do número: clicar expande as antigas logo abaixo, recuadas e em cinza.
 - **Histórico:** o rodapé mostra só "N orçamentos" (sem a soma).
 - **Layout do orçamento (PNG/PDF/impressão):** bloco abaixo dos itens em duas colunas, sem células vazias: à esquerda "Observações:", o texto, a observação do cliente e a validade; à direita Subtotal, Desconto (se houver), Frete e TOTAL destacado. "As entregas são realizadas apenas até o térreo." sai numa linha própria centralizada abaixo da tabela, sem negrito. "Receber com" e "Tel. no local" em posições fixas (o telefone na coluna do "Tel:"); cabeçalho 6 mm mais baixo.
+- **Retirada na loja (PNG/PDF/impressão):** só Nome/Tel e a linha "Entrega ☐ Retirada na loja ☒" com a Data; sem End/Nº, Bairro/Cidade, P.Ref, Receber com/Tel. no local, sem o rodapé "As entregas…" e sem a linha FRETE.
+- **Frete na retirada:** na tela, marcar Retirada na loja zera e desabilita o Frete (dica "Retirada na loja não tem frete"); voltar para Entrega reabilita.
 
 ## [0.9.8] - 2026-11-20
 

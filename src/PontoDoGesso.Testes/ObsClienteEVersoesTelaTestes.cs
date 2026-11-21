@@ -41,6 +41,42 @@ namespace PontoDoGesso.Testes
         }
 
         [Fact]
+        public void RetiradaZeraEDesligaOFreteEEntregaReabilita()
+        {
+            var orcamento = Salvo();
+            orcamento.FreteCentavos = 1500;
+            _orcamentos.Salvar(orcamento);
+
+            RodarSalvo(_temporario.Banco, _orcamentos.ObterPorId(orcamento.Id), form =>
+            {
+                Assert.True(form.FreteHabilitado);
+                Tela.Achar<RadioButton>(form, "retirada").Checked = true;
+                Assert.False(form.FreteHabilitado);
+                Assert.Equal("Retirada na loja não tem frete", form.DicaDe(Tela.Achar<Control>(form, "painelFrete")));
+                Assert.True(form.Salvar(), form.UltimoAviso);
+                Tela.Achar<RadioButton>(form, "entrega").Checked = true;
+                Assert.True(form.FreteHabilitado);
+            });
+
+            Assert.Equal(0, _orcamentos.ObterPorId(orcamento.Id).FreteCentavos);
+        }
+
+        [Fact]
+        public void RetiradaTemTabelaMaisAltaSemFreteNemRodape()
+        {
+            var orcamento = Salvo();
+            int entrega, retirada;
+            using (var imagem = ExportadorPng.CriarImagem(orcamento, DadosLoja.Padrao))
+                entrega = imagem.Height;
+            orcamento.TipoEntrega = TipoEntrega.Retirada;
+            using (var imagem = ExportadorPng.CriarImagem(orcamento, DadosLoja.Padrao))
+                retirada = imagem.Height;
+
+            // Três linhas de campos, a linha do FRETE e o rodapé da loja a menos
+            Assert.True(retirada < entrega - 100, entrega + " → " + retirada);
+        }
+
+        [Fact]
         public void ObservacaoDoClienteSoAparecePorCaixaDesmarcadaEGuardaCopia()
         {
             var cliente = new Cliente { Nome = "João", Cidade = "Pinda", Observacoes = "Portão azul" };
@@ -152,16 +188,17 @@ namespace PontoDoGesso.Testes
             orcamento.DescontoValor = 5;
             CalculoAplicar(orcamento);
             using (var imagem = ExportadorPng.CriarImagem(orcamento, DadosLoja.Padrao))
-                imagem.Save(Path.Combine(pasta, "exemplo-1-com-observacoes.png"), ImageFormat.Png);
+                imagem.Save(Path.Combine(pasta, "exemplo-1-entrega.png"), ImageFormat.Png);
 
             orcamento.Observacoes = null;
             orcamento.IncluirObsCliente = false;
             orcamento.ValidadeDias = null;
             orcamento.DescontoTipo = null;
             orcamento.TipoEntrega = TipoEntrega.Retirada;
+            orcamento.FreteCentavos = 0;
             CalculoAplicar(orcamento);
             using (var imagem = ExportadorPng.CriarImagem(orcamento, DadosLoja.Padrao))
-                imagem.Save(Path.Combine(pasta, "exemplo-2-sem-observacoes.png"), ImageFormat.Png);
+                imagem.Save(Path.Combine(pasta, "exemplo-2-retirada.png"), ImageFormat.Png);
         }
 
         private static void CalculoAplicar(Orcamento orcamento) => PontoDoGesso.Servicos.CalculoOrcamento.Aplicar(orcamento);
